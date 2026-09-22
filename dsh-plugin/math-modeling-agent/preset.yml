@@ -1,2 +1,0 @@
-name: 数学建模 Workbench
-description: 通用数学建模 Skill 的 DeepSeek Harness 工作台。支持完整流程或建模/求解/论文单阶段任务，通过共享 Python 运行时管理真实运行、证据、快照审核与完成判定，提供持久会话绑定和可核验看板。现代宿主通过 plugins/dsh-math-modeling-ui 组合包注册本预设。

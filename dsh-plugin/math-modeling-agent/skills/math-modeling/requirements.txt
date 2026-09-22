@@ -1,3 +1,0 @@
-# Core runtime uses only the Python standard library.
-# Local checkout installation; this command is not a redistribution permission.
--e .

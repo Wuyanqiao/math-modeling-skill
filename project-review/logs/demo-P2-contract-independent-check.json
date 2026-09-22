@@ -1,8 +1,0 @@
-{
-  "task_id": "review_7f7a64ab5495471d",
-  "snapshot_hash": "4fa0b9aadac05e90f00e6c66da8eedef87b8135ddd1608eea1c45944378d46c7",
-  "prior_independent_check": "demo-P2-independent-check.json",
-  "files_identical": true,
-  "artifact_bindings_identical": true,
-  "new_run_bindings_match_persisted_execution": true
-}

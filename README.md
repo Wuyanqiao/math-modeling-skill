@@ -1,129 +1,84 @@
-# Math Modeling Workbench
+# 数学建模 Workbench
 
-**通用数学建模 Skill，共享证据与执行内核，DeepSeek Harness 桌面适配。**
+由 [Wuyanqiao](https://github.com/Wuyanqiao) 维护的数学建模 Skill 与 DeepSeek Harness 插件，当前版本 **2.1.4**。
 
-由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.4**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+支持题目分析、模型设计、代码求解、科研绘图与论文交付，也可以只完成一个阶段或阶段中的一项任务。通用 Skill 通过对话询问配置；DSH 插件通过侧栏看板设置配置、导入材料和启动任务。两者使用相同的项目状态、算法资料和验证规则。
 
-2.1.4 在 DSH 看板右上角增加“开始”，可选择完整流程、单个阶段或阶段内单项，确认后交给看板所属会话的 Agent 执行。沿用已保存的项目范围、配置、材料和审核要求，不重置进度。保留初始化、预设服务隔离与环境检测修复；[Windows 工作区权限准备](dsh-plugin/README.md#windows-工作区权限准备)仍默认只读。从 2.1.0 升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)；验证边界见 [宿主兼容测试](tests/dsh/README.md)。
+## 下载
 
-## 2.1 工作台
-
-在 DSH 中选择“数学建模 Workbench”预设，打开右侧栏“开始”页，点击文件与终端下方的 Workbench 即可初始化当前工作区；已有项目直接恢复看板。
-
-- **材料**：导入原题、附件、论文模板及要求，支持 PDF、Word、Markdown、TXT、LaTeX 和其他附件；保留原件与 SHA-256，明确提取成功、部分提取或待解析状态。单文件 20 MiB、项目共 100 MiB。
-- **配置**：保存 SciencePlots、drawio、scientific-schematics、SciVisAgentSkills、seaborn 五项可选偏好，每项名称下常驻显示用途小字；基础 scientific-visualization + matplotlib 始终可被工作流加载。
-- **环境与依赖**：在配置页点击检测，查看 DSH 实际 Python 环境、基础必需、当前配置需要和可选依赖。按需复制安装命令或给 Agent 的安装 Prompt；检测不执行安装，配置或材料变化后提示重新检测。
-- **可选协作**：规则核验、附件盘点、文献与模型调研、算法原型、独立实验、双语言对照、术语核验，默认关闭；独立阶段质检继续遵循审核合同。
-- **数据处理与验证**：[数据预处理](assets/algorithms/数据预处理/README.md)与[模型验证](assets/algorithms/模型验证/README.md)独立成目录，涵盖无泄漏 Pipeline、分组/时间验证、敏感性、区间与求解状态。
-- **算法**：先读[算法索引](references/算法索引.md)，按问题类型加载六类新增模块。每道子问题最多两个独立模型体系；同一物理机理的基础近似与高精度展开按一个模型族计数。
-
-这些配置和材料同样可由通用 Agent 的 `configure`、`input-import`、`input-read`、`context` 动作访问。说明见[运行时 API](RUNTIME_API.md)、[绘图集成](tools/figure/INTEGRATIONS.zh-CN.md)与[2.1 验收记录](docs/upgrade-2.1-verification.md)。图形开关不代表依赖已安装；外部生成服务和三维软件按实际任务配置。
-
-## 能力与结构
-
-Agent 负责理解题目、设计模型、编程求解和写作；本项目提供渐进加载的知识、算法示例、实际执行和证据检查。不同宿主使用同一项目状态，DSH 提供工具和看板。
-
-```mermaid
-flowchart LR
-    A[题目与只读输入] --> B[建模手]
-    B --> C[编程手]
-    C --> D[论文手]
-    B --> R[共享运行内核]
-    C --> R
-    D --> R
-    R --> E[执行记录与产物哈希]
-    R --> F[独立审查与阶段状态]
-    R --> G[快照与恢复]
-    H[DSH 工具和看板] --> R
-```
-
-- **通用 Skill**：完整或单阶段任务，模型、代码、论文规范按需加载。
-- **执行与证据**：argv 命令、输入/代码/输出哈希、参数、种子声明、退出码、日志；结论关联真实产物。
-- **阶段审核**：M1 模型、P1 最小求解、P2 结果、W1 证据大纲、W2 论文；单阶段只要求对应门禁。
-- **变化失效**：文件增删改后旧审核失效，空产物不能参与完成判定。
-- **配置与恢复**：balanced/short/competition profile；硬规则须有来源；原子状态、迁移备份、不可覆盖快照和恢复预览。
-- **DSH**：会话与项目绑定、能力/阻塞、审核、执行、预览与快照入口，业务规则委托共享 CLI。
-- **科学质量**：算法卡片、确定性数值基准、CV 内预处理；检索服务失败与零结果分开，元数据匹配与原文支持分开。
-
-文件结构、退出码和来源匹配都不能单独证明科学结论或排版正确。未获宿主独立认证的审核身份明确标为 declared，不能把作者自检伪装为独立通过。
-
-## 开始使用
-
-Python 3.11–3.13；基础内核只依赖标准库，科学计算和文档能力按需安装。见 [安装说明](docs/installation.md)。
-
-```powershell
-git clone --branch WuYanqiao/universal-upgrade https://github.com/Wuyanqiao/math-modeling-skill.git
-Set-Location math-modeling-skill
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[science,figure,docx,pdf,validation]"
-```
-
-将仓库作为 Skill 加载到宿主，入口 [SKILL.md](SKILL.md)。题目目录与软件仓库分离：
-
-```powershell
-$skillRoot = (Get-Location).Path
-$projectRoot = Join-Path (Split-Path $skillRoot -Parent) 'my-modeling-project'
-New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
-python "$skillRoot/scripts/mathmodel.py" init --project-root $projectRoot --options '{"scope":"full","profile":"balanced","paper_format":"word"}'
-python "$skillRoot/scripts/mathmodel.py" doctor --project-root $projectRoot
-python "$skillRoot/scripts/mathmodel.py" state --project-root $projectRoot
-```
-
-安装后也可用 mathmodel 或 python -m mathmodel_runtime，三个入口共用实现。初始化不会自动求解，Agent 仍须读取题面并实现模型。
-
-当前升级位于 `WuYanqiao/universal-upgrade`，审查入口为 [PR #2](https://github.com/Wuyanqiao/math-modeling-skill/pull/2)。`main` 保留本次同步后的上游基线，合入升级前请使用上述分支命令。
-
-给 Agent 的请求示例：
-
-> 使用 math-modeling Skill 分析这道题并用 Python 求解，先跑最小例子，再根据验证结果扩展。默认只交付 Word，按真实证据选择图表，记录运行与审核状态。
-
-> 只检查现有模型与结果，使用 short profile，不补写整篇论文。把结论与代码、结果表关联，保存一个可恢复快照。
-
-## 运行接口
-
-完整字段见 [RUNTIME_API.md](RUNTIME_API.md)，阶段步骤见 [共享运行时](references/共享运行时.md)。
-
-| 动作 | 用途 |
+| 安装包 | 使用方式 |
 |---|---|
-| init / state / doctor | 初始化、恢复和能力检查 |
-| phase / todo | 按范围推进与维护清单 |
-| run | 在声明文件副本中执行 argv，记录结果并发布成功输出 |
-| artifact-add / claim-add | 产物来源与结论证据 |
-| gate-prepare / gate-record | 审核快照与真实回执 |
-| validate / complete | 实际产物与当前任务完成条件 |
-| checkpoint-create / checkpoint-list / checkpoint-restore | 不可覆盖版本、恢复预览 |
-| artifact-read / run-log-read | 在授权项目范围内读取已登记产物和真实运行日志 |
+| [通用 Skill 2.1.4 ZIP](https://github.com/Wuyanqiao/math-modeling-skill/releases/download/v2.1.4/math-modeling-skill-2.1.4.zip) | 在支持 Skill 的 Agent 中加载，通过对话选择工作范围和偏好 |
+| [DSH 插件 2.1.4 TGZ](https://github.com/Wuyanqiao/math-modeling-skill/releases/download/v2.1.4/dsh-math-modeling-ui-2.1.4.tgz) | 安装到 DeepSeek Harness，使用数学建模预设和可视化看板 |
 
-run 的 code、inputs、outputs 是明确路径数组，需包含脚本所需辅助文件。相对路径从执行副本解析；此机制不是操作系统安全沙箱，宿主仍执行文件、网络和命令权限。运行时不自动安装依赖、上传论文或填写审核 PASS。
+[查看 2.1.4 Release 与校验值](https://github.com/Wuyanqiao/math-modeling-skill/releases/tag/v2.1.4)。`main` 保存通用 Skill 源码和使用资料，DSH 插件通过安装包交付。
 
-## DeepSeek Harness
+## 功能特性
 
-按 [DSH 集成说明](dsh-plugin/README.md) 使用与目标宿主兼容的组合包。CLI、脚本、模板和知识库由单一来源生成；Python 包、TeX 等外部工具由 doctor 检查。
+- **按范围执行**：完整流程、建模、编程与验证、论文，以及阶段内单项任务；续接项目时保留进度和已保存选择。
+- **题目与材料**：登记原题、附件、论文模板及要求，支持 PDF、Word、Markdown、TXT、LaTeX 等格式；保留原件、哈希和提取状态。
+- **模型与算法**：先读算法索引，再按问题加载优化、预测、评价、数值计算、几何、微分方程、反问题、动态决策等资料。每道子问题最多两个独立模型体系；同一物理机理的基础近似与高精度展开计为一个模型族。
+- **可复现计算**：记录真实命令、参数、退出码、日志与产物哈希，覆盖无泄漏 Pipeline、敏感性分析和模型验证。
+- **科研绘图**：基础路线使用 scientific-visualization 与 matplotlib；按需选择 SciencePlots 科研样式、drawio 可编辑论文框架图、scientific-schematics 概念或机制图、SciVisAgentSkills 三维/显微/分子可视化、seaborn 统计图。
+- **可选协作**：规则核验、附件盘点、文献与模型调研、算法原型、独立实验、双语言对照、术语核验；额外协作按用户选择启用，阶段独立质检保留。
+- **论文交付**：支持 Word、LaTeX/PDF 或两者，遵循用户模板与要求，正文结论对应真实结果与证据。
+- **环境与恢复**：区分必需、当前配置需要和可选依赖，提供安装命令或 Agent 安装提示；支持运行日志、证据检查、快照和恢复预览。
 
-适配保留 mm_project_init、mm_state、mm_phase_enter、mm_gate、mm_todo、mm_check_deliverables、mm_complete 等入口，并增加运行、证据、快照、预览。所有项目操作继承宿主授权；被拒绝的宿主操作不会改走 Node 文件接口。
+## 安装通用 Skill
 
-具体宿主版本和真实挂载验证范围以集成说明与 [升级验证记录](docs/upgrade-verification.md) 为准，Node 模拟测试不等于任意版本桌面宿主均已验证。
+1. 下载并解压通用 Skill ZIP，得到 `math-modeling` 文件夹。
+2. 将完整文件夹放入所用 Agent 的 Skill 目录，或按该宿主支持的方式加载其中的 `SKILL.md`。资料和工具通过相对路径读取，不要只复制入口文件。
+3. 准备 **Python 3.11–3.13**。执行内核只使用标准库，科学计算和文档依赖按实际任务检查与安装。
+4. 将题目放在独立的项目目录中，再向 Agent 提出任务。
 
-## 验证与本地分发
+也可直接获取 `main` 上的通用 Skill：
 
-```powershell
-python -m pip install -r requirements-dev.txt
-python -m unittest discover -s tests -v
-python tools/docx/scripts/self_check.py
-python benchmarks/run_baselines.py
-node --test tests/dsh/*.test.mjs
-python scripts/sync_dsh_plugin.py --apply
-python scripts/sync_dsh_plugin.py --check
-python scripts/build_distribution.py --mode local-development --output dist
+```bash
+git clone --branch main --single-branch https://github.com/Wuyanqiao/math-modeling-skill.git math-modeling
 ```
 
-[数值基准](benchmarks/README.md) 包括合成线性优化、时间顺序预测和 TOPSIS，提供已知答案及容差，不冒充真实赛题效果。CI 配置覆盖 Windows/Linux、Python 3.11/3.13、Node 22/24；配置存在不代表远端已执行。
+首次使用：
 
-本地包名包含 LOCAL-DEVELOPMENT，记录来源提交、工作区状态、逐文件哈希与依赖。上游根项目授权仍待明确，部分继承工具带限制条款，release 构建会阻止未经核实的再分发。具体状态在 [分发策略](distribution-policy.json) 与 [第三方说明](THIRD_PARTY_NOTICES.md)，不能用新许可证覆盖旧条款。
+> 使用 math-modeling Skill 处理这个项目。先询问执行范围、原题与附件、论文格式与要求、绘图工具和可选协作，再检查环境；沿用我已经明确的选择。
 
-## 维护与来源
+只执行一项：
 
-保留上游提交历史、三角色方法与算法/工具来源。升级记录见 [CHANGELOG.md](CHANGELOG.md)，贡献说明见 [CONTRIBUTING.md](CONTRIBUTING.md)，使用边界见 [使用指南](使用指南.md)。
+> 继续当前项目，只做编程阶段的“运行最小求解并验收”。保留现有配置和项目范围，缺少前置结果时先告诉我。
 
-origin 指向自己的仓库，upstream 指向原项目。有独立改动后使用同步分支合并上游并跑回归，不强制覆盖自己的主分支。
+Agent 会分组询问尚未确定的选项，说明每项用途并保存选择。未启用的可选工具和协作不会自行开启；宿主没有问答按钮时，用普通对话选择。详见 [交互配置](references/交互配置.md) 和 [使用指南](使用指南.md)。
+
+需要预先安装常用依赖时，在解压后的 `math-modeling` 目录执行：
+
+```bash
+python -m venv .venv
+# 激活虚拟环境后，按实际任务选择依赖组
+python -m pip install ".[science,figure,docx,pdf,xlsx,validation]"
+```
+
+用 `python scripts/mathmodel.py --help` 检查入口。Skill 安装目录与题目目录应互不包含。环境与命令行说明见 [安装说明](docs/installation.md)。
+
+## 安装 DSH 插件
+
+已验证宿主为 **DeepSeek Harness 0.1.7-alpha.1**；本机验证使用 Windows、Node 24 与 Python 3.13。
+
+下载 `.tgz` 后，在已安装 DSH 的终端中执行，替换实际下载路径与 profile 名称：
+
+```powershell
+dsh plugin --profile web add "C:\Downloads\dsh-math-modeling-ui-2.1.4.tgz" -w --ignore-scripts
+```
+
+升级前备份 profile，待运行中的 Agent 结束后重启 DSH 后端并刷新界面。
+
+1. 选择工作区和 **数学建模 Workbench** Agent 预设。
+2. 打开右侧栏，在“工作区文件”“新建终端”下方进入 **数学建模 Workbench**，首次进入自动初始化当前项目。
+3. 在“材料”页添加题目、附件、模板和要求，在“配置”页选择绘图、协作选项并检测环境。
+4. 点击右上角 **开始**，选择完整流程、单个阶段或阶段中的一项，再点击 **确认开始**。
+5. 在看板所属会话查看执行过程，在“项目、证据、运行、快照”页查看状态和结果。
+
+启动沿用所属会话的模型与权限。“已提交”表示宿主接收任务，完成状态依据实际结果与审核。详细安装、旧预设迁移和 Windows 排错见 [DSH 安装说明](docs/DSH安装.md)。
+
+## 项目文件与来源
+
+项目状态保存在题目目录的 `.math-modeling/`。切换 Agent 时，可在同一项目目录续接已有状态。论文结论需要真实计算、推导或来源支撑；竞赛规则以当届官方要求为准。见 [共享运行时](references/共享运行时.md) 和 [运行时 API](RUNTIME_API.md)。
+
+本项目基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 扩展，由 Wuyanqiao 维护。第三方资料和工具保留原来源与许可，不因项目名称或发布版本改变条款；参见 [第三方说明](THIRD_PARTY_NOTICES.md)。

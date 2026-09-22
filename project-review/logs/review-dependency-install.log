@@ -1,8 +1,0 @@
-Looking in indexes: https://pypi.org/simple, https://pypi.tuna.tsinghua.edu.cn/simple
-Collecting defusedxml
-  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
-Installing collected packages: defusedxml
-Successfully installed defusedxml-0.7.1
-
-[notice] A new release of pip is available: 26.0.1 -> 26.2.1
-[notice] To update, run: D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\project-review\.venv\Scripts\python.exe -m pip install --upgrade pip

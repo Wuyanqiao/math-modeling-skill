@@ -1,9 +1,0 @@
-必需环境 OK: python-docx, lxml
-可选工具 OK: pandoc
-
-Paragraphs: 0 → 18 (+18)
-All validations PASSED!
-
-Paragraphs: 0 → 70 (+70)
-All validations PASSED!
-self_check OK
