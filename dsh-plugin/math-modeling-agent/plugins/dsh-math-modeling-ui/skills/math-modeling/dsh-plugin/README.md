@@ -2,7 +2,7 @@
 
 本适配器把通用 Skill 接入 DeepSeek Harness。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
 
-本次升级在 `codex/universal-upgrade` 分支，尚不能把仓库 `main` 当作已包含这些改动的版本。完整发行包由根目录构建器生成。当前只允许本地开发验证包；上游资料的再分发授权尚未齐备，npm 包设置 `private: true`、`license: UNLICENSED`，不表示本项目获得了这些资料的许可证。
+本次升级在 `WuYanqiao/universal-upgrade` 分支，尚不能把仓库 `main` 当作已包含这些改动的版本。完整发行包由根目录构建器生成。当前只允许本地开发验证包；上游资料的再分发授权尚未齐备，npm 包设置 `private: true`、`license: UNLICENSED`，不表示本项目获得了这些资料的许可证。
 
 ## 已核验宿主
 

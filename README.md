@@ -37,7 +37,7 @@ flowchart LR
 Python 3.11–3.13；基础内核只依赖标准库，科学计算和文档能力按需安装。见 [安装说明](docs/installation.md)。
 
 ```powershell
-git clone --branch codex/universal-upgrade https://github.com/Wuyanqiao/math-modeling-skill.git
+git clone --branch WuYanqiao/universal-upgrade https://github.com/Wuyanqiao/math-modeling-skill.git
 Set-Location math-modeling-skill
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -57,7 +57,7 @@ python "$skillRoot/scripts/mathmodel.py" state --project-root $projectRoot
 
 安装后也可用 mathmodel 或 python -m mathmodel_runtime，三个入口共用实现。初始化不会自动求解，Agent 仍须读取题面并实现模型。
 
-当前升级位于 `codex/universal-upgrade`，审查入口为 [PR #1](https://github.com/Wuyanqiao/math-modeling-skill/pull/1)。`main` 保留本次同步后的上游基线，合入升级前请使用上述分支命令。
+当前升级位于 `WuYanqiao/universal-upgrade`，审查入口为 [PR #2](https://github.com/Wuyanqiao/math-modeling-skill/pull/2)。`main` 保留本次同步后的上游基线，合入升级前请使用上述分支命令。
 
 给 Agent 的请求示例：
 
