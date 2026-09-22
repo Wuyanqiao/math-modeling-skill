@@ -1,6 +1,6 @@
 # DeepSeek Harness 数学建模工作台
 
-本适配器把通用 Skill 接入 DeepSeek Harness，当前本地开发版本为 **2.1.2**。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
+本适配器把通用 Skill 接入 DeepSeek Harness，当前本地开发版本为 **2.1.3**。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
 
 本次升级在 `WuYanqiao/universal-upgrade` 分支，尚不能把仓库 `main` 当作已包含这些改动的版本。完整发行包由根目录构建器生成。当前只允许本地开发验证包；上游资料的再分发授权尚未齐备，npm 包设置 `private: true`、`license: UNLICENSED`，不表示本项目获得了这些资料的许可证。
 
@@ -50,7 +50,7 @@ npm pack --ignore-scripts --pack-destination $packageOutput
 Pop-Location
 
 $env:DSH_HOME = Join-Path $env:TEMP 'mathmodel-dsh-validation'
-$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.2.tgz'
+$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.3.tgz'
 dsh plugin --profile web add $archivePath -w --ignore-scripts
 dsh --profile web --dump-config
 dsh --profile web
@@ -74,6 +74,41 @@ isolate:
 ```
 
 在当前任务结束后重启宿主，使已导入的插件和预设重新加载。通过真实预设创建新会话确认可用；`--dump-config` 只能确认合成配置，不能替代实际挂载与会话创建验证。
+
+## Windows 工作区权限准备
+
+若已选数学建模预设，首次打开看板仍提示工作区无法获得 DSH Windows 沙箱授权，并包含 `grantWrite` / `Win32 5`，先检查目录权限。目录能写入文件不等于宿主能设置沙箱所需的安全描述符；这类失败可能是缺少 `WRITE_OWNER`。2.1.3 会保留初始化错误与“重试”入口，不再将它显示成未选择预设。
+
+在宿主外的普通用户终端执行以下只读检查。`$workspaceParent` 是专门存放项目的父目录；会话工作区应是它的一级子目录。`$skillRoot` 指向完整源码或安装包中的 `skills/math-modeling`：
+
+```powershell
+$skillRoot = 'D:\your-skill\math-modeling'
+$workspaceParent = 'D:\your-workspaces'
+$permissionTool = Join-Path $skillRoot 'scripts/prepare_dsh_windows_workspace.py'
+python $permissionTool --workspace-parent $workspaceParent
+```
+
+确认检查报告的目标目录、权限差异和跳过项后，如需应用准备规则，显式提供 `--apply` 与一个尚不存在的绝对备份文件名。备份目录须已存在，建议位于项目父目录之外：
+
+```powershell
+$aclBackup = 'D:\your-backups\workspaces-acl-before.json'
+python $permissionTool --workspace-parent $workspaceParent --apply --backup $aclBackup
+```
+
+工具为父目录增加 `(A;CINPIO;WO;;;CO)`：CREATOR OWNER、仅目录继承、仅子项生效、只传播一层。它只让未来一级项目目录的创建者获得 `WRITE_OWNER`；现有一级项目根仅在满足当前用户所有、非重解析点和非保护继承等条件时单独补齐非继承权限。父目录本身、文件和既有深层目录不会因该准备操作增加权限；更深层的目录不能据此当作另一个已准备工作区。Windows 的 CREATOR OWNER 是继承时映射的身份，区别于会改变所有者隐式权限语义的 OWNER RIGHTS。[微软 SID 定义](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/81d92bba-d22b-4a8c-908a-554ab29148ab)、[继承规则](https://learn.microsoft.com/en-us/windows/win32/secauthz/ace-inheritance-rules)。
+
+工具先备份将处理目录的安全描述符，不修改所有者、不移除拒绝规则，也不调用宿主内部沙箱授予函数。插件不会自动执行此工具；宿主仍按当前会话的 `workspace-write` 策略执行命令。检查报告中的保护目录、其他所有者或重解析点需单独处理，不能把跳过当作修复成功。
+
+如需撤销这次准备，使用原始应用备份，并另存撤销前的新备份。该命令只移除应用记录中的显式权限条目，保留后续 DSH 沙箱权限与完整性标签；不会用旧安全描述符覆盖整个目录树：
+
+```powershell
+$rollbackBackup = 'D:\your-backups\workspaces-acl-before-rollback.json'
+python $permissionTool --workspace-parent $workspaceParent --rollback $aclBackup --backup $rollbackBackup
+```
+
+撤销也不递归传播：应用后新建项目已经继承的权限仍保留，只有之后新建的项目不再从父目录得到这条准备规则。需要处理这些后建项目时，应重新检查明确的目录，不能把本命令理解为全树权限恢复。
+
+准备完成后，在原会话点击“重试”；新项目可在同一父目录下创建新的一级目录，再打开 Workbench。自动初始化只创建流程状态和任务文件，不调用模型、不求解赛题；已有项目再次进入保持原 `project_id`。
 
 ## 会话内使用
 

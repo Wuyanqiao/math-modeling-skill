@@ -214,7 +214,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
     const inputKinds = { problem: '原题', attachment: '原题附件', 'paper-template': '论文模板', 'paper-requirements': '论文要求' }
     const extractionNames = { extracted: '已提取文本', ready: '已提取文本', unsupported: '保留原文件', unavailable: '等待解析工具', blocked: '待解析', partial: '部分文本已提取', failed: '提取失败', 'not-extracted': '保留原文件', empty: '未发现文本', pending: '待解析' }
     const bytesLabel = value => value >= 1048576 ? `${(value / 1048576).toFixed(1)} MB` : `${Math.ceil((value || 0) / 1024)} KB`
-    const rpcValue = result => { if (!result.ok) throw new Error(result.error?.message || '操作失败'); return result.value }
+    const rpcValue = result => { if (!result.ok) throw Object.assign(new Error(result.error?.message || '操作失败'), { code: result.error?.code }); return result.value }
     function Field({ label, children }) { return h('label', { className: 'mmwb-field' }, h('span', null, label), children) }
     async function copyText(text) {
       if (navigator.clipboard?.writeText) {
@@ -478,7 +478,10 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       const [checkpointBusy, setCheckpointBusy] = React.useState(false)
       const [checkpointNotice, setCheckpointNotice] = React.useState(null)
       const [checkpointError, setCheckpointError] = React.useState(null)
-      const [initializing, setInitializing] = React.useState(false)
+      const [preparation, setPreparation] = React.useState(null)
+      const prepared = preparation?.sessionId === sid ? preparation : null
+      const initializing = prepared?.initializing === true
+      const prepareSequence = React.useRef(0)
       const sequence = React.useRef(0)
       const statePending = React.useRef(false)
       const previewSequence = React.useRef(0)
@@ -506,18 +509,31 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
         } catch (error) { if (sequence.current === request && currentSession.current === sid) setError(String(error.message || error)) }
         finally { if (sequence.current === request && currentSession.current === sid) { statePending.current = false; if (verify) setBusy(false) } }
       }, [sid, rpc, clearOperations])
+      const prepare = React.useCallback(async () => {
+        if (!sid) return
+        const request = ++prepareSequence.current
+        const current = () => prepareSequence.current === request && currentSession.current === sid
+        let context
+        setPreparation({ sessionId: sid, initializing: true })
+        try {
+          context = rpcValue(await rpc('mm.context', { sessionId: sid }))
+          if (!current()) return
+          setPreparation({ sessionId: sid, context, initializing: true })
+          if (context.enabled === false || context.eligible === false) return
+          rpcValue(await rpc('mm.ensureProject', { sessionId: sid }))
+          if (!current()) return
+          await refresh(false, true)
+        } catch (error) {
+          if (current()) setPreparation({ sessionId: sid, context, initializing: false, error: String(error.message || error), code: error.code })
+        } finally {
+          if (current()) setPreparation(value => ({ ...value, initializing: false }))
+        }
+      }, [sid, rpc, refresh])
       React.useEffect(() => {
         if (!sid || !hostTab.visible) return
-        let live = true
-        setInitializing(true)
-        rpc('mm.ensureProject', { sessionId: sid }).then(result => {
-          if (!live || currentSession.current !== sid) return
-          rpcValue(result)
-          return refresh(false, true)
-        }).catch(error => { if (live && currentSession.current === sid) setError(String(error.message || error)) })
-          .finally(() => { if (live && currentSession.current === sid) setInitializing(false) })
-        return () => { live = false }
-      }, [sid, hostTab.visible, rpc, refresh])
+        void prepare()
+        return () => { prepareSequence.current++ }
+      }, [sid, hostTab.visible, prepare])
       React.useEffect(() => {
         statePending.current = false
         setError(null); setPreview(null); setLogPreview(null); setBusy(false)
@@ -599,11 +615,11 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
             },
           }, label)))) : null,
         h('div', { className: 'mmwb-content mmwb-scroll', 'data-testid': 'mmwb-content-scroll', id: instanceId + '-panel-' + tab, role: initialized ? 'tabpanel' : undefined, 'aria-labelledby': initialized ? instanceId + '-tab-' + tab : undefined, tabIndex: 0 },
-          error ? h('p', { className: 'mmwb-error mmwb-notice', role: 'alert' }, error) : null,
+          error || prepared?.error ? h('p', { className: 'mmwb-error mmwb-notice', role: 'alert' }, prepared?.error || error) : null,
           initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'materials' ? h(Materials, { key: identity, data, sid, rpc, refresh }) : tab === 'config' ? h(ProjectConfig, { key: identity, data, sid, rpc, refresh }) : tab === 'evidence' ? h(Evidence, { data, preview: preview?.sessionId === sid ? preview : null, openPreview, busy: busy || checkpointBusy }) : tab === 'runs' ? h(Runs, { data, preview: logPreview?.sessionId === sid ? logPreview : null, openLog, busy: busy || checkpointBusy }) :
             h(Checkpoints, { data, busy: busy || checkpointBusy, preview: activeRestorePreview, notice: checkpointNotice, error: checkpointError, create: () => checkpoint('create'), previewRestore: id => checkpoint('preview', id), confirmRestore: () => activeRestorePreview && checkpoint('apply', activeRestorePreview.checkpoint_id), cancelRestore: () => setRestorePreview(null) }) :
-            h('div', null, h('p', { className: 'mmwb-empty mmwb-notice' }, initializing ? '正在准备项目…' : data?.hidden ? data.reason === 'no-project' ? '请选择数学建模 Workbench 预设后重新打开看板' : '看板已关闭' : error ? '项目准备失败' : '正在读取项目'),
-              !initializing && error ? h('button', { className: 'mmwb-btn', title: '重试 — 在当前会话工作区准备项目', onClick: async () => { setInitializing(true); try { rpcValue(await rpc('mm.ensureProject', { sessionId: sid })); await refresh(false, true) } catch (error) { if (currentSession.current === sid) setError(String(error.message || error)) } finally { if (currentSession.current === sid) setInitializing(false) } } }, '重试') : null)),
+            h('div', null, h('p', { className: 'mmwb-empty mmwb-notice' }, initializing ? '正在准备项目…' : prepared?.error || error ? '项目准备失败' : prepared?.context?.enabled === false ? '看板已关闭' : prepared?.context?.eligible === false ? '请选择数学建模 Workbench 预设后重新打开看板' : prepared?.context?.eligible ? '当前会话已选择数学建模工作台，项目尚未初始化' : '正在读取项目'),
+              !initializing && (prepared?.error || error) ? h('button', { className: 'mmwb-btn', title: '重试 — 在当前会话工作区准备项目', onClick: prepare }, '重试') : null)),
         initialized ? h('footer', { className: 'mmwb-foot' }, h('span', { title: data.stale ? '磁盘中的上次状态；重新验证可检查产物变化' : '已调用运行时核验' }, data.stale ? '已保存状态' : '已核验'), h('time', { title: timestamp(data.snapshotAt || data.updated_at) }, timestamp(data.snapshotAt || data.updated_at))) : null)
     }
 

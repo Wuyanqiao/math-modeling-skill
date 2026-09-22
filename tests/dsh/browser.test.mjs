@@ -38,7 +38,7 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
       sid: 'a', mainSid: 'b', kind: 'guide', visible: true, enabled: true, initialized: { a: true, b: true, c: false },
       projectGeneration: { a: 1, b: 1, c: 1 }, presetSelected: false, config: { a: {}, b: {}, c: {} }, inputs: { a: [], b: [], c: [] }, uploads: {},
       calls: [], openCalls: [], registrations: [], effects: [], longContent: false,
-      copied: [], environmentError: false,
+      copied: [], environmentError: false, ensureError: null, initWrites: {},
       holds: {}, pending: {}, restoreConflict: true, restoreRevision: 41,
       checkpoints: {
         a: [{ checkpoint_id: 'checkpoint_aaaaaaaaaaaaaaaa', name: '已验收基线', created_at: '2026-09-22T07:00:00Z', completed_when_created: true }],
@@ -71,7 +71,10 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
       if (endpoint === 'mm.context') { const value = {enabled: fixture.enabled, eligible: fixture.enabled && (fixture.initialized[payload.sessionId] || fixture.presetSelected), initialized: fixture.initialized[payload.sessionId]}; await hold(`context:${payload.sessionId}`); return {ok:true,value} }
       if (endpoint === 'mm.ensureProject') {
         if (!fixture.initialized[payload.sessionId] && !fixture.presetSelected) return {ok: false, error: {message: 'preset required'}}
-        if (fixture.enabled) fixture.initialized[payload.sessionId] = true
+        const error = fixture.ensureError
+        await hold(`ensure:${payload.sessionId}`)
+        if (error) return {ok: false, error}
+        if (fixture.enabled && !fixture.initialized[payload.sessionId]) { fixture.initialized[payload.sessionId] = true; fixture.initWrites[payload.sessionId] = (fixture.initWrites[payload.sessionId] || 0) + 1 }
         return {ok: true, value: state(payload.sessionId)}
       }
       if (endpoint === 'mm.configure') {
@@ -413,9 +416,45 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
   assert.equal(await entry.count(), 0, 'uninitialized sessions must not show the workbench entry')
   await page.evaluate(() => { fixture.presetSelected = true; window.dispatchEvent(new Event('mmwb-settings-change')) })
   await entry.waitFor()
+  await page.evaluate(() => { fixture.ensureError = {code: 'sandbox-workspace-authorization-failed', message: '项目目录无法获得 DSH Windows 沙箱写入授权。请检查目录权限，恢复授权后重试。\n宿主原始错误：grantWrite: SetNamedSecurityInfoW DACL failed (Win32 5)'} })
   await entry.click()
+  await page.getByRole('alert').filter({hasText:'项目目录无法获得 DSH Windows 沙箱写入授权'}).waitFor()
+  assert.equal(await title('刚初始化的项目').count(), 0)
+  assert.equal(await page.getByText('请选择数学建模 Workbench 预设后重新打开看板', {exact:true}).count(), 0)
+  assert.equal(await page.evaluate(() => fixture.initialized.c), false)
+  const failedPolls = await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.state' && call.payload.sessionId === 'c').length)
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await page.waitForFunction(count => fixture.calls.filter(call => call.endpoint === 'mm.state' && call.payload.sessionId === 'c').length > count, failedPolls)
+  await settle()
+  assert.match(await page.getByRole('alert').innerText(), /grantWrite.*Win32 5/, 'read-only no-project polling must retain the initialization failure')
+  assert.equal(await page.getByRole('button', {name:'重试',exact:true}).isVisible(), true)
+  await page.evaluate(() => { fixture.ensureError = {code:'HOST_UNKNOWN',message:'unknown host failure'} })
+  await page.getByRole('button', {name:'重试',exact:true}).click()
+  await page.getByRole('alert').filter({hasText:'unknown host failure'}).waitFor()
+  assert.equal(await page.getByText('请选择数学建模 Workbench 预设后重新打开看板', {exact:true}).count(), 0)
+  await page.evaluate(() => { fixture.ensureError = {message:'old session authorization failed'}; fixture.holds['ensure:c'] = true })
+  await page.getByRole('button', {name:'重试',exact:true}).click()
+  await page.waitForFunction(() => fixture.pending['ensure:c']?.length === 1)
+  await page.evaluate(() => { fixture.ensureError = null; fixture.change('a') })
+  await title('城市能源调度研究').waitFor()
+  await page.evaluate(() => fixture.release('ensure:c'))
+  await settle()
+  assert.equal(await page.getByRole('alert').count(), 0, 'late initialization failure cannot affect the newly selected session')
+  await page.evaluate(() => { fixture.ensureError = {message:'unknown host failure'}; fixture.change('c') })
+  await page.getByRole('alert').filter({hasText:'unknown host failure'}).waitFor()
+  await page.evaluate(() => { fixture.ensureError = null; fixture.holds['ensure:c'] = true })
+  await page.getByRole('button', {name:'重试',exact:true}).click()
+  await page.waitForFunction(() => fixture.pending['ensure:c']?.length === 1)
+  assert.equal(await page.getByRole('button', {name:'重试',exact:true}).count(), 0, 'inflight initialization cannot be retried again')
+  await page.evaluate(() => fixture.release('ensure:c'))
   await title('刚初始化的项目').waitFor()
+  assert.equal(await page.getByRole('alert').count(), 0)
+  assert.equal(await page.evaluate(() => fixture.initWrites.c), 1)
   assert.deepEqual(await page.evaluate(() => fixture.openCalls.at(-1)), { sessionId: 'c', kind: 'math-modeling', options: { replaceTab: true } })
+  await page.evaluate(() => fixture.guide('c'))
+  await entry.waitFor(); await entry.click()
+  await title('刚初始化的项目').waitFor()
+  assert.equal(await page.evaluate(() => fixture.initWrites.c), 1, 'reopening reuses the initialized project')
 
   await page.evaluate(() => fixture.change('a'))
   await title('城市能源调度研究').waitFor()

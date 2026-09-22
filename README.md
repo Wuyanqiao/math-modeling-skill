@@ -2,9 +2,9 @@
 
 **通用数学建模 Skill，共享证据与执行内核，DeepSeek Harness 桌面适配。**
 
-由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.2**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.3**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
 
-2.1.2 修复 Windows DSH 受限沙箱中 Python 3.13 临时目录权限导致的环境检测异常，并保留 2.1.1 对 `agent-preset/invalid` 新会话创建失败的修复。从 2.1.0 升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)。真实预设注册、会话创建与 Windows 沙箱检测的验证边界见 [宿主兼容测试](tests/dsh/README.md)。
+2.1.3 保留工作区初始化失败的真实错误与重试入口，并提供默认只读、显式应用的 [Windows 工作区权限准备](dsh-plugin/README.md#windows-工作区权限准备)，补齐新目录自动初始化的沙箱回归。此前预设服务隔离与环境检测修复继续保留。从 2.1.0 升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)；验证边界见 [宿主兼容测试](tests/dsh/README.md)。
 
 ## 2.1 工作台
 

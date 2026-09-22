@@ -265,6 +265,40 @@ test('workbench context follows the current preset projection and auto-init is i
   assert.equal((await rpc('mm.context', { sessionId: 'b' })).value.eligible, false)
 })
 
+test('failed workspace sandbox authorization preserves preset eligibility and retries init once', async t => {
+  const h = await harness(t, { real: true })
+  h.services.sessionProjections = { stateOf: () => 'renamed-math' }
+  h.services.agentPresets = { compositionInventory: async () => [{ id: 'renamed-math', rows: [{ moduleName: 'dsh-math-modeling-ui/workbench', enabled: true, fiberState: 2 }] }] }
+  const policy = { mode: 'workspace-write', workspaceRoot: h.cwd }
+  h.services.sandboxPolicy = { resolve: () => policy }
+  h.services.shell.sandboxMode = 'workspace-write'
+  const run = h.services.shell.run
+  const hostError = 'grantWrite: SetNamedSecurityInfoW DACL failed (Win32 5)'
+  h.services.shell.run = async () => { throw new Error(hostError) }
+  const rpc = h.ui()
+  const failed = await rpc('mm.ensureProject', { sessionId: 'a' })
+  assert.equal(failed.ok, false)
+  assert.equal(failed.error.code, 'sandbox-workspace-authorization-failed')
+  assert.match(failed.error.message, /项目目录无法获得 DSH Windows 沙箱写入授权/)
+  assert.ok(failed.error.message.includes(hostError), 'keep the actual host diagnostic')
+  const context = (await rpc('mm.context', { sessionId: 'a' })).value
+  assert.equal(context.eligible, true)
+  assert.equal(context.initialized, false)
+  await assert.rejects(fs.stat(path.join(h.cwd, '.math-modeling/state.json')), { code: 'ENOENT' })
+  h.services.shell.run = async () => { throw Object.assign(new Error('unknown host failure'), { code: 'HOST_UNKNOWN' }) }
+  const unknown = await rpc('mm.ensureProject', { sessionId: 'a' })
+  assert.equal(unknown.error.code, 'HOST_UNKNOWN')
+  assert.equal(unknown.error.message, 'unknown host failure', 'unrecognized failures must not be mislabeled as permissions or preset selection')
+  h.services.shell.run = run
+  const retried = await Promise.all([rpc('mm.ensureProject', { sessionId: 'a' }), rpc('mm.ensureProject', { sessionId: 'a' })])
+  assert.ok(retried.every(result => result.ok && result.value.initialized), JSON.stringify(retried))
+  assert.equal(retried[0].value.project.project_id, retried[1].value.project.project_id)
+  const reopened = await rpc('mm.ensureProject', { sessionId: 'a' })
+  assert.equal(reopened.value.project.project_id, retried[0].value.project.project_id)
+  assert.equal(h.requests.filter(request => request.action === 'init').length, 1)
+  assert.ok(h.shellRequests.every(request => request.sandboxPolicy === policy), 'retry retains the existing workspace-write policy')
+})
+
 test('chunk uploads enforce session, project, ordering and host filesystem policy', async t => {
   const h = await harness(t)
   await h.init({})

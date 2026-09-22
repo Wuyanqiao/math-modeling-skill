@@ -1,0 +1,217 @@
+TAP version 13
+# Subtest: custom project remains bound across tools and sessions remain isolated
+ok 1 - custom project remains bound across tools and sessions remain isolated
+  ---
+  duration_ms: 66.1216
+  type: 'test'
+  ...
+# Subtest: payload encoding preserves Unicode, quotes and shell metacharacters without interpolation
+ok 2 - payload encoding preserves Unicode, quotes and shell metacharacters without interpolation
+  ---
+  duration_ms: 1018.5677
+  type: 'test'
+  ...
+# Subtest: nonzero runtime JSON remains inspectable and shell denial is not bypassed
+ok 3 - nonzero runtime JSON remains inspectable and shell denial is not bypassed
+  ---
+  duration_ms: 47.148
+  type: 'test'
+  ...
+# Subtest: long configuration uses encoded stdin while preserving host policy and injection boundaries
+ok 4 - long configuration uses encoded stdin while preserving host policy and injection boundaries
+  ---
+  duration_ms: 78.327
+  type: 'test'
+  ...
+# Subtest: cancel waits for an in-flight host write and blocks new chunks until cleanup
+ok 5 - cancel waits for an in-flight host write and blocks new chunks until cleanup
+  ---
+  duration_ms: 89.5797
+  type: 'test'
+  ...
+# Subtest: skill content is returned in full and traversal is rejected
+ok 6 - skill content is returned in full and traversal is rejected
+  ---
+  duration_ms: 98.9685
+  type: 'test'
+  ...
+# Subtest: UI reads renamed preset projects, uses explicit binding and shares tool settings
+ok 7 - UI reads renamed preset projects, uses explicit binding and shares tool settings
+  ---
+  duration_ms: 70.8692
+  type: 'test'
+  ...
+# Subtest: environment RPC uses saved session binding, preserves policy and never forwards draft or install actions
+ok 8 - environment RPC uses saved session binding, preserves policy and never forwards draft or install actions
+  ---
+  duration_ms: 84.7688
+  type: 'test'
+  ...
+# Subtest: workbench context follows the current preset projection and auto-init is idempotent
+ok 9 - workbench context follows the current preset projection and auto-init is idempotent
+  ---
+  duration_ms: 90.6355
+  type: 'test'
+  ...
+# Subtest: failed workspace sandbox authorization preserves preset eligibility and retries init once
+ok 10 - failed workspace sandbox authorization preserves preset eligibility and retries init once
+  ---
+  duration_ms: 1342.9939
+  type: 'test'
+  ...
+# Subtest: chunk uploads enforce session, project, ordering and host filesystem policy
+ok 11 - chunk uploads enforce session, project, ordering and host filesystem policy
+  ---
+  duration_ms: 118.1569
+  type: 'test'
+  ...
+# Subtest: opening an existing project migrates saved requirements once through the authorized runtime
+ok 12 - opening an existing project migrates saved requirements once through the authorized runtime
+  ---
+  duration_ms: 1286.3728
+  type: 'test'
+  ...
+# Subtest: unbound snapshots discover an initialized cwd without requiring executable Skill resources
+ok 13 - unbound snapshots discover an initialized cwd without requiring executable Skill resources
+  ---
+  duration_ms: 55.6973
+  type: 'test'
+  ...
+# Subtest: snapshots detect initialization on the next read and discard bindings after a cwd change
+ok 14 - snapshots detect initialization on the next read and discard bindings after a cwd change
+  ---
+  duration_ms: 69.7834
+  type: 'test'
+  ...
+# Subtest: read-only snapshot discovery preserves host filesystem denial without shell fallback
+ok 15 - read-only snapshot discovery preserves host filesystem denial without shell fallback
+  ---
+  duration_ms: 54.0968
+  type: 'test'
+  ...
+# Subtest: snapshot discovery preserves Skill directory boundaries and rejects an unknown Skill root
+ok 16 - snapshot discovery preserves Skill directory boundaries and rejects an unknown Skill root
+  ---
+  duration_ms: 56.7214
+  type: 'test'
+  ...
+# Subtest: UI retains an explicitly stale snapshot when host cannot authorize refresh
+ok 17 - UI retains an explicitly stale snapshot when host cannot authorize refresh
+  ---
+  duration_ms: 74.772
+  type: 'test'
+  ...
+# Subtest: UI checkpoint routes preserve session binding, explicit confirmation fields and runtime errors
+ok 18 - UI checkpoint routes preserve session binding, explicit confirmation fields and runtime errors
+  ---
+  duration_ms: 64.9398
+  type: 'test'
+  ...
+# Subtest: real Python CLI: UI restore requires a current preview and restores the reported file changes
+ok 19 - real Python CLI: UI restore requires a current preview and restores the reported file changes
+  ---
+  duration_ms: 3295.0159
+  type: 'test'
+  ...
+# Subtest: project roots from state are never followed by the adapter
+ok 20 - project roots from state are never followed by the adapter
+  ---
+  duration_ms: 54.7929
+  type: 'test'
+  ...
+# Subtest: DSH 0.1.7 execute/result and CollectedOutput inherit the session sandbox unchanged
+ok 21 - DSH 0.1.7 execute/result and CollectedOutput inherit the session sandbox unchanged
+  ---
+  duration_ms: 39.778
+  type: 'test'
+  ...
+# Subtest: interrupted, denied and truncated runs never become successful JSON responses
+ok 22 - interrupted, denied and truncated runs never become successful JSON responses
+  ---
+  duration_ms: 54.1433
+  type: 'test'
+  ...
+# Subtest: modern Config-derived settings share one namespace without legacy register/get APIs
+ok 23 - modern Config-derived settings share one namespace without legacy register/get APIs
+  ---
+  duration_ms: 42.4117
+  type: 'test'
+  ...
+# Subtest: real Python CLI: init, manifest-safe state, todo, gate refusal and incomplete completion
+ok 24 - real Python CLI: init, manifest-safe state, todo, gate refusal and incomplete completion
+  ---
+  duration_ms: 2114.3843
+  type: 'test'
+  ...
+# Subtest: real Python CLI: execution provenance, claim evidence, review receipt and drift invalidation
+ok 25 - real Python CLI: execution provenance, claim evidence, review receipt and drift invalidation
+  ---
+  duration_ms: 5869.555
+  type: 'test'
+  ...
+# Subtest: browser: scoped sidebar, session races, evidence, snapshots, themes and scrollbars
+ok 26 - browser: scoped sidebar, session races, evidence, snapshots, themes and scrollbars
+  ---
+  duration_ms: 12093.6489
+  type: 'test'
+  ...
+# Real browser + React render with official session-scoped keyed guide/pane props and sidebar registry fixture; not a full DSH desktop E2E test.
+# Subtest: official Windows workspace-write sandbox: dependency probes inherit private TEMP ACL and clean up
+ok 27 - official Windows workspace-write sandbox: dependency probes inherit private TEMP ACL and clean up
+  ---
+  duration_ms: 4035.7659
+  type: 'test'
+  ...
+# Actual official Windows restricted-token workspace-write sandbox; Python 3.13.13; NumPy 2.5.3; Matplotlib 3.11.2; Python version command ready; temporary directories cleaned. Original mkdir(0700) denial reproduced. Only the temporary-file failure branch is injected; no user profile or sandbox mode changed.
+# Subtest: official host: preset projection, lazy init, saved context and 20MiB upload through fs/shell
+ok 28 - official host: preset projection, lazy init, saved context and 20MiB upload through fs/shell
+  ---
+  duration_ms: 11848.4262
+  type: 'test'
+  ...
+# Actual official fs.writeText(createIfAbsent), shell.execute/result and SessionProjection selection event; actual shared CLI; exact 20MiB hash verified. Preset inventory, settings and RPC transport are in-process fixtures. No personal profile mutated.
+# Subtest: official DSH 0.1.7 services mount workbench and execute shared CLI
+ok 29 - official DSH 0.1.7 services mount workbench and execute shared CLI
+  ---
+  duration_ms: 18916.1399
+  type: 'test'
+  ...
+# Actual saved-project dependency report: Python 3.13.13; 28 items; ready=true; no installation requested.
+# Actual services: @deepseek-ai/dsh 0.1.7-alpha.1; Node v24.11.1; win32; real fs + shell.execute(spec).result() + tools + sessions + initiator; no GUI/model/settings persistence asserted.
+# Subtest: official Loader + SettingsForms persist shared UI and project bindings across boot
+ok 30 - official Loader + SettingsForms persist shared UI and project bindings across boot
+  ---
+  duration_ms: 4616.3053
+  type: 'test'
+  ...
+# Real Loader, Config, config-editor, SettingsForms and profile patch persistence; RPC transport is an in-process fixture.
+# Subtest: official preset registry rejects leaked workbench service and creates isolated math sessions
+ok 31 - official preset registry rejects leaked workbench service and creates isolated math sessions
+  ---
+  duration_ms: 1426.1326
+  type: 'test'
+  ...
+# Actual official Loader, preset mount/leakedServices assertion, AgentLoop factory, session publication, scoped tools, registry.serviceFor and UI context RPC; no model request, user profile change or installation. Settings and RPC transport are in-process fixtures.
+# Subtest: official sidebar registry and renderer: keyed session guide, body and disposal
+ok 32 - official sidebar registry and renderer: keyed session guide, body and disposal
+  ---
+  duration_ms: 5707.2401
+  type: 'test'
+  ...
+# Actual published @deepseek-ai/dsh-client-ui-sidebar-right + SlotRegistry/SlotCore/GuideBody/renderer/Cordis/React in Edge or Chromium. Frame, sessions, built-in guide definitions, navigation actions and RPC are fixtures; no full DSH GUI or model tested. CSS imports of primitive dependencies omitted for this contract test.
+# Subtest: official Windows sandbox: prepared parent enables fresh workspace auto-init and stable project identity
+ok 33 - official Windows sandbox: prepared parent enables fresh workspace auto-init and stable project identity
+  ---
+  duration_ms: 14455.6053
+  type: 'test'
+  ...
+# Actual official Windows restricted-token shell, sandbox policy, filesystem and session projection; actual RuntimeBridge.ensureProject and shared Python CLI. Explicit permission preparation only in owned temporary fixtures; first access denied before preparation, two fresh sibling projects initialized and reopened. Preset inventory/settings are fixtures; execution observation delegates to the real sandbox unchanged; no model request, solver or personal profile change.
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 35701.0672

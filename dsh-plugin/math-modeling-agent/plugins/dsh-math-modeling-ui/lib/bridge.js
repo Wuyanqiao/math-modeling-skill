@@ -280,7 +280,14 @@ export class RuntimeBridge {
         else result.bindingNotice = '会话绑定仅当前进程有效；重启后请重新初始化或显式指定 projectRoot'
       }
       return result
-    } catch (error) { return { ok: false, error: errorText(error), ...(error?.code ? { code: error.code } : {}) } }
+    } catch (error) {
+      const detail = errorText(error)
+      if (/\bgrantWrite\b/i.test(detail) && /\bWin32\s+5\b|\bERROR_ACCESS_DENIED\b/i.test(detail)) {
+        return { ok: false, code: 'sandbox-workspace-authorization-failed',
+          error: '项目目录无法获得 DSH Windows 沙箱写入授权。请检查目录权限，恢复授权后重试。\n宿主原始错误：' + detail }
+      }
+      return { ok: false, error: detail, ...(error?.code ? { code: error.code } : {}) }
+    }
   }
   async snapshot(sessionId) {
     const { projectRoot } = await this.context({}, sessionId, false)
