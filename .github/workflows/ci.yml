@@ -86,3 +86,58 @@ jobs:
         with:
           node-version: "24"
       - run: node --test tests/dsh/*.test.mjs
+
+  preset-host:
+    name: DSH preset host (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Prepare isolated host dependencies
+        run: |
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs'
+          import path from 'node:path'
+          const prefix = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP, 'mathmodel-preset-ci-'))
+          fs.appendFileSync(process.env.GITHUB_ENV,
+            `DSH_TEST_NPM_PREFIX=${prefix}\nDSH_TEST_NODE_MODULES=${path.join(prefix, 'node_modules')}\n`)
+          JS
+      - name: Install pinned official host packages
+        run: |
+          npm install --prefix "$DSH_TEST_NPM_PREFIX" --ignore-scripts --no-audit --no-fund --save-exact \
+            @deepseek-ai/dsh@0.1.7-alpha.1 \
+            @deepseek-ai/cordis@4.0.3 \
+            @deepseek-ai/schemastery@3.18.3
+      - name: Require installed host and run actual preset registry regression
+        run: |
+          set -euo pipefail
+          node --input-type=module - <<'JS'
+          import assert from 'node:assert/strict'
+          import fs from 'node:fs'
+          import path from 'node:path'
+          const modules = process.env.DSH_TEST_NODE_MODULES
+          assert.ok(modules && path.isAbsolute(modules), 'An absolute host dependency path is required; this job cannot skip')
+          for (const [name, version] of Object.entries({ dsh: '0.1.7-alpha.1', cordis: '4.0.3', schemastery: '3.18.3' })) {
+            const installed = JSON.parse(fs.readFileSync(path.join(modules, '@deepseek-ai', name, 'package.json'), 'utf8'))
+            assert.equal(installed.version, version, `Unexpected ${name} version`)
+          }
+          JS
+          node --test --test-reporter=tap tests/dsh/preset-host.test.mjs | tee preset-host.tap
+          node --input-type=module - <<'JS'
+          import assert from 'node:assert/strict'
+          import fs from 'node:fs'
+          const report = fs.readFileSync('preset-host.tap', 'utf8')
+          assert.match(report, /^# tests [1-9][0-9]*\r?$/m, 'The actual host test must execute')
+          assert.match(report, /^# fail 0\r?$/m, 'The host test must pass')
+          assert.match(report, /^# skipped 0\r?$/m, 'Skipped host tests must fail this job')
+          JS

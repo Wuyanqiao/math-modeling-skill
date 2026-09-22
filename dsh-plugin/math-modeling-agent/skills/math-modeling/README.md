@@ -2,7 +2,9 @@
 
 **通用数学建模 Skill，共享证据与执行内核，DeepSeek Harness 桌面适配。**
 
-由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.0**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.1**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+
+2.1.1 修复 DSH 数学建模预设的服务隔离声明，解决 `agent-preset/invalid` 导致的新会话创建失败。升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)。包含真实预设注册与会话创建回归的 DSH 测试已 **30/30 通过**，验证边界见 [宿主兼容测试](tests/dsh/README.md)。
 
 ## 2.1 工作台
 

@@ -1,6 +1,6 @@
 # DeepSeek Harness 数学建模工作台
 
-本适配器把通用 Skill 接入 DeepSeek Harness。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
+本适配器把通用 Skill 接入 DeepSeek Harness，当前本地开发版本为 **2.1.1**。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
 
 本次升级在 `WuYanqiao/universal-upgrade` 分支，尚不能把仓库 `main` 当作已包含这些改动的版本。完整发行包由根目录构建器生成。当前只允许本地开发验证包；上游资料的再分发授权尚未齐备，npm 包设置 `private: true`、`license: UNLICENSED`，不表示本项目获得了这些资料的许可证。
 
@@ -50,7 +50,7 @@ npm pack --ignore-scripts --pack-destination $packageOutput
 Pop-Location
 
 $env:DSH_HOME = Join-Path $env:TEMP 'mathmodel-dsh-validation'
-$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.0.tgz'
+$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.1.tgz'
 dsh plugin --profile web add $archivePath -w --ignore-scripts
 dsh --profile web --dump-config
 dsh --profile web
@@ -59,6 +59,19 @@ dsh --profile web
 `.tgz` 安装已在官方 CLI 和全新临时 profile 上实际成功，配置输出包含 `dsh-math-modeling-ui`、`preset-math-modeling` 和 `dsh-math-modeling-ui/workbench`。本机 pnpm 10 对 Windows 跨盘目录参数生成了错误的 `link:` 路径，因此这里使用 tarball。默认 profile 禁止自动安装 peer 时会提示缺失 peer；宿主从其安装位置提供这些组件，仍应通过真实挂载检查确认可用。
 
 确认验证结果后，再按你的桌面工作台配置选择实际 `DSH_HOME` 与 profile。不要猜测个人 AppData 路径，也不要复制或覆盖整个宿主配置。此实现保留宿主当前授权与沙箱策略；安装或运行失败时查看实际错误，不自动扩大权限。`dsh plugin --profile web --help` 会透传给 pnpm 并产生 profile 操作日志，查询启动器用法应使用 `dsh --help`。
+
+## 从 2.1.0 升级
+
+2.1.1 在预设的 workbench 插件节点增加 `isolate.mathModelWorkbench: true`。缺少此声明时，官方注册器会报 `agent-preset/invalid`，原因是 `Preset services require isolate realms: mathModelWorkbench`，新会话无法创建。
+
+安装新包前备份实际 profile 配置；安装后检查该 profile 的 `cordis.patch.yml` 是否另存了数学建模预设的 `config.plugins` 覆盖列表。如果存在，须在其中 `name: dsh-math-modeling-ui/workbench` 的节点同步增加下列声明，并保留其他节点和用户自定义配置。旧覆盖仍生效时，仅替换包内声明不足以修复问题。
+
+```yaml
+isolate:
+  mathModelWorkbench: true
+```
+
+在当前任务结束后重启宿主，使已导入的插件和预设重新加载。通过真实预设创建新会话确认可用；`--dump-config` 只能确认合成配置，不能替代实际挂载与会话创建验证。
 
 ## 会话内使用
 
@@ -110,6 +123,6 @@ dsh --profile web
 
 UI 设置与 `mm_ui_toggle` 使用同一 Config/settings 入口。没有持久化 settings 的最小宿主会明确提示绑定仅当前进程有效，重启后需重新初始化或指定根目录。
 
-本轮测试集共 **29 项**，包含 24 项适配器回归和 5 项需要隔离宿主依赖的集成/浏览器检查，最终全套 **29/29 通过、0 失败、0 跳过，33.7574 秒**。三项官方宿主检查分别覆盖服务挂载与 Python CLI、真实环境报告及检测不改写状态、Loader/Config/SettingsForms 持久化与重启恢复，以及实时预设投影、幂等初始化与旧项目迁移、30,000 中文字符要求、用户上下文注入和 20 MiB 原件逐字节/SHA 核对。没有宿主依赖时，后 5 项明确跳过。
+2.1.1 测试集共 **30 项**，包含 24 项适配器回归和 6 项需要隔离宿主依赖的集成/浏览器检查，最终全套 **30/30 通过、0 失败、0 跳过，31.6804 秒**。三项原有官方宿主检查覆盖服务挂载与 Python CLI、真实环境报告及检测不改写状态、Loader/Config/SettingsForms 持久化与重启恢复，以及实时预设投影、幂等初始化与旧项目迁移、30,000 中文字符要求、用户上下文注入和 20 MiB 原件逐字节/SHA 核对。新增预设回归使用真实 Loader、PresetRegistry 和 AgentLoop，复现缺少隔离声明的失败，再验证数学预设、多会话、改名与普通预设的能力隔离。没有宿主依赖时，这 6 项明确跳过。
 
-Edge/React 测试覆盖六页交互、材料和配置，以及会话/恢复竞态；官方侧栏注册表、GuideBody 与真实插槽渲染器另验证入口顺序、session/key 契约、点击打开、不符合预设且未初始化时隐藏及插件卸载。浏览器 RPC 和外围会话/导航仍为 fixture，材料宿主测试的预设 inventory/settings/RPC 也为进程内 fixture；**未完成整个桌面 GUI、真实模型对话和所有平台的端到端测试**。完整源码仓库中的结果记录为 `project-review/logs/upgrade-2.1-dsh.log`，该审计日志不随功能安装包分发；测试命令和精确来源见 [宿主兼容测试](../tests/dsh/README.md)。
+Edge/React 测试覆盖六页交互、材料和配置，以及会话/恢复竞态；官方侧栏注册表、GuideBody 与真实插槽渲染器另验证入口顺序、session/key 契约、点击打开、不符合预设且未初始化时隐藏及插件卸载。浏览器 RPC 和外围会话/导航仍为 fixture，材料宿主测试的预设 inventory/settings/RPC 也为进程内 fixture；新增预设用例的 registry、AgentLoop 和 session 为真实实现，settings/RPC 传输为 fixture。**这些结果不表示整个桌面 GUI、真实模型对话和所有平台的端到端验收已完成**。完整源码仓库中的结果记录为 `project-review/logs/fix-2.1.1-dsh.log`，该审计日志不随功能安装包分发；测试命令和精确来源见 [宿主兼容测试](../tests/dsh/README.md)。
