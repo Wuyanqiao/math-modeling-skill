@@ -224,8 +224,8 @@ plt.close(fig)
 
 ## 相关文件
 
-- [SKILL.md](../SKILL.md) — 何时使用本工具
-- [api.md](api.md) — 可复用辅助函数实现
-- [common_patterns.md](common_patterns.md) — 上述示例使用的布局模式
-- [design_theory.md](design_theory.md) — 这些选择背后的原因
-- [chart_types.md](chart_types.md) — 雷达图、3D、散点、填充图
+- [SKILL.md](../../SKILL.md) — 何时使用本工具
+- [api.md](../api-templates/api.md) — 可复用辅助函数实现
+- [common_patterns.md](../design/common_patterns.md) — 上述示例使用的布局模式
+- [design_theory.md](../design/design_theory.md) — 这些选择背后的原因
+- [chart_types.md](../chart-types/chart_types.md) — 雷达图、3D、散点、填充图

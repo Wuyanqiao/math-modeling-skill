@@ -11,8 +11,10 @@ import json
 import sys
 import urllib.request
 import urllib.parse
+import urllib.error
 from typing import List, Dict, Optional
 from dataclasses import dataclass, asdict
+from provider_result import ProviderError, capture
 
 
 def _configure_stdio() -> None:
@@ -129,7 +131,16 @@ class OpenAlexScholar:
         self.base_url = "https://api.openalex.org/works"
         self.email = email
 
-    def search_papers(
+    def search_result(self, *args, **kwargs):
+        """Structured outcome; failure is never indistinguishable from no results."""
+        return capture("openalex", self._search_papers, *args, **kwargs)
+
+    def search_papers(self, *args, **kwargs) -> List[Paper]:
+        """Compatibility list API; inspect last_result or use search_result for health."""
+        self.last_result = self.search_result(*args, **kwargs)
+        return self.last_result.papers
+
+    def _search_papers(
         self,
         query: str,
         limit: int = 8,
@@ -221,23 +232,16 @@ class OpenAlexScholar:
 
             with urllib.request.urlopen(req, timeout=30) as response:
                 data = json.loads(response.read().decode('utf-8'))
+                if not isinstance(data, dict) or not isinstance(data.get("results"), list):
+                    raise ProviderError("invalid_response")
                 return self._parse_results(data)
 
         except urllib.error.HTTPError as e:
-            print(f"API 请求失败 (HTTP {e.code}): {e.reason}")
-            if e.code == 403:
-                print("提示: 请检查邮箱地址是否正确，或稍后重试")
-            return []
+            raise ProviderError("http", e.code) from e
         except urllib.error.URLError as e:
-            print(f"网络连接失败: {e.reason}")
-            print("提示: 请检查网络连接")
-            return []
+            raise ProviderError("network") from e
         except json.JSONDecodeError:
-            print("API 返回数据格式异常")
-            return []
-        except Exception as e:
-            print(f"搜索失败: {e}")
-            return []
+            raise ProviderError("invalid_json")
 
     def _resolve_field(self, field: str) -> Optional[str]:
         """解析领域名称到 OpenAlex Concept ID"""
@@ -340,64 +344,24 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"正在搜索: {args.query}")
-    if args.sort and args.sort != 'relevance':
-        print(f"排序方式: {args.sort}")
-    if args.min_citations:
-        print(f"最低引用: {args.min_citations}")
-    if args.year_from or args.year_to:
-        print(f"年份范围: {args.year_from or '不限'} ~ {args.year_to or '不限'}")
-    if args.field:
-        print(f"领域限定: {args.field}")
-    if args.email:
-        print(f"邮箱: {args.email}")
-    print("-" * 80)
-
     scholar = OpenAlexScholar(email=args.email)
-    papers = scholar.search_papers(
-        query=args.query,
-        limit=args.limit,
-        page=args.page,
-        sort=args.sort,
-        min_citations=args.min_citations,
-        year_from=args.year_from,
-        year_to=args.year_to,
-        field_filter=args.field,
+    outcome = scholar.search_result(
+        query=args.query, limit=args.limit, page=args.page, sort=args.sort,
+        min_citations=args.min_citations, year_from=args.year_from,
+        year_to=args.year_to, field_filter=args.field,
     )
-
-    if not papers:
-        print("未找到相关论文")
-        return
-
-    print(f"找到 {len(papers)} 篇相关论文:\n")
-
-    for i, paper in enumerate(papers, 1):
-        if args.json:
-            print(json.dumps({
-                "title": paper.title,
-                "authors": paper.authors,
-                "year": paper.publication_year,
-                "citations": paper.cited_by_count,
-                "doi": paper.doi,
-                "abstract": (
-                    paper.abstract[:200] + "..."
-                    if paper.abstract and len(paper.abstract) > 200
-                    else paper.abstract
-                )
-            }, ensure_ascii=False, indent=2))
-        else:
-            print(f"[{i}] {paper.title}")
-            print(f"    作者: {', '.join(paper.authors[:5])}"
-                  f"{' et al.' if len(paper.authors) > 5 else ''}")
-            print(f"    年份: {paper.publication_year or 'Unknown'}")
-            print(f"    引用: {paper.cited_by_count}")
-            if paper.doi:
-                print(f"    DOI: {paper.doi}")
-            if paper.abstract:
-                preview = paper.abstract[:150] + "..." if len(paper.abstract) > 150 else paper.abstract
-                print(f"    摘要: {preview}")
-            print()
+    if args.json:
+        print(json.dumps({**outcome.metadata(),
+                          "papers": [paper.to_dict() for paper in outcome.papers]},
+                         ensure_ascii=False, indent=2))
+    else:
+        print(f"OpenAlex: {outcome.status} ({len(outcome.papers)} records)")
+        if outcome.status == "failed":
+            print(f"检索失败：{outcome.error['kind']}；这不表示没有相关论文。")
+        for index, paper in enumerate(outcome.papers, 1):
+            print(f"[{index}] {paper.citation_format}")
+    return 1 if outcome.status == "failed" else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

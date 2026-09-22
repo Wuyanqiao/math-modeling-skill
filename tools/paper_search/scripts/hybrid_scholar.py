@@ -3,7 +3,7 @@
 Hybrid Scholar — 并行搜索 + 交叉验证
 
 同时调用 OpenAlex 和 AnySearch 学术搜索，对结果进行去重和交叉验证。
-当同一篇论文同时被两个数据源收录时，标记为「交叉验证」，可信度更高。
+同一篇论文被两个源匹配仅表示元数据匹配，不证明原文支持任何主张。
 """
 
 import argparse
@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from openalex_scholar import OpenAlexScholar, Paper
 from anysearch_academic import AnySearchAcademic
+from provider_result import ProviderResult
 
 
 def _configure_stdio() -> None:
@@ -56,12 +57,17 @@ class HybridPaper:
 
     @property
     def cross_validated(self) -> bool:
+        """Legacy alias for metadata_matched; not verification of a scientific claim."""
         return len(self.sources) >= 2
+
+    @property
+    def metadata_matched(self) -> bool:
+        return self.cross_validated
 
     @property
     def source_tag(self) -> str:
         if self.cross_validated:
-            return "✓ 交叉验证"
+            return "元数据匹配"
         return self.sources[0] if self.sources else "?"
 
     def to_dict(self) -> Dict:
@@ -74,6 +80,8 @@ class HybridPaper:
             "abstract": self.abstract,
             "sources": self.sources,
             "cross_validated": self.cross_validated,
+            "metadata_matched": self.metadata_matched,
+            "claim_support": "unverified",
             "venue": self.venue,
             "volume": self.volume,
             "issue": self.issue,
@@ -128,6 +136,10 @@ class HybridScholar:
             }
         """
         self._current_query = query
+        if openalex_only and anysearch_only:
+            raise ValueError("Select at least one provider")
+        if limit < 1:
+            raise ValueError("limit must be positive")
 
         # 决定启用哪些源
         use_oa = not anysearch_only
@@ -141,37 +153,43 @@ class HybridScholar:
 
         # ---- 并行执行 ----
         with ThreadPoolExecutor(max_workers=2) as pool:
-            futures = []
+            futures = {}
+            outcomes = {}
 
             if use_oa:
-                futures.append(pool.submit(
-                    self.openalex.search_papers,
+                futures[pool.submit(
+                    self.openalex.search_result,
                     query, limit=fetch_limit, sort=sort,
                     min_citations=min_citations,
                     year_from=year_from, year_to=year_to,
                     field_filter=field_filter,
-                ))
+                )] = "openalex"
 
             if use_any:
-                futures.append(pool.submit(
-                    self.anysearch.search_papers,
+                futures[pool.submit(
+                    self.anysearch.search_result,
                     query, limit=fetch_limit,
-                ))
+                )] = "anysearch"
 
             for future in as_completed(futures):
+                provider = futures[future]
                 try:
-                    result = future.result(timeout=30)
-                    if not result:
-                        continue
-                    if isinstance(result[0], Paper):
-                        oa_papers = result
-                    elif isinstance(result[0], dict):
-                        any_papers = result
+                    outcome = future.result()
                 except Exception as e:
-                    print(f"[杂交] 并行搜索异常: {e}", file=sys.stderr)
+                    outcome = ProviderResult(provider, "failed", error={"kind": type(e).__name__})
+                outcomes[provider] = outcome.metadata()
+                if provider == "openalex":
+                    oa_papers = outcome.papers
+                else:
+                    any_papers = outcome.papers
 
         # ---- 融合与去重 ----
-        return self._fuse(oa_papers, any_papers, final_limit=limit)
+        result = self._fuse(oa_papers, any_papers, final_limit=limit)
+        result["providers"] = outcomes
+        failed = sum(item["status"] == "failed" for item in outcomes.values())
+        result["search_status"] = "failed" if failed == len(outcomes) else "partial" if failed else "ok"
+        result["evidence_notice"] = "Metadata matching is not verification of original-text claim support."
+        return result
 
     # ------------------------------------------------------------------
     # 融合 / 去重 / 交叉验证
@@ -395,6 +413,8 @@ class HybridScholar:
 
         for hp in oa_only:
             for ap in any_only:
+                if ap not in kept_any:
+                    continue
                 if hp.doi and ap.doi:
                     continue
                 same_year = not hp.year or not ap.year or hp.year == ap.year
@@ -433,21 +453,24 @@ class HybridScholar:
         self._current_query = query  # stash for template
         stats = result["stats"]
 
-        header = f"交叉验证搜索结果: {query}"
+        header = f"元数据匹配搜索结果: {query}"
         print()
+        for provider, outcome in result.get("providers", {}).items():
+            print(f"  {provider}: {outcome['status']} ({outcome['count']} records)")
+        print("  元数据匹配不代表原文支持结论；引用前需核验原文。")
         print("=" * 60)
         print(f"  {header}")
         print("=" * 60)
         print(f"  数据源: OpenAlex + AnySearch")
         print(f"  统计: OpenAlex {stats['openalex_total']} 篇 | "
               f"AnySearch {stats['anysearch_total']} 篇 | "
-              f"交叉验证 {stats['cross_validated']} 篇")
+              f"元数据匹配 {stats['cross_validated']} 篇")
         print()
 
         # 交叉验证区域
         cross = result.get("cross_validated", [])
         if cross:
-            self._print_section("交叉验证", "★", "OpenAlex + AnySearch 同时收录", cross, "verified")
+            self._print_section("元数据匹配", "★", "OpenAlex + AnySearch 同时收录", cross, "verified")
 
         oa_only = result.get("openalex_only", [])
         if oa_only:
@@ -531,7 +554,7 @@ class HybridScholar:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Hybrid Scholar — 并行搜索 + 交叉验证 (OpenAlex + AnySearch)",
+        description="Hybrid Scholar — 并行检索、元数据匹配与后端状态 (OpenAlex + AnySearch)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用示例:
@@ -608,7 +631,8 @@ def main():
         print(scholar.results_to_json(result))
     else:
         scholar.print_results(result)
+    return 1 if result["search_status"] == "failed" else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

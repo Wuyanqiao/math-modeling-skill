@@ -5,6 +5,10 @@ description: 从官方或内置模板创建、编译和校验数学建模 LaTeX 
 
 # LaTeX 工具
 
+## 与 2.0 共享运行时的关系
+
+本目录保留历史 LaTeX 项目助手和竞赛校验默认值，作为可选兼容工具。2.0 任务以根 `SKILL.md` 和 [共享运行时契约](../../RUNTIME_API.md) 为准：完成门禁由 runtime、当前 profile 和带来源的任务 `rules` 驱动。历史图数、篇幅和页数建议不构成通用硬要求；可按当前任务直接覆盖建议值并记录原因，无需额外请求用户批准。官方硬约束须核验适用届次与来源后录入 `rules`。
+
 ## 路径与写入
 
 - 当前目录为 `LATEX_TOOL_ROOT`，只读。
@@ -80,7 +84,7 @@ python "<SKILL_ROOT>/tools/latex/scripts/latex_paper.py" build `
 
 若官方模板明确要求 LuaLaTeX 或 pdfLaTeX，再改用 `--engine lualatex` 或 `--engine pdflatex`。缺少宏包时报告环境问题，不自动联网安装，也不擅自替换官方文档类。编译日志中的未解析引用、LaTeX/宏包/文档类预警、Overfull/Underfull box 和字体预警默认阻断发布；构建目录可以保留失败产物用于诊断，但不会生成 `PROJECT_ROOT/完整论文.pdf`。
 
-只有已经逐项确认且当届官方规则或用户明确允许的预警，才能用精确正则和具体理由覆盖：
+对已逐项检查且不违反当前任务硬约束的预警，可用精确正则和具体理由覆盖；理由记录判断依据，不要求额外取得用户批准：
 
 ```powershell
 python "<SKILL_ROOT>/tools/latex/scripts/latex_paper.py" build `
@@ -91,6 +95,8 @@ python "<SKILL_ROOT>/tools/latex/scripts/latex_paper.py" build `
 ```
 
 构建中间产物固定写入项目根目录的 `build/`，不接受其他 `--output-dir`，避免生成文件混入源码哈希。默认拒绝覆盖已发布 PDF；确认旧版本可以替换时才加 `--overwrite`。每次构建都会在 PDF 旁写入 `.build.json`，记录源码/PDF/模板哈希、工具版本、关键参数、原始命令、告警与覆盖理由。PDF 与清单成对替换，任一替换失败都会恢复旧文件；发布 PDF 只有在清单标记通过时才生成。
+
+上述 Python wrapper 可用于准备项目及兼容构建，但它的成功记录不自动满足 2.0 共享核心的最终编译来源要求。最终须登记当前 `.tex` 主入口为 `code` 或 `document`，通过 runtime 的 paper `run` 将其列入 `code`，并直接调用带真实入口参数的 `xelatex`、`pdflatex`、`lualatex` 或 `latexmk`；将 `完整论文.pdf` 声明为输出，并声明编译所需的全部图片、子文件、模板和文献资源。具体字段见 [RUNTIME_API.md](../../RUNTIME_API.md)。随后登记由当前 PDF 产生的实际渲染页并进行独立 W2 审查；wrapper 日志或复制来的 PDF 不能代替这条来源链。
 
 ## 校验
 
@@ -120,9 +126,23 @@ python "<SKILL_ROOT>/tools/latex/scripts/latex_paper.py" validate `
 - LaTeX 项目中的代码和图表副本是否与 `PROJECT_ROOT` 权威来源绑定且未漂移；
 - PDF 空白页、页面尺寸、字体嵌入和内嵌位图 DPI。
 
-CUMCM 的约 15000 字词单位、约 20 页、5 个公式和 3 个表只是可覆盖的完整度质量目标。CUMCM 与 MCM/ICM 均默认至少 8 幅图；页数上限等官方硬约束必须从目标届次规则读取后通过参数传入。MCM/ICM 不内置永久页数阈值。
+CUMCM 的约 15000 字词单位、约 20 页、5 个公式、3 个表和各竞赛配置中的 8 幅图，是旧助手保留的质量检查默认值，不是 2.0 任务硬要求。当前任务可直接覆盖这些建议值；页数上限等官方硬约束须从目标届次规则核验后传入，不能猜测或沿用过期规则。
 
-所有阈值必须是非负数，页数上限和最低 DPI 必须为正数。降低默认质量目标或临时使用 `--no-require-pdf` 跳过 PDF 审计时，必须同时传入 `--override-reason "<官方条款、用户要求或阶段性原因>"`，并由校验报告记录；跳过 PDF 的报告不能用于最终交付。质量校验必须通过 `--questions` 明确列出全部子问题，不能只为问题一集中出图。
+所有阈值必须是非负数，页数上限和最低 DPI 必须为正数。旧 CLI 在降低默认质量目标或临时使用 `--no-require-pdf` 时，确实要求 `--override-reason`；这是兼容接口的原因记录字段，当前任务范围、profile 或阶段性检查目的即可作为理由，不是额外审批步骤。跳过 PDF 的报告不能用于最终交付。启用旧 `--quality-checks` 时还必须通过 `--questions` 列出全部子问题，并满足其标签与结果图检查；这不使每个短任务都必须出图。
+
+例如，一份使用该助手维护构建清单、含 `fig:q1-*` 结果图的单问题短报告，可保留 PDF/图表引用检查，同时取消旧的数量下限。以下参数均来自当前 `validate --help`：
+
+```powershell
+python "<SKILL_ROOT>/tools/latex/scripts/latex_paper.py" validate `
+  "<PROJECT_ROOT>/完整论文-LaTeX/main.tex" `
+  --pdf "<PROJECT_ROOT>/完整论文.pdf" --contest generic `
+  --quality-checks --questions q1 `
+  --min-content-units 0 --min-pages 0 --min-equations 0 `
+  --min-figures 0 --min-tables 0 `
+  --override-reason "当前任务为单问题 short 报告，数量按论证需要；保留实际 PDF 和来源检查"
+```
+
+此命令仍检查该兼容工具要求的摘要、关键词、引用和 `.build.json` 绑定。未采用旧项目清单、或无需子问题结果图的通用短任务，使用共享 runtime 的 `validate --project-root "<PROJECT_ROOT>" --options '{"phase":"paper"}'` 基础检查及真实直接编译来源，不强行套用旧扩展。无论是否运行旧扩展，最终完成状态均以共享门禁和独立审查为准。
 
 安全编译链不启用 shell escape，因此 `\includegraphics` 只直接接受 PDF、PNG、JPG/JPEG。编程手仍可保留可编辑 SVG 源图，但论文引用前必须从同一绘图代码导出 PDF 或 PNG；不要依赖编译期 SVG/EPS 转换。
 

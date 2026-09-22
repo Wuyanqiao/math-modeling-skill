@@ -6,7 +6,9 @@ Publication-grade matplotlib / seaborn style configuration.
 应用出版级样式预设。支持 nature / ieee / science / general 四种期刊预设，
 支持中英文（lang='zh'/'en'），中文模式按优先级自动查找
 Noto Sans CJK SC > Source Han Sans SC > SimHei > Microsoft YaHei
-并修正负号渲染。SciencePlots 可选——装了就用，没装回退到内置等效预设。
+并修正负号渲染。SciencePlots 仅在显式选择时加载；未安装则明确报告内置回退。
+旧 setup_style() 仍修改全局 rcParams；新调用请用 style_context()，项目任务用
+project_style.project_style() 读取项目开关，并在上下文内创建、绘制、导出整张图。
 
 Usage
 -----
@@ -26,6 +28,7 @@ CLI: ``python setup_style.py --list-fonts`` 列出可用 CJK 字体。
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import sys
 import warnings
 
@@ -205,8 +208,12 @@ def configure_chinese_fonts(serif_for_zh: bool = False) -> str:
     available = _available_fonts()
     priority = CJK_SERIF_PRIORITY + CJK_FONT_PRIORITY if serif_for_zh else CJK_FONT_PRIORITY
 
+    regular = {font.name for font in fm.fontManager.ttflist
+               if 350 <= fm.weight_dict.get(font.weight, font.weight) <= 500}
+    # Some variable CJK installations expose only a thin face to font_manager.
+    # Prefer an indexed regular face before falling back to a family by name.
     chosen = None
-    for f in priority:
+    for f in [name for name in priority if name in regular] + priority:
         if f in available:
             chosen = f
             break
@@ -259,7 +266,7 @@ def _try_sciencplots(journal: str) -> bool:
 def setup_style(
     journal: str = "general",
     lang: str = "en",
-    use_sciplots: bool = True,
+    use_sciplots: bool = False,
     serif_for_zh: bool = False,
     constrained_layout: bool = True,
 ) -> dict:
@@ -269,7 +276,7 @@ def setup_style(
     Args:
         journal: 'nature' | 'science' | 'ieee' | 'general'
         lang: 'en' | 'zh' — 中文模式自动配置中文字体并修正负号
-        use_sciplots: 优先尝试 SciencePlots；不可用则回退到内置预设
+        use_sciplots: 显式 True 才尝试 SciencePlots；不可用则回退到内置预设
         serif_for_zh: 中文模式下使用宋体类衬线字体（中文期刊常约定）
         constrained_layout: 默认 True——全局开启 constrained_layout 自适应排版，
             从源头减少标题/轴标签被裁、图例压数据、子图互相重叠。需要手动
@@ -280,16 +287,23 @@ def setup_style(
     if journal not in JOURNAL_PRESETS:
         raise ValueError(f"Unknown journal preset: {journal}. "
                          f"Choose from {sorted(JOURNAL_PRESETS)}")
+    if lang not in {"en", "zh"}:
+        raise ValueError(f"lang must be 'en' or 'zh', got {lang!r}")
+    if not isinstance(use_sciplots, bool):
+        raise ValueError("use_sciplots must be a boolean")
 
     sciplots_used = False
     if use_sciplots:
         sciplots_used = _try_sciencplots(journal)
+        if not sciplots_used:
+            warnings.warn("SciencePlots was selected but is unavailable; using the builtin preset.", RuntimeWarning)
 
     # 内置预设始终在 SciencePlots 之上覆盖一遍，确保关键参数（fonttype、字号）落实
     plt.rcParams.update(JOURNAL_PRESETS[journal])
 
     # 默认开启自适应排版：从源头减少文字遮盖 / 裁切 / 子图重叠
     plt.rcParams["figure.constrained_layout.use"] = constrained_layout
+    plt.rcParams["text.usetex"] = False
 
     # 全模式默认修正负号：避免所选字体缺 U+2212 时负号渲染成方框（一种乱码）。
     # 用 ASCII hyphen-minus 代替真减号，几乎所有字体都含，最稳妥。
@@ -305,9 +319,24 @@ def setup_style(
         "journal": journal,
         "lang": lang,
         "sciplots_used": sciplots_used,
+        "sciplots_requested": use_sciplots,
+        "sciplots_status": "used" if sciplots_used else ("unavailable" if use_sciplots else "disabled"),
         "cjk_font": cjk_font,
         "constrained_layout": constrained_layout,
     }
+
+
+@contextmanager
+def style_context(journal="general", lang="en", use_sciplots=False, serif_for_zh=False,
+                  constrained_layout=True):
+    """Apply styles for this with-block and restore rcParams even after an error.
+
+    Create and export figures inside the block: some rendering settings are read
+    at save time. Matplotlib rc contexts are process-local, not thread isolation.
+    """
+    with matplotlib.rc_context():
+        yield setup_style(journal=journal, lang=lang, use_sciplots=use_sciplots,
+                          serif_for_zh=serif_for_zh, constrained_layout=constrained_layout)
 
 
 def _cli() -> int:
@@ -319,7 +348,9 @@ def _cli() -> int:
     p.add_argument("--journal", default="general",
                    choices=list(JOURNAL_PRESETS))
     p.add_argument("--lang", default="en", choices=["en", "zh"])
-    p.add_argument("--no-sciplots", action="store_true")
+    sciplots = p.add_mutually_exclusive_group()
+    sciplots.add_argument("--sciplots", action="store_true", help="显式启用可选 SciencePlots")
+    sciplots.add_argument("--no-sciplots", action="store_true", help="保留旧关闭参数；默认已关闭")
     p.add_argument("--serif-zh", action="store_true")
     args = p.parse_args()
 
@@ -336,7 +367,7 @@ def _cli() -> int:
 
     if args.test:
         info = setup_style(journal=args.journal, lang=args.lang,
-                           use_sciplots=not args.no_sciplots,
+                           use_sciplots=args.sciplots,
                            serif_for_zh=args.serif_zh)
         print(f"applied: {info}")
         for k in ("figure.figsize", "font.family", "font.size",

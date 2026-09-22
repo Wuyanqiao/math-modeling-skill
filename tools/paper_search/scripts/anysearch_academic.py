@@ -13,6 +13,7 @@ import sys
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
+from provider_result import ProviderError, capture
 
 ENDPOINT = "https://api.anysearch.com/mcp"
 
@@ -37,7 +38,15 @@ class AnySearchAcademic:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.environ.get("ANYSEARCH_API_KEY", "")
 
-    def search_papers(self, query: str, limit: int = 8) -> List[Dict[str, Any]]:
+    def search_result(self, *args, **kwargs):
+        return capture("anysearch", self._search_papers, *args, **kwargs)
+
+    def search_papers(self, *args, **kwargs) -> List[Dict[str, Any]]:
+        """Compatibility list API; last_result also records provider health."""
+        self.last_result = self.search_result(*args, **kwargs)
+        return self.last_result.papers
+
+    def _search_papers(self, query: str, limit: int = 8) -> List[Dict[str, Any]]:
         """
         通过 AnySearch academic 垂直域搜索学术论文。
 
@@ -77,29 +86,29 @@ class AnySearchAcademic:
                 data: Dict = json.loads(resp.read().decode("utf-8"))
             return self._parse_response(data)
         except urllib.error.HTTPError as e:
-            print(f"[AnySearch] HTTP 错误 ({e.code}): {e.reason}")
-            return []
+            raise ProviderError("http", e.code) from e
         except urllib.error.URLError as e:
-            print(f"[AnySearch] 网络连接失败: {e.reason}")
-            return []
+            raise ProviderError("network") from e
         except json.JSONDecodeError:
-            print("[AnySearch] API 返回数据格式异常")
-            return []
-        except Exception as e:
-            print(f"[AnySearch] 搜索异常: {e}")
-            return []
+            raise ProviderError("invalid_json")
 
     def _parse_response(self, data: Dict) -> List[Dict[str, Any]]:
         """解析 AnySearch JSON-RPC 响应，提取论文信息。"""
+        if not isinstance(data, dict):
+            raise ProviderError("invalid_response")
         if "error" in data:
-            msg = data["error"].get("message", str(data["error"]))
-            print(f"[AnySearch] API 错误: {msg}")
-            return []
+            error = data["error"]
+            raise ProviderError("rpc", error.get("code") if isinstance(error, dict) else None)
 
         result = data.get("result", {})
+        if not isinstance(result, dict) or not isinstance(result.get("content"), list):
+            raise ProviderError("invalid_response")
+        if result.get("isError"):
+            raise ProviderError("tool_error")
         content = result.get("content", [])
 
         raw_items: List[Dict] = []
+        recognized_empty = not content
         for item in content:
             text = item.get("text", "")
             if not text:
@@ -107,10 +116,17 @@ class AnySearchAcademic:
             try:
                 parsed = json.loads(text)
             except json.JSONDecodeError:
-                raw_items.extend(self._parse_markdown(text))
+                parsed_markdown = self._parse_markdown(text)
+                raw_items.extend(parsed_markdown)
+                if re.search(r"(?:0\s+results|no\s+(?:search\s+)?results)", text, re.I):
+                    recognized_empty = True
                 continue
             if isinstance(parsed, list):
                 raw_items.extend(parsed)
+                recognized_empty = recognized_empty or not parsed
+            elif isinstance(parsed, dict) and isinstance(parsed.get("results"), list):
+                raw_items.extend(parsed["results"])
+                recognized_empty = recognized_empty or not parsed["results"]
             else:
                 raw_items.append(parsed)
 
@@ -122,7 +138,8 @@ class AnySearchAcademic:
             paper = self._normalize(raw)
             if paper.get("title"):
                 papers.append(paper)
-
+        if not papers and not recognized_empty:
+            raise ProviderError("unrecognized_response")
         return papers
 
     @classmethod
@@ -180,7 +197,7 @@ class AnySearchAcademic:
 
     def _normalize(self, raw: Dict) -> Dict[str, Any]:
         """统一为项目通用字段格式。"""
-        title = self._first_value(raw, self._TITLE_KEYS, "Unknown Title")
+        title = self._first_value(raw, self._TITLE_KEYS, "")
 
         # 作者：可能是字符串列表或对象列表
         authors_raw = self._first_value(raw, self._AUTHOR_KEYS, [])

@@ -1,0 +1,7 @@
+{
+  "name": "balanced",
+  "description": "Evidence coverage first; no universal page or figure quota.",
+  "recommendations": {
+    "figures": 3
+  }
+}

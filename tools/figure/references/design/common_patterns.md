@@ -287,9 +287,9 @@ for x_text, y_text, text, color in label_specs:
 
 ## 相关文件
 
-- [SKILL.md](../SKILL.md) — 使用场景
-- [api.md](api.md) — 辅助函数签名和 PALETTE
+- [SKILL.md](../../SKILL.md) — 使用场景
+- [api.md](../api-templates/api.md) — 辅助函数签名和 PALETTE
 - [design_theory.md](design_theory.md) — 每个模式背后的原理
-- [nature_2026_observations.md](nature_2026_observations.md) — 这些模式背后的真实 Nature 页面原型
-- [tutorials.md](tutorials.md) — 端到端演练
-- [chart_types.md](chart_types.md) — 雷达图、3D 图、散点图模式
+- [nature_2026_observations.md](../guides/nature_2026_observations.md) — 这些模式背后的真实 Nature 页面原型
+- [tutorials.md](../guides/tutorials.md) — 端到端演练
+- [chart_types.md](../chart-types/chart_types.md) — 雷达图、3D 图、散点图模式

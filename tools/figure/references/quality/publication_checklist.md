@@ -2,7 +2,7 @@
 
 每张图投稿前**逐条勾选**。任何 FAIL 必须重新出图——`scripts/check_figure.py --strict` 是机器版的这份清单。
 
-> 这份清单只查**形式合规**（尺寸、DPI、字号、误差是否写明）。**语义层面**的避坑（均值柱掩盖分布、双 Y 轴误导、饼图等）在 [`viz_pitfalls.md`](viz_pitfalls.md) — 提交前两份清单都要过。
+> 这份清单只查**形式合规**（尺寸、DPI、字号、误差是否写明）。**语义层面**的避坑（均值柱掩盖分布、双 Y 轴误导、饼图等）在 [`viz_pitfalls.md`](../design/viz_pitfalls.md) — 提交前两份清单都要过。
 
 ## 目录
 
@@ -78,7 +78,7 @@
 
 ## 语义合规（viz_pitfalls 交叉检查）
 
-形式合规 ≠ 语义合规。下面 8 条是 [`viz_pitfalls.md`](viz_pitfalls.md) 里 15 条避坑清单的**精选 must-pass 项**：
+形式合规 ≠ 语义合规。下面 8 条是 [`viz_pitfalls.md`](../design/viz_pitfalls.md) 里 15 条避坑清单的**精选 must-pass 项**：
 
 - [ ] **P1**：n<10/组的话**不**用均值柱状图——叠加 stripplot 或换箱线
 - [ ] **P2**：没有双 Y 轴（除非两个变量量纲相同）
@@ -88,9 +88,9 @@
 - [ ] **P6**：x 是分类变量的话**没有**用折线连组均值
 - [ ] **P12**：一张图只讲一个核心结论（多个论点拆图）
 - [ ] **P14**：连续值用 viridis / magma / RdBu_r，**没有** rainbow / jet
-- [ ] **图型多样**：全文图型种类 ≥ 3 种（如折线+柱状+散点），每类图内部至少覆盖 2 种视角；每个面板回答唯一问题，不重复展示相同数据（详见 `design_theory.md` §11）
+- [ ] **表达适配**：图型和视角服务于论点，每个面板回答独立问题，不为种类数重复展示相同数据（详见 `design_theory.md` §11）
 
-完整 15 条详见 [`viz_pitfalls.md`](viz_pitfalls.md)。
+完整 15 条详见 [`viz_pitfalls.md`](../design/viz_pitfalls.md)。
 
 ## 中文图额外项
 

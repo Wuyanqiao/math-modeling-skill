@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.zip binary
+*.whl binary
+
+# Generated mirrors retain canonical upstream formatting; review source changes.
+dsh-plugin/math-modeling-agent/skills/math-modeling/** linguist-generated=true -whitespace
+dsh-plugin/math-modeling-agent/plugins/dsh-math-modeling-ui/skills/math-modeling/** linguist-generated=true -whitespace
+project-review/logs/** linguist-generated=true -whitespace
+tools/figure/skills/** linguist-vendored=true -whitespace

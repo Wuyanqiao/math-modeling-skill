@@ -13,6 +13,10 @@ description: >-
 
 > 从数据剖析到出版级成图 | Python + MATLAB | 自检 + AI 读图闭环
 
+## 共享项目与规则
+
+先读 `references/共享运行时.md`（相对 SKILL_ROOT）。图表通过 artifact-add 登记运行来源、问题、角色和逻辑 ID，再用 claim-add 关联主张。profile 数量建议不阻断；用户与已核验官方规则优先。高级工具须已安装且组件授权适用，缺失时报告能力，不虚构视觉检查。
+
 ## 路径
 
 - `SKILL_ROOT`：math-modeling-skill 仓库根目录（只读）。
@@ -34,7 +38,11 @@ description: >-
 3D 曲面、多面板组合。**不做**示意图、架构图。
 
 **额外覆盖建模流程图**：数学建模场景的总体/子问题方法流程图走 `references/chart-types/flowchart.md`。
-流程图属于方法与结构示意，**不占用三类候选图配额**，也不替代结果图。
+流程图属于方法与结构示意，**独立按方法说明登记**，也不替代结果图。
+
+## 项目绘图配置
+
+先读 `tools/figure/INTEGRATIONS.zh-CN.md`。基础 `scientific-visualization` + `matplotlib` 与现有数据剖析、图表契约及导出审计共同使用；按项目 `graphicsTools` 选择 SciencePlots、drawio、scientific-schematics、SciVisAgentSkills 或 seaborn，关闭项不得因已安装自动启用。可选软件或服务缺失时保留配置并如实说明能力。
 
 ## 工作流
 
@@ -74,12 +82,12 @@ python "<SKILL_ROOT>/tools/figure/scripts/profile_data.py" data.csv --group grou
 - 数据维度过多（分组组合 > 12）→ **明确建议拆图**
 - 用户指定图型不适合数据 → **善意指出问题并说明更好的选择**（如 n<10 要画均值柱→建议箱线/stripplot）
 - 数学建模场景：查 `chart_selection.md` 末尾的"数学建模场景速查"表
-- **图型多样**：全文图型种类 ≥ 3 种，避免全部柱状或全部折线；每个面板回答唯一问题，不重复展示相同数据（详见 `design_theory.md` §11 反冗余清单）
+- **图型适配**：根据证据用途选图，不设通用图型种类配额；每个面板回答唯一问题，不重复展示相同数据（详见 `design_theory.md` §11 反冗余清单）
 
 ### 第 4 步：查期刊规范
 
 确定目标期刊后查 `tools/figure/references/quality/journal_specs.md` 拿到：单/双栏宽（mm 与 inch）、字号、
-推荐字体、DPI、矢量格式偏好。不知道目标期刊就问一句。
+推荐字体、DPI、矢量格式偏好。未指定期刊时用通用可读性设置，只有影响交付的规格才需澄清。
 
 ### 第 5 步：配环境
 
@@ -93,7 +101,7 @@ setup_style(journal='nature', lang='en')             # 英文 Nature
 setup_style(journal='general', lang='zh', serif_for_zh=True)   # 中文宋体混排
 ```
 
-`SciencePlots` 装了自动用，没装回退到内置预设。
+`SciencePlots` 仅在项目设置选中时使用；新图使用配置驱动的局部样式上下文。旧 `setup_style()` 调用需显式传 `use_sciplots=project["graphicsTools"]["scienceplots"]`，不要依赖旧默认值。
 
 **MATLAB**：将 `references/roles/编程手/scripts/apply_publication_style.m` 复制到 `PROJECT_ROOT/utils/` 后调用。
 
@@ -108,7 +116,7 @@ setup_style(journal='general', lang='zh', serif_for_zh=True)   # 中文宋体混
 
 **MATLAB**：按 `references/roles/编程手/scripts/apply_publication_style.m` 的出版规范绘制，用 `export_publication_figure()` 导出。
 
-数学建模场景（两种语言均适用）：按三类图体系生成（原始数据图 / 过程图 / 结果图），每类至少 3 张、合计至少 9 张，且每个子问题在三类中各至少 1 张。**每类内部图型要有变化**（如原始数据类至少含 1 张分布图 + 1 张关系图），全文图型种类 ≥ 3 种。
+数学建模场景按需要选择原始数据、过程、结果图；子问题的核心主张可以由图、表或其他精确证据支撑。不强制每类有图或固定总数，不为图型多样性重复展示数据。
 
 ### 第 7 步：自检闭环（三层全过）
 
@@ -139,7 +147,7 @@ export_figure(
 
 **MATLAB**：使用 `export_publication_figure(fig, 'figs/fig1', 'png', 300)` 或 `export_publication_figure(fig, 'figs/fig1', 'svg')`。
 
-数学建模场景（两种语言均适用）：同时输出 SVG 与至少 300 DPI PNG。
+数学建模场景按用户/目标模板需要导出；通常选 SVG/PDF 与 300 DPI PNG，明确数字显示用途时不强制成对格式。
 
 ### 第 9 步：文件审计
 
@@ -149,12 +157,12 @@ export_figure(
 # 1. 编程手自检：文件格式/DPI/字体合规（每张图都过）
 python "<SKILL_ROOT>/tools/figure/scripts/check_figure.py" "<PROJECT_ROOT>/figures" --strict
 
-# 2. 数学建模 P2 门禁：三类图数量 + 子问题覆盖（终检时由质检 Subagent 执行）
-python "<SKILL_ROOT>/references/roles/编程手/scripts/figure_audit.py" "<PROJECT_ROOT>/figures" --questions q1 q2 ... qN --strict
+# 2. 可选旧格式配对审计；只在 SVG/PNG 配对是当前目标时调用
+python "<SKILL_ROOT>/references/roles/编程手/scripts/figure_audit.py" "<PROJECT_ROOT>/figures" --no-category-check --strict
 ```
 
 - `check_figure.py`：检查单张图的格式合规性（DPI、字体、尺寸、矢量格式），编程手每次导出后自检用。
-- `figure_audit.py`：检查三类图数量是否达标、子问题是否全覆盖，P2 编程终检时由独立质检 Subagent 执行。
+- `figure_audit.py`：可选扩展检查 SVG/PNG 配对；使用 --no-category-check 避免旧三类数量默认门槛。仅当项目 rules 明确要求时启用类别/数量检查。共享 validate 检查已登记图及证据关联，独立审查负责语义。
 
 ## 主动拦截（顾问职责）
 
@@ -245,7 +253,7 @@ kaleido>=0.2.1         # 可选；plotly 导出
 3. **配色对色盲友好**——默认 colorblind 色板 + 冗余编码 + 灰度预览
 4. **字号可读**——正文标签和刻度数字 7-9 pt，最小 ≥ 6 pt
 5. **误差必有交代**——图注必须写清误差类型、样本量 n、检验方法、显著性符号定义
-6. **图型多样**——同一道题的全部图应覆盖 ≥ 3 种不同图型（如折线、柱状、散点、热力图、箱线、直方图、雷达图等），避免全部是柱状图或全部是折线图；每个面板必须回答一个唯一的问题，不得用不同图表形式重复展示相同数据（详见 `design_theory.md` §11 反冗余清单）
+6. **图型适配**——根据数据与论点选取图型，不设固定种类下限；每个面板必须回答一个唯一的问题，不得用不同图表形式重复展示相同数据（详见 `design_theory.md` §11 反冗余清单）
 
 ## 何时加载
 
