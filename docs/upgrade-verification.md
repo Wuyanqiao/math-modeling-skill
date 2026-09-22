@@ -12,7 +12,7 @@
 | A4 状态与并发 | 会话绑定、明确项目根、原子状态、同项目运行串行、失败持久化、输出发布回滚、旧状态备份迁移 |
 | A5 完整分发 | 同源构建通用 Skill、旧预设布局、现代 DSH bundle；清单哈希、资源引用审计、中文空格路径脱离源码烟雾测试 |
 | B 共享内核 | 标准库 Python CLI、五个 schema、三个 profile；单阶段/完整流程、Word/LaTeX/双格式；DSH 委托同一 CLI |
-| C DSH 增强 | 现代 preset 注册、共享设置、双会话绑定、能力和阻塞、审查、运行日志与证据、产物预览、快照与恢复 |
+| C DSH 增强 | 现代 preset 注册、共享设置、双会话绑定；右侧栏原生入口、项目识别与四页看板、运行日志与证据、产物预览、快照与恢复 |
 | D 科学质量 | 四张算法卡片和渐进索引、CV 内预处理与训练内调参、三个确定性数值基准、文献服务状态与支持等级拆分 |
 
 恢复预览同时绑定修订号和文件清单；预览后外部改动也须重新预览。快照不可覆盖，恢复前创建回退副本。论文生成使用自己的执行阶段，不会因新增论文源文件或渲染页而误撤销已经完成的编程审查。
@@ -33,9 +33,10 @@ Windows 11、CPython 3.13.13、Node 24.11.1；外部 XeLaTeX 和 Poppler 可用�
 |---|---|---|
 | Python 全集 | 206/206 通过，38.16秒；含22个边界用例与真实 XeLaTeX | `upgrade-final-regression.log` |
 | DOCX 工具自检 | 通过，原生文档与公式验证成功 | `upgraded-docx-self-check.log` |
-| DSH Node 全集 | 17/17 通过，无跳过，15.66秒 | `upgrade-final-dsh.log` |
+| DSH Node 全集 | 22/22 通过，无跳过，14.69秒；含本轮侧栏新增检查 | `upgrade-sidebar-dsh.log` |
 | 官方宿主集成 | 真正 fs/shell/tools/session/skills 挂载、双会话隔离、Config/SettingsForms 持久化、完整 Context 重启续接通过 | Node 全集的2项官方宿主测试 |
-| 浏览器交互 | Edge/React 看板、证据及日志预览、快照创建/恢复预览/显式确认/冲突重试、键盘标签、设置、会话竞态、窄屏通过；RPC 为模拟 | Node 全集的浏览器测试，`dsh-workbench-ui.png`、`dsh-workbench-restore.png` |
+| 浏览器交互 | Edge/React 侧栏入口、四页、预览、快照取消/确认/冲突重试、键盘、设置、同会话项目变化与迟到响应、原生主题、窄屏和滚动条显隐通过；RPC 为模拟 | `browser.test.mjs`，`sidebar-{guide,panel-light,light,dark,narrow}.png` |
+| 官方侧栏契约 | 实际 SidebarRightTabRegistry、SlotCore/SlotRegistry、GuideBody 和 renderer，入口顺序10/20/30、key/session、点击打开、未初始化隐藏和卸载通过 | `sidebar-host.test.mjs`，外围 frame/session/navigation/RPC 是 fixture |
 | 官方 CLI 安装 | `.tgz` 在独立临时 profile 安装成功，预设/UI/workbench 注入 | `dsh-installed-profile.yml`，`dsh-install-validation.json` |
 | wheel 独立安装 | 2.0.0，标准库环境，3种 profile 各 init/state/complete；8个资源全加载，非法状态拒绝 | `upgrade-final-wheel-summary.json` |
 | 完整合成案例 | 5个真实独立审核均 PASS；`done=true`、三个阶段均ok、无阻塞 | `demo-final-completion.json` |
@@ -64,7 +65,7 @@ python -m build --wheel --outdir dist/runtime
 
 ## 适用范围和外部条件
 
-- 本机验证与远程矩阵分别保留证据；未列出的系统、Python/Node 版本不在本轮实测范围。远端默认显式跳过3个需要隔离官方宿主/浏览器依赖的Node用例；本机17项Node验收包含这些用例且无跳过。无TeX引擎的环境明确跳过真实TeX烟雾测试，本机已实际执行。
+- 本机验证与远程矩阵分别保留证据；未列出的系统、Python/Node 版本不在本轮实测范围。远端默认显式跳过4个需要隔离官方宿主/浏览器依赖的Node用例；本机22项Node验收包含这些用例且无跳过。无TeX引擎的环境明确跳过真实TeX烟雾测试，本机已实际执行。
 - 声明审核身份是可审计字段；只有宿主提供独立认证时才具备宿主认证身份等级。运行时不会仅凭填写一个 reviewer 字符串保证现实独立性。
 - 声明文件的隔离执行目录不是操作系统沙箱，DSH 适配器继承宿主文件和执行权限。
 - 上游根源码授权仍待明确，部分继承工具包含限制条款。已实现组件来源清单和 release 阻断，本地包标为 LOCAL-DEVELOPMENT。技术验证完成不意味着已获得重新分发许可。

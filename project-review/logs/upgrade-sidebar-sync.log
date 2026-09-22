@@ -1,0 +1,14 @@
+{
+  "legacy_preset": {
+    "mode": "check",
+    "redistribution_approved": false,
+    "changes": [],
+    "file_count": 224
+  },
+  "host_bundle": {
+    "mode": "check",
+    "redistribution_approved": false,
+    "changes": [],
+    "file_count": 224
+  }
+}

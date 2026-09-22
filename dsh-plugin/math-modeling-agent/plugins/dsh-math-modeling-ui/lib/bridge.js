@@ -78,18 +78,19 @@ export class RuntimeBridge {
   }
   async path(value) { return this.fs.processPath(await this.fs.resolve(value)) }
   async exists(value) { try { return await this.fs.stat(await this.fs.resolve(value)) } catch { return null } }
-  async skillRoot(explicit) {
+  async skillRoot(explicit, requireRuntime = true) {
     for (const root of explicit ? [explicit] : [packageRoot, bundledRoot, sourceRoot]) {
-      if (await this.exists(join(root, 'SKILL.md')) && await this.exists(join(root, 'scripts/mathmodel.py'))) return this.path(root)
+      if (await this.exists(join(root, 'SKILL.md')) && (!requireRuntime || await this.exists(join(root, 'scripts/mathmodel.py')))) return this.path(root)
     }
+    if (!requireRuntime) throw new Error('无法定位 Skill 根目录标记 SKILL.md；无法验证项目目录边界')
     throw new Error('缺少完整 Skill 运行时 scripts/mathmodel.py；请安装完整发行包或显式指定 skillRoot')
   }
-  async context(args = {}, sessionId) {
+  async context(args = {}, sessionId, requireRuntime = true) {
     const session = await this.session(sessionId)
     const saved = (await this.settings.read()).bindings[session.id] || this.bindings.get(session.id)
     const binding = saved?.cwd === session.cwd ? saved : null
     const projectRoot = await this.path(args.projectRoot || args.project_root || binding?.projectRoot || session.cwd)
-    const skillRoot = await this.skillRoot(args.skillRoot || args.skill_root || binding?.skillRoot)
+    const skillRoot = await this.skillRoot(args.skillRoot || args.skill_root || binding?.skillRoot, requireRuntime)
     const info = await this.exists(projectRoot)
     if (!info || info.type !== 'directory') throw new Error('项目目录不存在或不是目录')
     const projectTarget = await this.fs.resolve(projectRoot)
@@ -152,7 +153,7 @@ export class RuntimeBridge {
     } catch (error) { return { ok: false, error: errorText(error) } }
   }
   async snapshot(sessionId) {
-    const { projectRoot } = await this.context({}, sessionId)
+    const { projectRoot } = await this.context({}, sessionId, false)
     const statePath = join(projectRoot, '.math-modeling/state.json')
     if (!await this.exists(statePath)) return { initialized: false }
     const value = JSON.parse(await this.fs.readText(await this.fs.resolve(statePath)))

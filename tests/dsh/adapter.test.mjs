@@ -155,6 +155,65 @@ test('UI reads renamed preset projects, uses explicit binding and shares tool se
   assert.equal((await rpc('mm.state', { sessionId: 'unknown' })).value.hidden, true)
 })
 
+test('unbound snapshots discover an initialized cwd without requiring executable Skill resources', async t => {
+  const h = await harness(t)
+  await fs.mkdir(path.join(h.cwd, '.math-modeling'))
+  await fs.writeFile(path.join(h.cwd, '.math-modeling/state.json'), JSON.stringify({ project: { title: 'Existing project' }, completed: false }))
+  const stat = h.services.fs.stat
+  h.services.fs.stat = async target => {
+    assert.ok(!target.endsWith('mathmodel.py'), 'read-only discovery must not require executable runtime resources')
+    return stat(target)
+  }
+  delete h.services.shell
+  const bridge = new RuntimeBridge(h.ctx)
+  const state = await bridge.snapshot('a')
+  assert.equal(state.initialized, true)
+  assert.equal(state.project.title, 'Existing project')
+  assert.equal(state.stale, true)
+  assert.deepEqual((await bridge.settings.read()).bindings, {}, 'discovery must not persist an implicit binding')
+  assert.equal(h.shellRequests.length, 0)
+})
+
+test('snapshots detect initialization on the next read and discard bindings after a cwd change', async t => {
+  const h = await harness(t)
+  const bridge = new RuntimeBridge(h.ctx)
+  assert.equal((await bridge.snapshot('a')).initialized, false)
+  assert.equal((await h.init({ title: 'Just initialized' })).ok, true)
+  assert.equal((await bridge.snapshot('a')).project.title, 'Just initialized')
+  h.select('b')
+  assert.equal((await bridge.snapshot('b')).initialized, false, 'another uninitialized session must not inherit the previous project')
+  h.select('a')
+  h.sessions.get('a').header.cwd = h.custom
+  assert.equal((await bridge.snapshot('a')).initialized, false, 'a saved binding must expire when the same session changes cwd')
+  await fs.mkdir(path.join(h.custom, '.math-modeling'))
+  await fs.writeFile(path.join(h.custom, '.math-modeling/state.json'), JSON.stringify({ project: { title: 'Externally initialized' }, completed: false }))
+  assert.equal((await bridge.snapshot('a')).project.title, 'Externally initialized', 'external initialization must be detected without a settings write')
+  assert.equal(h.shellRequests.length, 1, 'only explicit initialization may launch the runtime')
+})
+
+test('read-only snapshot discovery preserves host filesystem denial without shell fallback', async t => {
+  const h = await harness(t)
+  await fs.mkdir(path.join(h.cwd, '.math-modeling'))
+  await fs.writeFile(path.join(h.cwd, '.math-modeling/state.json'), JSON.stringify({ project: { title: 'Protected project' } }))
+  h.services.fs.readText = async () => { throw Object.assign(new Error('host read denied'), { code: 'EACCES' }) }
+  const bridge = new RuntimeBridge(h.ctx)
+  await assert.rejects(bridge.snapshot('a'), { code: 'EACCES' })
+  assert.equal(h.shellRequests.length, 0)
+  assert.deepEqual((await bridge.settings.read()).bindings, {})
+})
+
+test('snapshot discovery preserves Skill directory boundaries and rejects an unknown Skill root', async t => {
+  const h = await harness(t)
+  const bridge = new RuntimeBridge(h.ctx)
+  await bridge.settings.update({ bindings: { a: { cwd: h.cwd, projectRoot: h.skill, skillRoot: h.skill } } })
+  await assert.rejects(bridge.snapshot('a'), /互不包含/)
+  await bridge.settings.update({ bindings: { a: { cwd: h.cwd, projectRoot: h.base, skillRoot: h.skill } } })
+  await assert.rejects(bridge.snapshot('a'), /互不包含/)
+  await bridge.settings.update({ bindings: { a: { cwd: h.cwd, projectRoot: h.cwd, skillRoot: path.join(h.base, 'missing-skill') } } })
+  await assert.rejects(bridge.snapshot('a'), /无法验证项目目录边界/)
+  assert.equal(h.shellRequests.length, 0)
+})
+
 test('UI retains an explicitly stale snapshot when host cannot authorize refresh', async t => {
   const h = await harness(t)
   await h.init({})

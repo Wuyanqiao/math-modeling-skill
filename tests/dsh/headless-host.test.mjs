@@ -94,7 +94,7 @@ test('official Loader + SettingsForms persist shared UI and project bindings acr
   let ctx, rpc
   t.after(async () => {
     if (ctx) await ctx.fiber.dispose()
-    assert.equal(path.dirname(base), path.dirname(modules))
+    assert.equal(path.dirname(path.resolve(base)), path.dirname(path.resolve(modules)))
     assert.ok(path.basename(base).startsWith('mathmodel-profile-'))
     await fs.rm(base, { recursive: true, force: true })
   })
