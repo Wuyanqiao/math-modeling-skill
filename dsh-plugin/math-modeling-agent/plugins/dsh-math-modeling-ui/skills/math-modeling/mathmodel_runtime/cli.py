@@ -7,6 +7,7 @@ import sys
 
 from .engine import dispatch
 from .storage import WorkflowError
+from . import __version__
 
 
 def main(argv=None):
@@ -18,12 +19,17 @@ def main(argv=None):
     parser.add_argument("--project-root")
     parser.add_argument("--skill-root")
     parser.add_argument("--options", default="{}", help="JSON object of action parameters")
-    parser.add_argument("--request-base64", help="Base64-encoded UTF-8 JSON request for host adapters")
-    parser.add_argument("--version", action="version", version="mathmodel 2.0.0")
+    parser.add_argument("--request-base64", help="Base64-encoded UTF-8 JSON request; use - to read at most 2 MiB from stdin")
+    parser.add_argument("--version", action="version", version="mathmodel " + __version__)
     args = parser.parse_args(argv)
     try:
         if args.request_base64:
-            request = json.loads(base64.b64decode(args.request_base64, validate=True).decode("utf-8"))
+            encoded = args.request_base64
+            if encoded == "-":
+                encoded = sys.stdin.read(2 * 1024 * 1024 + 1)
+                if len(encoded) > 2 * 1024 * 1024:
+                    raise WorkflowError("Encoded stdin request exceeds the 2 MiB limit")
+            request = json.loads(base64.b64decode(encoded, validate=True).decode("utf-8"))
         else:
             request = json.loads(args.options)
             if not isinstance(request, dict):

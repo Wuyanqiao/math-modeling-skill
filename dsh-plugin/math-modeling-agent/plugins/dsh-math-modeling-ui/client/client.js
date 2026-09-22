@@ -17,18 +17,18 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
 .mmwb *{box-sizing:border-box}
 .mmwb button{font:inherit;color:inherit;cursor:pointer}
 .mmwb button:disabled{opacity:.4;cursor:not-allowed}
-.mmwb button:focus-visible,.mmwb summary:focus-visible,.mmwb [tabindex]:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.mmwb button:focus-visible,.mmwb summary:focus-visible,.mmwb input:focus-visible,.mmwb textarea:focus-visible,.mmwb select:focus-visible,.mmwb [tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .mmwb svg{flex:none}
 .mmwb p{margin:6px 0}
 .mmwb h2,.mmwb h3{font:inherit;margin:0}
 .mmwb-panel{width:100%;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.mmwb-head{padding:18px 18px 10px;flex:none}
+.mmwb-head{padding:22px 20px 14px;flex:none}
 .mmwb-heading{flex:1;min-width:0}
-.mmwb h2{font-size:var(--dsh-content-font-size,14px);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mmwb h2{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mmwb-meta{color:var(--muted);font-size:12px;margin-top:5px}
 .mmwb-icon-btn{width:28px;height:28px;padding:6px;border:0;border-radius:28px;background:transparent;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .mmwb-icon-btn:hover:not(:disabled),.mmwb-btn:hover:not(:disabled){background:var(--hover)}
-.mmwb-tabs{display:flex;flex:none;margin:0 16px 16px;padding:3px;gap:2px;border-radius:9px;background:var(--hover)}
+.mmwb-tabs{display:flex;flex:none;margin:0 16px 18px;padding:4px;gap:2px;border-radius:12px;background:var(--code)}
 .mmwb-tab{flex:1;height:28px;border:0;border-radius:7px;background:transparent;padding:0 8px;color:var(--muted)!important;font-size:13px!important;line-height:20px;font-weight:500;white-space:nowrap}
 .mmwb-tab:hover{color:var(--ink)!important}
 .mmwb-tab[aria-selected=true]{background:var(--paper);color:var(--ink)!important;box-shadow:var(--dsw-elevation-soft,0 1px 3px #0f111510)}
@@ -40,7 +40,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
 .mmwb-scroll::-webkit-scrollbar-thumb{background:transparent;border:0;border-radius:999px;corner-shape:round}
 .mmwb-scroll:hover::-webkit-scrollbar-thumb,.mmwb-scroll[data-scrolling=true]::-webkit-scrollbar-thumb{background-color:var(--thumb)}
 .mmwb-scroll::-webkit-scrollbar-thumb:hover{background-color:var(--dsh-scrollbar-thumb-hover,var(--muted))}
-.mmwb-section{margin:0 0 12px;border:.5px solid var(--line);border-radius:12px}
+.mmwb-section{margin:0 0 14px;border:.5px solid var(--line);border-radius:16px}
 .mmwb-section:last-child{margin-bottom:0}
 .mmwb-section>summary{display:flex;align-items:center;gap:8px;min-height:40px;padding:10px 12px;list-style:none;font-size:13px;font-weight:500;cursor:pointer;user-select:none;border-radius:12px}
 .mmwb-section>summary::-webkit-details-marker{display:none}
@@ -89,6 +89,44 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
 .mmwb-guide>svg{color:var(--muted)}
 .mmwb-guide>span{font-size:14px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mmwb-spinner{animation:mmwb-spin 1s linear infinite}
+.mmwb-brand{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:12px;color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--paper));flex:none}
+.mmwb-form{display:grid;gap:14px}
+.mmwb-field{display:grid;gap:7px;min-width:0}
+.mmwb-field>span{font-size:12px;color:var(--muted)}
+.mmwb input:not([type=checkbox]),.mmwb select,.mmwb textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+.mmwb textarea{resize:vertical;min-height:100px;line-height:1.6}
+.mmwb-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mmwb-btn-primary{background:var(--accent);color:#fff!important;border-color:transparent}
+.mmwb-btn-primary:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 90%,var(--ink))}
+.mmwb-choice{display:flex;align-items:center;gap:12px;padding:11px 0;cursor:pointer}
+.mmwb-choice+.mmwb-choice{border-top:.5px solid var(--line)}
+.mmwb-choice>span{flex:1;min-width:0}
+.mmwb-choice small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.mmwb input[type=checkbox]{appearance:none;width:30px;height:18px;flex:none;border-radius:20px;background:var(--hover);border:1px solid var(--line);margin:0;position:relative;cursor:pointer}
+.mmwb input[type=checkbox]:before{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .15s}
+.mmwb input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+.mmwb input[type=checkbox]:checked:before{transform:translateX(12px);background:#fff}
+.mmwb-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:126px;padding:20px;border:1px dashed var(--line);border-radius:16px;background:var(--code);cursor:pointer;text-align:center}
+.mmwb-drop:hover,.mmwb-drop[data-dragging=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--paper))}
+.mmwb-drop>svg{color:var(--accent)}
+.mmwb-drop input{display:none}
+.mmwb-drop[aria-disabled=true]{opacity:.55;cursor:wait}
+.mmwb-file-name{display:block;overflow-wrap:anywhere;font-size:13px}
+.mmwb-file-type{display:inline-block;color:var(--accent);font-size:10px;margin-right:6px;background:color-mix(in srgb,var(--accent) 8%,var(--paper));padding:1px 5px;border-radius:5px}
+.mmwb-draft{color:var(--accent);font-size:12px}
+.mmwb-saved{color:var(--muted);font-size:12px}
+.mmwb-env-meta{overflow-wrap:anywhere;color:var(--muted);font-size:11px}
+.mmwb-env-group{margin-top:16px}
+.mmwb-env-group>summary{color:var(--muted);font-size:12px;font-weight:500}
+.mmwb-env-list{list-style:none;padding:0;margin:0}
+.mmwb-env-list>li{padding:10px 0}
+.mmwb-env-list>li+li{border-top:.5px solid var(--line)}
+.mmwb-env-status{font-size:11px;white-space:nowrap;color:var(--muted)}
+.mmwb-env-status[data-status=ready]{color:var(--good)}
+.mmwb-env-status[data-status=missing],.mmwb-env-status[data-status=error]{color:var(--bad)}
+.mmwb-env-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mmwb-env-actions .mmwb-btn{font-size:11px;padding:3px 9px;min-height:28px}
+@media(max-width:400px){.mmwb-tab{padding:0 4px;font-size:12px!important}.mmwb-head{padding:18px 16px 12px}}
 @keyframes mmwb-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.mmwb-spinner{animation:none}}
 `
@@ -105,6 +143,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
         chevron: 'm6 9 6 6 6-6',
         eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12 M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
         restore: 'M3 4v6h6 M3 10a9 9 0 1 1 1 8 M12 7v5l3 2',
+        upload: 'M12 16V3 m-5 5 5-5 5 5 M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5',
       }
       return h('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className }, h('path', { d: paths[name] || paths.board }))
     }
@@ -135,8 +174,8 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
           if (pending || document.visibilityState === 'hidden') return
           pending = true
           try {
-            const result = await rpc('mm.state', { sessionId, refresh: false })
-            if (live) setProject({ sessionId, visible: result.ok && result.value?.initialized && !result.value?.hidden })
+            const result = await rpc('mm.context', { sessionId })
+            if (live) setProject({ sessionId, visible: result.ok && result.value?.eligible && result.value?.enabled !== false, initialized: result.value?.initialized })
           } catch { if (live) setProject({ sessionId, visible: false }) }
           finally { pending = false }
         }
@@ -153,8 +192,217 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
         }
       }, [sessionId, tab.visible, rpc])
       if (project?.sessionId !== sessionId || !project.visible) return null
-      return h('button', { type: 'button', className: 'mmwb mmwb-guide', 'data-sidebar-right-guide-entry': 'math-modeling', title: '数学建模 Workbench — 查看当前项目的阶段、证据、运行与快照', onClick: () => tab.actions.openTab('math-modeling', { replaceTab: true }) },
+      return h('button', { type: 'button', className: 'mmwb mmwb-guide', 'data-sidebar-right-guide-entry': 'math-modeling', title: project.initialized ? '数学建模 Workbench — 打开当前项目看板' : '数学建模 Workbench — 在当前会话工作区初始化并打开项目', onClick: () => tab.actions.openTab('math-modeling', { replaceTab: true }) },
         h(Icon, { name: 'board', size: 24 }), h('span', null, '数学建模 Workbench'))
+    }
+    const graphicChoices = [
+      ['scienceplots', 'SciencePlots', '参考科研绘图样式；没有 LaTeX 时使用 no-latex', '参考科研绘图样式库'],
+      ['drawio', 'drawio', '生成可编辑的论文框架图，保留 .drawio 源文件', '画可编辑的论文框架图'],
+      ['scientific-schematics', 'scientific-schematics', '概念与机制示意图；生成服务需要单独配置', '画概念或机制示意图'],
+      ['scivis-agent-skills', 'SciVisAgentSkills', '三维仿真、显微图像与分子可视化；按任务检查所需软件', '画三维仿真、显微图像和分子可视化图'],
+      ['seaborn', 'seaborn', '统计比较、分布图和热图', '画统计比较、分布图和热图'],
+    ]
+    const collabChoices = [
+      ['rulesCheck', '规则核验', '交叉核对题目、比赛规则与论文要求'],
+      ['attachmentInventory', '附件盘点', '盘点文件、数据字段、缺失项和单位'],
+      ['literature', '文献与模型调研', '查证来源并比较适合当前子问题的模型'],
+      ['prototype', '算法原型', '在小规模数据上验证关键算法是否可行'],
+      ['experiments', '独立实验', '独立复现、敏感性分析与边界测试'],
+      ['bilingual', '双语言对照', '对照中英文表述、数字和符号'],
+      ['terminology', '术语核验', '核对术语、缩写与符号的一致性'],
+    ]
+    const inputKinds = { problem: '原题', attachment: '原题附件', 'paper-template': '论文模板', 'paper-requirements': '论文要求' }
+    const extractionNames = { extracted: '已提取文本', ready: '已提取文本', unsupported: '保留原文件', unavailable: '等待解析工具', blocked: '待解析', partial: '部分文本已提取', failed: '提取失败', 'not-extracted': '保留原文件', empty: '未发现文本', pending: '待解析' }
+    const bytesLabel = value => value >= 1048576 ? `${(value / 1048576).toFixed(1)} MB` : `${Math.ceil((value || 0) / 1024)} KB`
+    const rpcValue = result => { if (!result.ok) throw new Error(result.error?.message || '操作失败'); return result.value }
+    function Field({ label, children }) { return h('label', { className: 'mmwb-field' }, h('span', null, label), children) }
+    async function copyText(text) {
+      if (navigator.clipboard?.writeText) {
+        try { await navigator.clipboard.writeText(text); return } catch {}
+      }
+      const previous = document.activeElement
+      const field = document.createElement('textarea')
+      field.value = text; field.setAttribute('readonly', '')
+      Object.assign(field.style, { position: 'fixed', left: '-9999px', top: '0' })
+      document.body.appendChild(field)
+      try {
+        field.select()
+        if (!document.execCommand('copy')) throw new Error('复制失败，请展开安装建议后手动复制')
+      } finally { field.remove(); previous?.focus?.({ preventScroll: true }) }
+    }
+    function Environment({ sid, rpc, project, inputs, dirty, configRevision }) {
+      const signature = JSON.stringify([configRevision, project.scope, project.paperFormat, project.graphicsTools, records(inputs).map(item => [item.id || item.input_id, item.filename, item.kind])])
+      const [report, setReport] = React.useState(null)
+      const [busy, setBusy] = React.useState(false)
+      const [error, setError] = React.useState(null)
+      const [notice, setNotice] = React.useState(null)
+      const sequence = React.useRef(0)
+      React.useEffect(() => () => { sequence.current++ }, [])
+      async function detect() {
+        const request = ++sequence.current
+        setBusy(true); setError(null); setNotice(null)
+        try {
+          const value = rpcValue(await rpc('mm.environment', { sessionId: sid }))
+          if (request === sequence.current) setReport({ ...value, signature })
+        } catch (error) { if (request === sequence.current) { setError(String(error.message || error)); setReport(previous => previous ? { ...previous, checkFailed: true } : null) } }
+        finally { if (request === sequence.current) setBusy(false) }
+      }
+      async function copy(text, label) {
+        const request = sequence.current
+        try { await copyText(text); if (request === sequence.current) { setNotice(`已复制${label}`); setError(null) } }
+        catch (error) { if (request === sequence.current) setError(String(error.message || error)) }
+      }
+      const changed = report && (report.checkFailed || report.signature !== signature)
+      const statusNames = { ready: '可用', missing: '未安装', error: '检测异常', manual: '待核验' }
+      const actions = (item, all = false) => h('div', { className: 'mmwb-env-actions' },
+        item.install_command ? h('button', { type: 'button', className: 'mmwb-btn', disabled: changed || busy, title: '复制安装命令 — 粘贴到终端后执行，使用本次检测的 Python 环境', onClick: () => copy(item.install_command, '安装命令') }, all ? '复制缺失项命令' : '复制命令') : null,
+        item.agent_prompt ? h('button', { type: 'button', className: 'mmwb-btn', disabled: changed || busy, title: '复制安装 Prompt — 粘贴到会话，让 Agent 补齐依赖并重新检测', onClick: () => copy(item.agent_prompt, '安装 Prompt') }, all ? '复制给 Agent 的 Prompt' : '复制安装 Prompt') : null)
+      return h(Section, { title: '环境与依赖' },
+        h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-muted', role: 'status' }, busy ? '正在检测…' : report?.checkFailed ? '检测未完成，请重试' : changed ? '配置或材料已变化，请重新检测' : report ? report.ready ? '必需环境可用' : '当前配置有待补齐项' : '尚未检测'),
+          h('button', { type: 'button', className: 'mmwb-btn', disabled: busy, title: '检测环境 — 使用 DSH 实际调用的解释器，按已保存配置检查；不执行安装', onClick: detect }, report ? '重新检测' : '检测环境')),
+        dirty ? h('p', { className: 'mmwb-muted' }, '检测依据已保存配置；请先保存修改。') : null,
+        report ? h(React.Fragment, null,
+          h('p', { className: 'mmwb-env-meta', title: report.executable }, `Python ${report.python || '未知'} · ${report.platform || ''}`, h('br'), report.executable),
+          h('p', { className: 'mmwb-env-meta' }, `检测时间：${timestamp(report.checked_at)}`),
+          !report.ready ? actions(report, true) : null,
+          [['required', '基础必需'], ['selected', '当前配置需要'], ['optional', '可选依赖']].map(([requirement, label]) => {
+            const items = (report.items || []).filter(item => item.requirement === requirement)
+            return items.length ? h('details', { className: 'mmwb-env-group', key: requirement, open: requirement !== 'optional' }, h('summary', null, label), h('ul', { className: 'mmwb-env-list' }, items.map(item => h('li', { key: item.id, 'data-environment-item': item.id },
+              h('div', { className: 'mmwb-row' }, h('span', null, item.label), h('span', { className: 'mmwb-env-status', 'data-status': item.status }, statusNames[item.status] || '待核验')),
+              h('p', { className: 'mmwb-muted' }, item.purpose),
+              item.version || item.detail ? h('p', { className: 'mmwb-env-meta' }, [item.version, item.detail].filter(Boolean).join(' · ')) : null,
+              item.status !== 'ready' ? h(React.Fragment, null, actions(item), h('details', null, h('summary', { className: 'mmwb-muted' }, '安装建议'), h('pre', { className: 'mmwb-scroll' }, [item.install_command, item.agent_prompt].filter(Boolean).join('\n\n')))) : null)))) : null
+          })) : null,
+        notice ? h('p', { className: 'mmwb-saved', role: 'status' }, notice) : null,
+        error ? h('p', { className: 'mmwb-error', role: 'alert' }, error) : null)
+    }
+    function ProjectConfig({ data, sid, rpc, refresh }) {
+      const project = data.project
+      const initial = () => ({ title: project.title || '', paper_format: project.paperFormat || 'word', scope: project.scope || 'full',
+        graphics_tools: { ...project.graphicsTools }, optional_collab: { ...project.optionalCollab } })
+      const [draft, setDraft] = React.useState(initial)
+      const [configRevision, setConfigRevision] = React.useState(0)
+      const [dirty, setDirty] = React.useState(false)
+      const [saving, setSaving] = React.useState(false)
+      const [notice, setNotice] = React.useState(null)
+      const [error, setError] = React.useState(null)
+      const live = React.useRef(true)
+      React.useEffect(() => { live.current = true; return () => { live.current = false } }, [])
+      React.useEffect(() => { if (!dirty && !saving) setDraft(initial()) }, [project])
+      function change(key, value) { setDraft(current => ({ ...current, [key]: value })); setDirty(true); setNotice(null) }
+      async function save(event) {
+        event.preventDefault(); setSaving(true); setError(null)
+        try {
+          rpcValue(await rpc('mm.configure', { sessionId: sid, settings: draft }))
+          if (!live.current) return
+          setConfigRevision(value => value + 1)
+          setDirty(false); setNotice('已保存'); await refresh(false, true)
+        } catch (error) { if (live.current) setError(String(error.message || error)) }
+        finally { if (live.current) setSaving(false) }
+      }
+      const choices = (items, key) => items.map(([id, label, hint, detail]) => h('label', { key: id, className: 'mmwb-choice', title: hint },
+        h('span', null, label, detail ? h('small', null, detail) : null), h('input', { type: 'checkbox', role: 'switch', 'aria-label': label, checked: draft[key][id] === true, disabled: saving,
+          onChange: event => change(key, { ...draft[key], [id]: event.target.checked }) })))
+      return h('form', { className: 'mmwb-form', onSubmit: save },
+        h(Section, { title: '项目设置' }, h('div', { className: 'mmwb-form' },
+          h(Field, { label: '项目名称' }, h('input', { value: draft.title, maxLength: 200, disabled: saving, onChange: event => change('title', event.target.value) })),
+          h('div', { className: 'mmwb-form-grid' },
+            h(Field, { label: '任务范围' }, h('select', { value: draft.scope, disabled: saving, onChange: event => change('scope', event.target.value) }, Object.entries(scopes).map(([value, label]) => h('option', { key: value, value }, label)))),
+            h(Field, { label: '论文格式' }, h('select', { value: draft.paper_format, disabled: saving, onChange: event => change('paper_format', event.target.value) }, [['word', 'Word'], ['latex', 'LaTeX'], ['word+latex', 'Word + LaTeX']].map(([value, label]) => h('option', { key: value, value }, label))))))),
+        h(Environment, { sid, rpc, project, inputs: data.inputs, dirty, configRevision }),
+        h(Section, { title: '绘图工具' }, h('p', { className: 'mmwb-muted', title: '科学图表设计、Matplotlib 绘制与导出检查始终启用' }, 'scientific-visualization · matplotlib'), choices(graphicChoices, 'graphics_tools')),
+        h(Section, { title: 'Subagent 协作' }, choices(collabChoices, 'optional_collab')),
+        h('div', { className: 'mmwb-row' }, h('span', { className: dirty ? 'mmwb-draft' : 'mmwb-saved', role: 'status' }, dirty ? '有未保存的修改' : notice || '已保存的配置'),
+          h('button', { type: 'submit', className: 'mmwb-btn mmwb-btn-primary', disabled: saving || !dirty, title: '保存配置 — 应用于当前项目和后续 Agent 工作流' }, saving ? '保存中…' : '保存配置')),
+        error ? h('p', { className: 'mmwb-error', role: 'alert' }, error) : null)
+    }
+    function Materials({ data, sid, rpc, refresh }) {
+      const [kind, setKind] = React.useState('problem')
+      const [requirements, setRequirements] = React.useState(data.project.paperRequirements?.text || '')
+      const [dirty, setDirty] = React.useState(false)
+      const [busy, setBusy] = React.useState(false)
+      const [dragging, setDragging] = React.useState(false)
+      const [progress, setProgress] = React.useState(null)
+      const [error, setError] = React.useState(null)
+      const [preview, setPreview] = React.useState(null)
+      const picker = React.useRef(null)
+      const live = React.useRef(true)
+      const upload = React.useRef(null)
+      const importing = React.useRef(false)
+      React.useEffect(() => { live.current = true; return () => {
+        live.current = false
+        if (upload.current) rpc('mm.importCancel', { sessionId: sid, upload_id: upload.current }).catch(() => {})
+      } }, [sid, rpc])
+      React.useEffect(() => { if (!dirty) setRequirements(data.project.paperRequirements?.text || '') }, [data.project.paperRequirements])
+      async function importFiles(files) {
+        if (busy || importing.current || !files?.length) return
+        importing.current = true
+        setBusy(true); setError(null); setPreview(null)
+        let imported = 0
+        try {
+          for (const file of Array.from(files)) {
+            if (!live.current) break
+            if (file.size > 20 * 1048576) throw new Error(`${file.name} 超过 20 MB`)
+            const start = rpcValue(await rpc('mm.importBegin', { sessionId: sid, kind, filename: file.name, size: file.size }))
+            upload.current = start.upload_id
+            if (!live.current) { await rpc('mm.importCancel', { sessionId: sid, upload_id: start.upload_id }); break }
+            const chunkSize = Math.min(start.chunk_bytes || 1048576, 1048576)
+            for (let offset = 0, index = 0; offset < file.size; offset += chunkSize, index++) {
+              if (!live.current) return
+              setProgress(`${file.name} · ${Math.round(offset / Math.max(file.size, 1) * 100)}%`)
+              const bytes = new Uint8Array(await file.slice(offset, offset + chunkSize).arrayBuffer())
+              let binary = ''
+              for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192))
+              if (!live.current) return
+              rpcValue(await rpc('mm.importChunk', { sessionId: sid, upload_id: start.upload_id, index, content_base64: btoa(binary) }))
+            }
+            if (!live.current) return
+            rpcValue(await rpc('mm.importCommit', { sessionId: sid, upload_id: start.upload_id }))
+            upload.current = null; imported++
+          }
+          if (live.current) setProgress(`已导入 ${imported} 个文件`)
+        } catch (error) {
+          if (upload.current) await rpc('mm.importCancel', { sessionId: sid, upload_id: upload.current }).catch(() => {})
+          upload.current = null
+          if (live.current) { setError(String(error.message || error)); setProgress(imported ? `已导入 ${imported} 个文件` : null) }
+        } finally { importing.current = false; if (live.current) { setBusy(false); await refresh(false, true) } }
+      }
+      async function saveRequirements(event) {
+        event.preventDefault(); setBusy(true); setError(null)
+        try { rpcValue(await rpc('mm.configure', { sessionId: sid, settings: { paper_requirements: { text: requirements, source: requirements.trim() ? '用户面板填写' : '' } } })); if (live.current) { setDirty(false); setProgress('论文要求已保存'); await refresh(false, true) } }
+        catch (error) { if (live.current) setError(String(error.message || error)) }
+        finally { if (live.current) setBusy(false) }
+      }
+      async function read(inputId) {
+        setBusy(true); setError(null)
+        try { const value = rpcValue(await rpc('mm.inputRead', { sessionId: sid, input_id: inputId })); if (live.current) setPreview(value) }
+        catch (error) { if (live.current) setError(String(error.message || error)) }
+        finally { if (live.current) setBusy(false) }
+      }
+      return h(React.Fragment, null,
+        h(Section, { title: '添加材料' }, h('div', { className: 'mmwb-form' },
+          h(Field, { label: '材料类型' }, h('select', { value: kind, disabled: busy, onChange: event => setKind(event.target.value) }, Object.entries(inputKinds).map(([value, label]) => h('option', { key: value, value }, label)))),
+          h('div', { className: 'mmwb-drop', role: 'button', tabIndex: busy ? -1 : 0, 'aria-label': '选择或拖入材料文件', 'aria-disabled': busy, 'data-dragging': dragging,
+            onClick: () => { if (!busy) picker.current?.click() }, onKeyDown: event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (!busy) picker.current?.click() } },
+            onDragOver: event => { event.preventDefault(); if (!busy) setDragging(true) }, onDragLeave: () => setDragging(false),
+            onDrop: event => { event.preventDefault(); setDragging(false); importFiles(event.dataTransfer.files) } },
+            h(Icon, { name: 'upload', size: 24 }), h('span', null, busy ? '正在导入…' : '选择文件或拖入此处'),
+            h('span', { className: 'mmwb-muted' }, 'PDF、Word、Markdown、TXT、LaTeX 等'),
+            h('input', { ref: picker, type: 'file', multiple: true, tabIndex: -1, 'aria-label': '材料文件', onClick: event => event.stopPropagation(), onChange: event => { importFiles(event.target.files); event.target.value = '' } })),
+          h('span', { className: 'mmwb-muted' }, '单个文件最多 20 MB'))),
+        progress ? h('p', { className: 'mmwb-muted', role: 'status' }, progress) : null,
+        error ? h('p', { className: 'mmwb-error', role: 'alert' }, error) : null,
+        h(Section, { title: '项目材料' }, records(data.inputs).length ? h('ul', { className: 'mmwb-list' }, records(data.inputs).map(input => h('li', { key: input.input_id || input.id },
+          h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-file-name' }, h('span', { className: 'mmwb-file-type' }, inputKinds[input.kind] || '文件'), input.filename || input.original_name || input.path),
+            h('button', { type: 'button', className: 'mmwb-icon-btn', disabled: busy, 'aria-label': `读取 ${input.filename || input.original_name || input.path}`, title: '读取材料 — 查看提取文本和解析状态', onClick: () => read(input.input_id || input.id) }, h(Icon, { name: 'eye' }))),
+          h('div', { className: 'mmwb-muted', title: input.extraction?.notice }, bytesLabel(input.bytes ?? input.size), ' · ', extractionNames[input.extraction?.status || input.extraction_status] || '保留原文件')))) : h(Empty, null, '尚未添加材料')),
+        preview ? h('section', { className: 'mmwb-preview', 'aria-label': '材料预览' }, h('h3', null, '材料内容'),
+          preview.truncated ? h('p', { className: 'mmwb-warning' }, '当前预览已截断，完整内容保存在项目材料中。') : null,
+          preview.notice ? h('p', { className: 'mmwb-muted' }, preview.notice) : null,
+          h('pre', { className: 'mmwb-scroll', tabIndex: 0 }, preview.content ?? preview.text ?? '暂无可预览的文本，请查看原文件。')) : null,
+        h(Section, { title: '论文要求' }, h('form', { className: 'mmwb-form', onSubmit: saveRequirements },
+          h('textarea', { className: 'mmwb-scroll', 'aria-label': '论文要求', placeholder: '填写篇幅、语言、结构、格式或引用要求', value: requirements, maxLength: 30000, disabled: busy, onChange: event => { setRequirements(event.target.value); setDirty(true) } }),
+          h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-muted' }, dirty ? '有未保存的修改' : ''), h('button', { type: 'submit', className: 'mmwb-btn', disabled: busy || !dirty, title: '保存论文要求 — 写入当前项目并供 Agent 读取' }, '保存要求')))))
     }
     function Overview({ data }) {
       const blockers = data.blockers || []
@@ -222,6 +470,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       const data = snapshot?.sessionId === sid ? snapshot.data : null
       const [error, setError] = React.useState(null)
       const [tab, setTab] = React.useState('overview')
+      React.useEffect(() => { const scroll = root.current?.querySelector('.mmwb-content'); if (scroll) scroll.scrollTop = 0 }, [tab])
       const [busy, setBusy] = React.useState(false)
       const [preview, setPreview] = React.useState(null)
       const [logPreview, setLogPreview] = React.useState(null)
@@ -229,6 +478,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       const [checkpointBusy, setCheckpointBusy] = React.useState(false)
       const [checkpointNotice, setCheckpointNotice] = React.useState(null)
       const [checkpointError, setCheckpointError] = React.useState(null)
+      const [initializing, setInitializing] = React.useState(false)
       const sequence = React.useRef(0)
       const statePending = React.useRef(false)
       const previewSequence = React.useRef(0)
@@ -256,6 +506,18 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
         } catch (error) { if (sequence.current === request && currentSession.current === sid) setError(String(error.message || error)) }
         finally { if (sequence.current === request && currentSession.current === sid) { statePending.current = false; if (verify) setBusy(false) } }
       }, [sid, rpc, clearOperations])
+      React.useEffect(() => {
+        if (!sid || !hostTab.visible) return
+        let live = true
+        setInitializing(true)
+        rpc('mm.ensureProject', { sessionId: sid }).then(result => {
+          if (!live || currentSession.current !== sid) return
+          rpcValue(result)
+          return refresh(false, true)
+        }).catch(error => { if (live && currentSession.current === sid) setError(String(error.message || error)) })
+          .finally(() => { if (live && currentSession.current === sid) setInitializing(false) })
+        return () => { live = false }
+      }, [sid, hostTab.visible, rpc, refresh])
       React.useEffect(() => {
         statePending.current = false
         setError(null); setPreview(null); setLogPreview(null); setBusy(false)
@@ -319,9 +581,10 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       }
       const initialized = data?.initialized && !data.hidden
       const title = initialized ? data.project?.title || '数学建模项目' : '数学建模 Workbench'
-      const tabs = [['overview', '项目', '阶段、阻塞与审核'], ['evidence', '证据', '产物与结论来源'], ['runs', '运行', '执行记录与日志'], ['checkpoints', '快照', '创建与恢复项目版本']]
+      const tabs = [['overview', '项目', '阶段、阻塞与审核'], ['materials', '材料', '原题、附件与论文要求'], ['config', '配置', '绘图工具与可选协作'], ['evidence', '证据', '产物与结论来源'], ['runs', '运行', '执行记录与日志'], ['checkpoints', '快照', '创建与恢复项目版本']]
+      const identity = `${sid}:${data?.project?.project_id}:${data?.project?.projectRoot}`
       return h('section', { ref: root, className: 'mmwb mmwb-panel', 'aria-label': '数学建模 Workbench' },
-        h('header', { className: 'mmwb-head' }, h('div', { className: 'mmwb-row' }, h('div', { className: 'mmwb-heading' }, h('h2', { title }, title),
+        h('header', { className: 'mmwb-head' }, h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-brand' }, h(Icon, { name: 'board', size: 19 })), h('div', { className: 'mmwb-heading' }, h('h2', { title }, title),
           initialized ? h('div', { className: 'mmwb-meta' }, (scopes[data.project?.scope] || '项目') + ' · ' + (names[data.currentPhase] || '未开始')) : null),
           h('button', { type: 'button', className: 'mmwb-icon-btn', 'aria-label': '重新验证', title: '重新验证 — 检查产物变化与审核状态', disabled: busy || checkpointBusy, onClick: () => refresh(true) }, h(Icon, { name: 'refresh', className: busy ? 'mmwb-spinner' : undefined })))),
         initialized ? h(React.Fragment, null,
@@ -337,9 +600,10 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
           }, label)))) : null,
         h('div', { className: 'mmwb-content mmwb-scroll', 'data-testid': 'mmwb-content-scroll', id: instanceId + '-panel-' + tab, role: initialized ? 'tabpanel' : undefined, 'aria-labelledby': initialized ? instanceId + '-tab-' + tab : undefined, tabIndex: 0 },
           error ? h('p', { className: 'mmwb-error mmwb-notice', role: 'alert' }, error) : null,
-          initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'evidence' ? h(Evidence, { data, preview: preview?.sessionId === sid ? preview : null, openPreview, busy: busy || checkpointBusy }) : tab === 'runs' ? h(Runs, { data, preview: logPreview?.sessionId === sid ? logPreview : null, openLog, busy: busy || checkpointBusy }) :
+          initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'materials' ? h(Materials, { key: identity, data, sid, rpc, refresh }) : tab === 'config' ? h(ProjectConfig, { key: identity, data, sid, rpc, refresh }) : tab === 'evidence' ? h(Evidence, { data, preview: preview?.sessionId === sid ? preview : null, openPreview, busy: busy || checkpointBusy }) : tab === 'runs' ? h(Runs, { data, preview: logPreview?.sessionId === sid ? logPreview : null, openLog, busy: busy || checkpointBusy }) :
             h(Checkpoints, { data, busy: busy || checkpointBusy, preview: activeRestorePreview, notice: checkpointNotice, error: checkpointError, create: () => checkpoint('create'), previewRestore: id => checkpoint('preview', id), confirmRestore: () => activeRestorePreview && checkpoint('apply', activeRestorePreview.checkpoint_id), cancelRestore: () => setRestorePreview(null) }) :
-            h('p', { className: 'mmwb-empty mmwb-notice' }, data?.hidden ? data.reason === 'no-project' ? '当前会话未初始化数学建模项目' : '看板已关闭' : error ? '项目读取失败' : '正在读取项目')),
+            h('div', null, h('p', { className: 'mmwb-empty mmwb-notice' }, initializing ? '正在准备项目…' : data?.hidden ? data.reason === 'no-project' ? '请选择数学建模 Workbench 预设后重新打开看板' : '看板已关闭' : error ? '项目准备失败' : '正在读取项目'),
+              !initializing && error ? h('button', { className: 'mmwb-btn', title: '重试 — 在当前会话工作区准备项目', onClick: async () => { setInitializing(true); try { rpcValue(await rpc('mm.ensureProject', { sessionId: sid })); await refresh(false, true) } catch (error) { if (currentSession.current === sid) setError(String(error.message || error)) } finally { if (currentSession.current === sid) setInitializing(false) } } }, '重试') : null)),
         initialized ? h('footer', { className: 'mmwb-foot' }, h('span', { title: data.stale ? '磁盘中的上次状态；重新验证可检查产物变化' : '已调用运行时核验' }, data.stale ? '已保存状态' : '已核验'), h('time', { title: timestamp(data.snapshotAt || data.updated_at) }, timestamp(data.snapshotAt || data.updated_at))) : null)
     }
 

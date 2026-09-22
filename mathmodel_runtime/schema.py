@@ -65,8 +65,28 @@ def validate_schema(name, value):
     check(json.loads(path.read_text(encoding="utf-8")), value, name)
 
 
-def validate_state(state):
+def validate_state(state, *, allow_legacy_project=False):
     validate_schema("state.schema.json", state)
+    from .configuration import graphics_options, legacy_paper_requirements, paper_requirements
+    from .inputs import filename, MAX_FILE_BYTES, MAX_PROJECT_BYTES, MAX_INPUTS
+    graphics_options(state["project"].get("graphicsTools"))
+    requirements = state["project"].get("paperRequirements")
+    if allow_legacy_project and isinstance(requirements, str):
+        legacy_paper_requirements(requirements)
+    else:
+        paper_requirements(requirements)
+    inputs = state.get("inputs", {})
+    if len(inputs) > MAX_INPUTS or sum(entry["bytes"] for entry in inputs.values()) > MAX_PROJECT_BYTES:
+        raise WorkflowError("Imported input inventory exceeds supported limits", "state_corrupt")
+    for input_id, entry in inputs.items():
+        expected = f"inputs/{entry['kind']}/{input_id}/"
+        if entry["input_id"] != input_id or entry["path"] != expected + filename(entry["filename"]) or entry["bytes"] > MAX_FILE_BYTES:
+            raise WorkflowError("Imported input identity/path is invalid", "state_corrupt")
+        extraction = entry["extraction"]
+        if (extraction["status"] in {"extracted", "partial"}) != bool(extraction.get("path")):
+            raise WorkflowError("Extraction status does not match its recorded text copy", "state_corrupt")
+        if extraction.get("path") and (extraction["path"] != expected + "extracted-" + input_id + ".txt" or not extraction.get("sha256") or not extraction.get("bytes")):
+            raise WorkflowError("Imported extraction identity/path is invalid", "state_corrupt")
     from .storage import GATES, PHASES
     if set(state["gates"]) != set(GATES) or set(state["phases"]) != set(PHASES):
         raise WorkflowError("State is missing or has unknown phases/gates", "state_corrupt")

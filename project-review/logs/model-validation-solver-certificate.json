@@ -1,0 +1,31 @@
+{
+  "solver": "scipy.optimize.linprog(method=highs)",
+  "solver_version": "1.18.1",
+  "raw_status": 0,
+  "status": "OPTIMAL",
+  "termination_reason": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "sense": "max",
+  "objective": 10.0,
+  "best_bound": 10.0,
+  "bound_source": "Dual objective from actual HiGHS marginals; zero lower bounds add no dual constant",
+  "optimality_scope": "global",
+  "gap_tolerance": 1e-09,
+  "residuals": {
+    "resource": 0.0,
+    "nonnegative": 0.0,
+    "dual_inequality_sign": 0.0,
+    "dual_lower_sign": 0.0,
+    "dual_stationarity": 0.0
+  },
+  "tolerances": {
+    "resource": 1e-09,
+    "nonnegative": 1e-09,
+    "dual_inequality_sign": 1e-09,
+    "dual_lower_sign": 1e-09,
+    "dual_stationarity": 1e-09
+  },
+  "decision": [
+    2.0,
+    2.0
+  ]
+}

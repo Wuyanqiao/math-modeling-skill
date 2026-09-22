@@ -21,3 +21,10 @@ The three bundled Anthropic license files include restrictions on copying, deriv
 `--mode local-development` creates a labelled copy for verification of the existing local checkout. The filename, top-level notice and manifest all state that it is **not approved for redistribution**. That switch makes no legal claim and grants no new rights. CI does not upload these bundles. Building a Python wheel for local installation likewise does not imply publication approval.
 
 For the distinction between viewing/forking and open source licensing, see [GitHub's licensing documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). This document records the evidence available in this checkout; it is not a substitute for a missing grant from a rights holder.
+
+## Visualization additions in 2.1
+
+- The four skill packages under `tools/figure/skills/` come from [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills/tree/49c6e97775eaa18ba791bebe23162a70ae601c18/skills), pinned at that commit. The upstream [MIT license](tools/figure/skills/LICENSE.md) and [per-file source hashes/adaptations](tools/figure/skills/UPSTREAM.json) are retained. Library licenses linked in skill frontmatter remain separate from the skill documentation license.
+- SciencePlots and seaborn are separately installed optional Python dependencies; no library code is vendored.
+- [SciVisAgentSkills](https://github.com/KuangshiAi/SciVisAgentSkills/tree/5c9ce7d28905af949dc4192b8984a44a7a5d9402) is referenced by an original integration guide and a fixed-commit/hash-checked loader for local use. Its full skill texts are not redistributed in this repository; upstream has no repository license file in the inspected snapshot.
+- The drawio integration creates original editable XML from project-provided nodes and edges; it does not bundle the draw.io application.

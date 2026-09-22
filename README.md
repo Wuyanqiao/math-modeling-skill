@@ -2,7 +2,20 @@
 
 **通用数学建模 Skill，共享证据与执行内核，DeepSeek Harness 桌面适配。**
 
-由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.0.0**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.0**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+
+## 2.1 工作台
+
+在 DSH 中选择“数学建模 Workbench”预设，打开右侧栏“开始”页，点击文件与终端下方的 Workbench 即可初始化当前工作区；已有项目直接恢复看板。
+
+- **材料**：导入原题、附件、论文模板及要求，支持 PDF、Word、Markdown、TXT、LaTeX 和其他附件；保留原件与 SHA-256，明确提取成功、部分提取或待解析状态。单文件 20 MiB、项目共 100 MiB。
+- **配置**：保存 SciencePlots、drawio、scientific-schematics、SciVisAgentSkills、seaborn 五项可选偏好，每项名称下常驻显示用途小字；基础 scientific-visualization + matplotlib 始终可被工作流加载。
+- **环境与依赖**：在配置页点击检测，查看 DSH 实际 Python 环境、基础必需、当前配置需要和可选依赖。按需复制安装命令或给 Agent 的安装 Prompt；检测不执行安装，配置或材料变化后提示重新检测。
+- **可选协作**：规则核验、附件盘点、文献与模型调研、算法原型、独立实验、双语言对照、术语核验，默认关闭；独立阶段质检继续遵循审核合同。
+- **数据处理与验证**：[数据预处理](assets/algorithms/数据预处理/README.md)与[模型验证](assets/algorithms/模型验证/README.md)独立成目录，涵盖无泄漏 Pipeline、分组/时间验证、敏感性、区间与求解状态。
+- **算法**：先读[算法索引](references/算法索引.md)，按问题类型加载六类新增模块。每道子问题最多两个独立模型体系；同一物理机理的基础近似与高精度展开按一个模型族计数。
+
+这些配置和材料同样可由通用 Agent 的 `configure`、`input-import`、`input-read`、`context` 动作访问。说明见[运行时 API](RUNTIME_API.md)、[绘图集成](tools/figure/INTEGRATIONS.zh-CN.md)与[2.1 验收记录](docs/upgrade-2.1-verification.md)。图形开关不代表依赖已安装；外部生成服务和三维软件按实际任务配置。
 
 ## 能力与结构
 

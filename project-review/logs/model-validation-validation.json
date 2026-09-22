@@ -1,0 +1,143 @@
+{
+  "bootstrap": {
+    "target": "population_mean",
+    "interval_kind": "bootstrap_confidence_interval",
+    "sampling_unit": "iid",
+    "method": "percentile",
+    "estimate": 3.0,
+    "interval": [
+      1.8,
+      4.2
+    ],
+    "confidence": 0.95,
+    "seed": 42,
+    "resamples": 4000
+  },
+  "bayesian": {
+    "model": "normal likelihood with known variance and normal prior",
+    "probability": 0.95,
+    "parameter": {
+      "target": "unknown_mean_parameter",
+      "interval_kind": "posterior_credible_interval",
+      "interval": [
+        0.520018007729973,
+        2.479981992270027
+      ]
+    },
+    "future_observation": {
+      "target": "one_new_observation",
+      "interval_kind": "posterior_predictive_interval",
+      "interval": [
+        -0.6913063514414541,
+        3.691306351441454
+      ]
+    }
+  },
+  "mechanistic": {
+    "boundary": {
+      "ok": true,
+      "constraints": [
+        {
+          "name": "heat_zero_boundary_n10",
+          "residual": 0.0,
+          "tolerance": 1e-12,
+          "ok": true
+        },
+        {
+          "name": "heat_zero_boundary_n20",
+          "residual": 0.0,
+          "tolerance": 1e-12,
+          "ok": true
+        },
+        {
+          "name": "heat_zero_boundary_n40",
+          "residual": 0.0,
+          "tolerance": 1e-12,
+          "ok": true
+        }
+      ]
+    },
+    "heat": {
+      "errors_decrease": true,
+      "observed_orders": [
+        1.91825192007362,
+        2.0044598743199997
+      ],
+      "steps": [
+        0.1,
+        0.05,
+        0.025
+      ],
+      "errors": [
+        0.0032914003804310754,
+        0.0008708219108066739,
+        0.000217033513196907
+      ]
+    },
+    "fem": {
+      "errors_decrease": true,
+      "observed_orders": [
+        2.00000000000004,
+        2.0000000000002562
+      ],
+      "steps": [
+        0.1,
+        0.05,
+        0.025
+      ],
+      "errors": [
+        0.002500000000000016,
+        0.0006249999999999867,
+        0.00015624999999996891
+      ]
+    },
+    "dimension": {
+      "ok": true,
+      "term_matches": [
+        true
+      ],
+      "scope": "declared exponents only; actual unit conversions and physical equations need review"
+    }
+  },
+  "solver_certificate": {
+    "solver": "scipy.optimize.linprog(method=highs)",
+    "solver_version": "1.18.1",
+    "raw_status": 0,
+    "status": "OPTIMAL",
+    "termination_reason": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "sense": "max",
+    "objective": 10.0,
+    "best_bound": 10.0,
+    "bound_source": "Dual objective from actual HiGHS marginals; zero lower bounds add no dual constant",
+    "optimality_scope": "global",
+    "gap_tolerance": 1e-09,
+    "residuals": {
+      "resource": 0.0,
+      "nonnegative": 0.0,
+      "dual_inequality_sign": 0.0,
+      "dual_lower_sign": 0.0,
+      "dual_stationarity": 0.0
+    },
+    "tolerances": {
+      "resource": 1e-09,
+      "nonnegative": 1e-09,
+      "dual_inequality_sign": 1e-09,
+      "dual_lower_sign": 1e-09,
+      "dual_stationarity": 1e-09
+    },
+    "decision": [
+      2.0,
+      2.0
+    ]
+  },
+  "solver_check": {
+    "ok": true,
+    "status": "OPTIMAL",
+    "feasible_supported": true,
+    "optimal_supported": true,
+    "absolute_gap": 0.0,
+    "gap_tolerance": 1e-09,
+    "conclusion": "Global optimum within the declared absolute gap tolerance",
+    "issues": []
+  }
+}

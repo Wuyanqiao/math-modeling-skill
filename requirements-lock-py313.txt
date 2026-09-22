@@ -13,3 +13,8 @@ scipy==1.18.1
 scikit-learn==1.9.1
 openpyxl==3.1.5
 PyMuPDF==1.28.2
+SALib==1.6.0
+
+# Optional figure-styles group, exercised separately from the core suite.
+SciencePlots==2.2.2
+seaborn==0.13.2

@@ -28,3 +28,15 @@ description: 实现和运行 Python/MATLAB 模型，保存真实结果、必要�
 预处理在训练折内拟合；调参用内部验证，测试集保留到最终评估。预测按时间划分，分组数据按实体划分。病态诊断、边界预期与超时降级由模型合同定义；正则、伪逆、抽样改变问题时显式记录与验证，不按固定阈值替换。
 
 按需读 `references/工作流程.md`、`references/质检清单.md`、`references/MATLAB规范.md`、`../../../references/Subagent调度.md`。可运行基准见 `../../../benchmarks/README.md`，通过仅说明已知小问题通过。
+
+## 项目绘图偏好
+
+开始绘图前读取共享 `context` 的 graphics_tools 和输入材料；按 `tools/figure/INTEGRATIONS.zh-CN.md` 路由基础 scientific-visualization + matplotlib 与用户选中的扩展。可编辑框架图保留 .drawio；概念机制图与实际数据证据图分开登记。绘图工具不增加独立模型族。
+
+## 数据处理与模型验证
+
+按需读取 `assets/algorithms/数据预处理/README.md` 与 `assets/algorithms/模型验证/README.md`（相对 SKILL_ROOT）。训练/验证/测试先划分，插补、编码、尺度、特征选择仅在训练数据或训练折拟合，保存可重跑 Pipeline。按对象分组或按时间滚动，不把重复测量直接随机拆分。
+
+P1 核对小例程数值误差、约束和实际求解状态；P2 报告适用的泛化、参数敏感性、区间不确定性与求解可靠性检查。对机理模型固定核对量纲、初始/边界条件、步长/网格加密。报告写清区间针对参数、统计量还是未来观测。
+
+求解结果保留终止状态、可行解目标、最佳界/间隙与容差；CP-SAT `FEASIBLE` 表示存在可行解，不能写成已证明最优。非凸局部求解器返回成功不证明全局最优。把程序退出码、数学可行性和结论保证分别登记。

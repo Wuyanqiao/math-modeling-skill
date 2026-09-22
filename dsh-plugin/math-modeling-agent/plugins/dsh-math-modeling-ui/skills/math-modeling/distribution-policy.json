@@ -9,6 +9,16 @@
   },
   "components": [
     {
+      "id": "k-dense-visualization-skills",
+      "prefixes": [
+        "tools/figure/skills"
+      ],
+      "release": "allow",
+      "license": "MIT",
+      "evidence": "tools/figure/skills/LICENSE.md",
+      "origin": "K-Dense-AI/scientific-agent-skills@49c6e97775eaa18ba791bebe23162a70ae601c18; per-file hashes in UPSTREAM.json"
+    },
+    {
       "id": "restricted-docx",
       "prefixes": [
         "tools/docx"

@@ -1,6 +1,6 @@
 # 项目审查、升级与验证证据
 
-本目录保留升级前的原始审查及问题复现。用户采纳建议后，已在 `codex/universal-upgrade` 实施 2.0.0；当前实现与验证状态见 [升级验收记录](../docs/upgrade-verification.md)，开发入口见 [项目 README](../README.md)。旧报告中的“尚未实现”和初次失败日志描述审查时的基线，不代表当前分支状态。
+本目录保留升级前的原始审查及问题复现。用户采纳建议后，已在 `WuYanqiao/universal-upgrade` 实施 2.0.0，并继续升级到 2.1.0；当前实现与验证状态见 [2.1 升级验收记录](../docs/upgrade-2.1-verification.md)，旧版证据见 [2.0 验收记录](../docs/upgrade-verification.md)，开发入口见 [项目 README](../README.md)。旧报告中的“尚未实现”和初次失败日志描述审查时的基线，不代表当前分支状态。
 
 审查日期：2026-09-22。目标：**通用 Skill 优先，兼容多种 Agent，对 DeepSeek Harness 桌面工作台做专门增强。**
 
@@ -12,11 +12,11 @@
 
 你的 GitHub fork `Wuyanqiao/math-modeling-skill` 的 `main` 已按要求快进上游 16 个提交。同步后 GitHub 比较结果为 `identical`，领先/落后均为 0；本地 `main` 也已同步。审查提交：`3c4bd1927663327812665941a445281b9c008a78`。
 
-初次审查分支为 `codex/project-assessment`，当时源代码保持上游原样；实施分支为 `codex/universal-upgrade`。隔离 Python 环境位于 `.venv/`，通过本目录 `.gitignore` 排除。当前通过证据使用 `upgrade-final-*`、`upgraded-*` 与最终 `demo-*` 日志；DSH 旧探针只是历史缺陷复现，不是新版测试套件。
+初次审查分支为 `codex/project-assessment`，当时源代码保持上游原样；当前实施分支为 `WuYanqiao/universal-upgrade`。隔离 Python 环境位于 `.venv/`，通过本目录 `.gitignore` 排除。当前通过证据使用 `upgrade-final-*`、`upgraded-*` 与最终 `demo-*` 日志；DSH 旧探针只是历史缺陷复现，不是新版测试套件。
 
 ## 复核本次检查
 
-以下 PowerShell 命令从仓库根目录运行。`.venv` 使用 `--system-site-packages` 继承了本机已有依赖，只额外安装 `defusedxml==0.7.1`；这是本机复测环境，不能作为全新机器安装验证。
+以下 PowerShell 命令从仓库根目录运行。`.venv` 使用 `--system-site-packages` 继承本机已有依赖，初次审查补装 `defusedxml==0.7.1`，2.1 验证另使用 SALib、SciencePlots 等可选包；这是本机复测环境。完整依赖由跨平台 CI 安装验证，核心 wheel 另在不继承系统包的环境验证。
 
 ```powershell
 $env:PYTHONUTF8 = '1'

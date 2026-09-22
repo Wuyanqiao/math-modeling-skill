@@ -1,0 +1,285 @@
+{
+  "data": {
+    "source": "Synthetic analytic cooling family T=20+60*exp(-k*t), k=0.18/0.10 min^-1",
+    "samples_per_curve": 41,
+    "seed": null,
+    "sha256": "32af4a81dc06d8c3b63c4fda5dd4b8bc22d75cad8d9807166ffe536334edcffe"
+  },
+  "source_sha256": "01f46d6e215b48d7d65365b1309d866b9845cc7c0fb3a78326125db83b93c9ec",
+  "dependencies": {
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.3",
+    "Pillow": "12.3.0",
+    "pypdf": "6.18.1",
+    "SciencePlots": "2.2.2",
+    "seaborn": "0.13.2"
+  },
+  "python": "3.13.13 | packaged by conda-forge | (main, Apr  8 2026, 01:56:49) [MSC v.1944 64 bit (AMD64)]",
+  "styles_restored": true,
+  "cases": [
+    {
+      "style": "default",
+      "lang": "en",
+      "applied": {
+        "style": "matplotlib default",
+        "lang": "en",
+        "cjk_font": null,
+        "sciplots_requested": false,
+        "sciplots_used": false
+      },
+      "same_data_verified": true,
+      "png_pixels": [
+        1800,
+        1200
+      ],
+      "png_dpi": [
+        299.9994,
+        299.9994
+      ],
+      "pdf_points": [
+        432.0,
+        288.0
+      ],
+      "svg_viewbox": "0 0 432 288",
+      "missing_glyphs": [],
+      "warnings": [],
+      "files": [
+        {
+          "path": "default-en.pdf",
+          "sha256": "de0695074f7cbc8694003c62b4993ca732f73ae21a526bd5852a6e489b4c893e"
+        },
+        {
+          "path": "default-en.svg",
+          "sha256": "55a93c1e26404223157b7d863232aad994d11dd194878a42a8cbd2eb7677c88a"
+        },
+        {
+          "path": "default-en.png",
+          "sha256": "84a49788b780ec09f6bf5cbc558ffe48a97dc4131d63fd43e40fbecdcc7e2141"
+        },
+        {
+          "path": "default-en_grayscale.png",
+          "sha256": "2b779c2d7851bccc7ac0fed8f8428aac601248c9ae5111e133a74f91f0706f1c"
+        }
+      ]
+    },
+    {
+      "style": "enhanced",
+      "lang": "en",
+      "applied": {
+        "journal": "general",
+        "lang": "en",
+        "sciplots_used": false,
+        "sciplots_requested": false,
+        "sciplots_status": "disabled",
+        "cjk_font": null,
+        "constrained_layout": true,
+        "graphicsTools": {
+          "scienceplots": false
+        },
+        "colors": [
+          "#0072B2",
+          "#D55E00",
+          "#009E73",
+          "#CC79A7",
+          "#000000"
+        ],
+        "encoding": "color plus line style; series_style adds sparse markers"
+      },
+      "same_data_verified": true,
+      "png_pixels": [
+        1800,
+        1200
+      ],
+      "png_dpi": [
+        299.9994,
+        299.9994
+      ],
+      "pdf_points": [
+        432.0,
+        288.0
+      ],
+      "svg_viewbox": "0 0 432 288",
+      "missing_glyphs": [],
+      "warnings": [],
+      "files": [
+        {
+          "path": "enhanced-en.pdf",
+          "sha256": "37d62c26aaa1edbd35820c5c5fd7f921d97fe7715b7242f639fa1d47664d90e1"
+        },
+        {
+          "path": "enhanced-en.svg",
+          "sha256": "fd7e61078b7ece3f3bca5e149143566f2bca13652542cc0c9fb8821caa48e75b"
+        },
+        {
+          "path": "enhanced-en.png",
+          "sha256": "397ba9c2537350b3009b85adec3d764d2863c04e133d9c227eb7582548ab0d84"
+        },
+        {
+          "path": "enhanced-en_grayscale.png",
+          "sha256": "e45f9337882169c66beb40edb2a023af9c2f4240d8fc7d3610b417992c07b2f5"
+        }
+      ]
+    },
+    {
+      "style": "default",
+      "lang": "zh",
+      "applied": {
+        "style": "matplotlib default",
+        "lang": "zh",
+        "cjk_font": "SimHei",
+        "sciplots_requested": false,
+        "sciplots_used": false
+      },
+      "same_data_verified": true,
+      "png_pixels": [
+        1800,
+        1200
+      ],
+      "png_dpi": [
+        299.9994,
+        299.9994
+      ],
+      "pdf_points": [
+        432.0,
+        288.0
+      ],
+      "svg_viewbox": "0 0 432 288",
+      "missing_glyphs": [],
+      "warnings": [],
+      "files": [
+        {
+          "path": "default-zh.pdf",
+          "sha256": "109b569a81fa5a856ed22b9e18d4c35f3461773d5a3b733ff8f9cf842afc8e00"
+        },
+        {
+          "path": "default-zh.svg",
+          "sha256": "d04d48e0bfbd0551908c4bf03d9418e9ac88f9fde03f9be9aa5a9219523d278c"
+        },
+        {
+          "path": "default-zh.png",
+          "sha256": "318c44221e5e023faefd70a3dc82af797e62bcbde5e6fc3b67be3009791dc02d"
+        },
+        {
+          "path": "default-zh_grayscale.png",
+          "sha256": "eafb9877cb027d887bf8fbbb77407e45082e2a690f280a7c35f7fe2ee845c0e8"
+        }
+      ]
+    },
+    {
+      "style": "enhanced",
+      "lang": "zh",
+      "applied": {
+        "journal": "general",
+        "lang": "zh",
+        "sciplots_used": false,
+        "sciplots_requested": false,
+        "sciplots_status": "disabled",
+        "cjk_font": "SimHei",
+        "constrained_layout": true,
+        "graphicsTools": {
+          "scienceplots": false
+        },
+        "colors": [
+          "#0072B2",
+          "#D55E00",
+          "#009E73",
+          "#CC79A7",
+          "#000000"
+        ],
+        "encoding": "color plus line style; series_style adds sparse markers"
+      },
+      "same_data_verified": true,
+      "png_pixels": [
+        1800,
+        1200
+      ],
+      "png_dpi": [
+        299.9994,
+        299.9994
+      ],
+      "pdf_points": [
+        432.0,
+        288.0
+      ],
+      "svg_viewbox": "0 0 432 288",
+      "missing_glyphs": [],
+      "warnings": [],
+      "files": [
+        {
+          "path": "enhanced-zh.pdf",
+          "sha256": "886b3dc10ace03b49d1dedb2f4eb02d26ab53a5c7c9a1d661459991814fc884f"
+        },
+        {
+          "path": "enhanced-zh.svg",
+          "sha256": "840e66b72290da4107c7bed536adbef8e90352bd05bcadb11b169d37e2f79c30"
+        },
+        {
+          "path": "enhanced-zh.png",
+          "sha256": "2379d0cbefda7acfbf963ebb8861d90a799a0de2b6f8e254ec9d900cbd24a1b6"
+        },
+        {
+          "path": "enhanced-zh_grayscale.png",
+          "sha256": "5db293551162e514d15d0b48ac76664d91ca4360e901d30d1c2aa3f1531d8c27"
+        }
+      ]
+    },
+    {
+      "style": "scienceplots",
+      "lang": "en",
+      "applied": {
+        "journal": "general",
+        "lang": "en",
+        "sciplots_used": true,
+        "sciplots_requested": true,
+        "sciplots_status": "used",
+        "cjk_font": null,
+        "constrained_layout": true,
+        "graphicsTools": {
+          "scienceplots": true
+        },
+        "colors": [
+          "#0072B2",
+          "#D55E00",
+          "#009E73",
+          "#CC79A7",
+          "#000000"
+        ],
+        "encoding": "color plus line style; series_style adds sparse markers"
+      },
+      "same_data_verified": true,
+      "png_pixels": [
+        1800,
+        1200
+      ],
+      "png_dpi": [
+        299.9994,
+        299.9994
+      ],
+      "pdf_points": [
+        432.0,
+        288.0
+      ],
+      "svg_viewbox": "0 0 432 288",
+      "missing_glyphs": [],
+      "warnings": [],
+      "files": [
+        {
+          "path": "scienceplots-en.pdf",
+          "sha256": "59c5e5c5f0e1d2aacbf2e9a5f8ba1f9e6cc3029a71ce559a74ffc0ea668f68e8"
+        },
+        {
+          "path": "scienceplots-en.svg",
+          "sha256": "f5228628cc86f7aceddd27283f9d788425d6a052a67e300ea2012231ac44ef03"
+        },
+        {
+          "path": "scienceplots-en.png",
+          "sha256": "0e44b8bdf69163a7db81de56c21314a2de0f18ae25ce607ce6b4281284ab427d"
+        },
+        {
+          "path": "scienceplots-en_grayscale.png",
+          "sha256": "1a4425164fe2b2dc43f6a5639f7c22b22f29d65dcfd1759f98409b729a1118f8"
+        }
+      ]
+    }
+  ]
+}

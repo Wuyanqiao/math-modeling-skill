@@ -13,3 +13,4 @@
 dsh-plugin/math-modeling-agent/skills/math-modeling/** linguist-generated=true -whitespace
 dsh-plugin/math-modeling-agent/plugins/dsh-math-modeling-ui/skills/math-modeling/** linguist-generated=true -whitespace
 project-review/logs/** linguist-generated=true -whitespace
+tools/figure/skills/** linguist-vendored=true -whitespace

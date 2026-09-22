@@ -1,0 +1,10 @@
+PASS build: mathmodel_workbench-2.1.0-py3-none-any.whl
+PASS wheel resources: 8 JSON files (5 schemas, 3 profiles)
+PASS install: --no-index --no-deps into fresh system_site_packages=False venv
+PASS isolated imports: installed wheel only; optional modules absent; all schemas/profiles load; malformed state rejected
+PASS short: init/state/complete from outside checkout using python -I; completed=false; completion blockers present
+PASS balanced: init/state/complete from outside checkout using python -I; completed=false; completion blockers present
+PASS competition: init/state/complete from outside checkout using python -I; completed=false; completion blockers present
+PASS installed input-import/configure: Chinese source bytes/hash and graphics/requirements persisted without optional packages
+PASS installed console entrypoint: mathmodel 2.1.0
+RESULT: all final wheel checks passed

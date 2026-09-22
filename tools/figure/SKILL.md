@@ -40,6 +40,10 @@ description: >-
 **额外覆盖建模流程图**：数学建模场景的总体/子问题方法流程图走 `references/chart-types/flowchart.md`。
 流程图属于方法与结构示意，**独立按方法说明登记**，也不替代结果图。
 
+## 项目绘图配置
+
+先读 `tools/figure/INTEGRATIONS.zh-CN.md`。基础 `scientific-visualization` + `matplotlib` 与现有数据剖析、图表契约及导出审计共同使用；按项目 `graphicsTools` 选择 SciencePlots、drawio、scientific-schematics、SciVisAgentSkills 或 seaborn，关闭项不得因已安装自动启用。可选软件或服务缺失时保留配置并如实说明能力。
+
 ## 工作流
 
 ### 第 1 步：数据剖析
@@ -97,7 +101,7 @@ setup_style(journal='nature', lang='en')             # 英文 Nature
 setup_style(journal='general', lang='zh', serif_for_zh=True)   # 中文宋体混排
 ```
 
-`SciencePlots` 装了自动用，没装回退到内置预设。
+`SciencePlots` 仅在项目设置选中时使用；新图使用配置驱动的局部样式上下文。旧 `setup_style()` 调用需显式传 `use_sciplots=project["graphicsTools"]["scienceplots"]`，不要依赖旧默认值。
 
 **MATLAB**：将 `references/roles/编程手/scripts/apply_publication_style.m` 复制到 `PROJECT_ROOT/utils/` 后调用。
 

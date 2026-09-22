@@ -55,6 +55,37 @@
     },
     "checkpoints": {
       "type": "array"
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["input_id", "kind", "filename", "label", "path", "sha256", "bytes", "mime_type", "imported_at", "extraction", "stale"],
+        "properties": {
+          "input_id": {"type": "string", "pattern": "^input_[0-9a-f]{16}$"},
+          "kind": {"enum": ["problem", "attachment", "paper-template", "paper-requirements"]},
+          "filename": {"type": "string", "minLength": 1},
+          "label": {"type": "string"},
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "mime_type": {"type": "string"},
+          "imported_at": {"type": "string"},
+          "stale": {"type": "boolean"},
+          "extraction": {
+            "type": "object",
+            "required": ["status", "method", "notice"],
+            "properties": {
+              "status": {"enum": ["not-extracted", "extracted", "partial", "blocked", "failed"]},
+              "method": {"type": ["string", "null"]},
+              "notice": {"type": "string"},
+              "path": {"type": "string"},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "bytes": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
     }
   }
 }

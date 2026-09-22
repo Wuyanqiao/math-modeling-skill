@@ -317,6 +317,9 @@ def phase_validation(root, state, phase, profile):
     items, warnings = [], []
     def check(name, ok, note="", blocked=False):
         items.append({"name": name, "ok": bool(ok), "note": note, "blocked": blocked})
+    from .inputs import input_integrity_errors
+    for index, error in enumerate(input_integrity_errors(root, state, phase)):
+        check("imported_input_integrity:" + str(index), False, error)
     artifacts = [artifact for artifact in state["artifacts"].values() if phase != "programming" or not paper_only_path(state, artifact["path"], artifact)]
     kinds = {}
     for artifact in artifacts:

@@ -8,6 +8,8 @@ This is a local modeling workbench with a Python runtime, an agent Skill, and an
 | DSH JavaScript adapter | Node 22 and 24 adapter test targets; local host verification uses Node 24.11.1 | Host baseline `@deepseek-ai/dsh@0.1.7-alpha.1`; the official minimum Node version is not asserted |
 | Native Word handling | Optional `docx` dependency group | `python-docx`, `lxml`, `defusedxml`, Pillow |
 | Figures | Optional `figure` group | NumPy, pandas, Matplotlib, Pillow |
+| Figure styles | Optional `figure-styles` group | SciencePlots and seaborn; selected per project |
+| Global sensitivity | Optional `sensitivity` group | SALib Morris/Sobol; separate from the standard-library runtime |
 | PDF inspection | Optional `pdf` group | pypdf, PyMuPDF |
 | Spreadsheets | Optional `xlsx` group | openpyxl; recalculation may additionally need LibreOffice |
 | TeX/Pandoc/rendering | External system tools | Checked by executable probes; installing Python extras does not install these programs |
@@ -59,3 +61,10 @@ Existing documentation links that already pointed to absent source files are lis
 Local archive filenames include `LOCAL-DEVELOPMENT` and contain a notice stating that they are not approved for redistribution. The release command is `python scripts/build_distribution.py --mode release`; it currently fails explicitly because authorization for inherited and new code has not been established. Restricted DOCX/XLSX/PDF components are excluded from release selection, and unknown components fail closed. See [component provenance](../THIRD_PARTY_NOTICES.md). No archive is uploaded by these commands or CI.
 
 The current host baseline is [`@deepseek-ai/dsh@0.1.7-alpha.1`](https://www.npmjs.com/package/@deepseek-ai/dsh/v/0.1.7-alpha.1), with API source audited at [commit c36a83ff6bb95e3f82cf79f9be7c724270a8aa61](https://github.com/deepseek-ai/deepseek-harness/tree/c36a83ff6bb95e3f82cf79f9be7c724270a8aa61). This host registers presets through the `@deepseek-ai/dsh-agent-preset` service; it does not discover arbitrary `.agent-presets` folders. In the extracted DSH archive, the `math-modeling-agent/plugins/dsh-math-modeling-ui` directory is the self-contained host bundle: it includes the workflow adapter, UI, registration patch and a complete `skills/math-modeling` tree. Install this local bundle through the compatible host's profile/bundle installation mechanism, following the bundled DSH README. The outer legacy preset layout is retained for older installations. Do not copy only the UI JavaScript or assume that placing the outer directory in `.agent-presets` registers it in the current host. An adapter test suite passing does not establish host mounting compatibility.
+
+
+## 2.1 project setup
+
+The DSH Workbench preset adds a sidebar entry before a modeling project exists. Opening that entry initializes the current session workspace once. Existing projects are reused. The Materials tab imports originals and records extraction limits; the Configuration tab stores graphics and optional collaboration settings. The runtime `context` action exposes the same choices to other agents.
+
+A same-name plugin upgrade in DSH 0.1.7 requires restarting its Node host. Back up the selected profile package/lock/patch files, install the new local tarball, and restart when running agent tasks have completed. Refresh the DSH browser page afterward. Preserve project roots and user-supplied external skillRoot bindings; only migrate a previous bundled root when its identity is established.

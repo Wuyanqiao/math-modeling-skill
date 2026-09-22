@@ -12,6 +12,7 @@ import uuid
 
 from .storage import GATES, PHASES, Store, WorkflowError, atomic_json, digest, inside, now, object_hash, snapshot
 from .validation import doctor, fresh_run, inspect_file, phase_validation
+from .configuration import graphics_options, legacy_paper_requirements, paper_requirements, text_setting
 
 
 RESOURCE_ROOT = Path(__file__).parent / "resources"
@@ -83,12 +84,17 @@ def fresh_state(store, args):
                "subproblems": questions, "profile": profile, "scope": scope, "authorId": author,
                "rules": rules, "competition": args.get("competition", "generic"), "edition": args.get("edition", ""),
                "session_id": args.get("session_id"), "optionalCollab": collab_options(args.get("optional_collab", args.get("optionalCollab")))}
+    project["title"] = text_setting(project["title"], "title", 300, empty=False)
+    project["competition"] = text_setting(project["competition"], "competition", 200)
+    project["edition"] = text_setting(project["edition"], "edition", 100)
+    project["graphicsTools"] = graphics_options(args.get("graphics_tools", args.get("graphicsTools")))
+    project["paperRequirements"] = paper_requirements(args.get("paper_requirements", args.get("paperRequirements")))
     phases = {p: {"enteredAt": None, "tasks": [{"text": t, "done": False, "note": ""} for t in TASKS[p]]} for p in PHASES}
     return {"schema_version": 2, "version": 7, "revision": 0, "initializedAt": now(), "project": project,
             "currentPhase": "modeling" if scope == "full" else scope, "phases": phases,
             "gates": {g: {"status": "pending", "phase": p, "title": TITLES[g], "at": None} for g, p in GATES.items()},
             "completed": False, "completedAt": None, "blockers": [], "capabilities": {}, "runs": {},
-            "artifacts": {}, "claims": {}, "review_tasks": {}, "checkpoints": [], "ledger": [], "deliverables": None}
+            "artifacts": {}, "claims": {}, "review_tasks": {}, "checkpoints": [], "ledger": [], "deliverables": None, "inputs": {}}
 
 
 def migrate(store, old):
@@ -98,6 +104,15 @@ def migrate(store, old):
                 raise WorkflowError("Invalid state object: " + key, "state_corrupt")
         if any(g not in old["gates"] for g in GATES) or any(p not in old["phases"] for p in PHASES):
             raise WorkflowError("State is missing phases or gates", "state_corrupt")
+        old.setdefault("inputs", {})
+        old["project"].setdefault("graphicsTools", graphics_options())
+        old["project"].setdefault("paperRequirements", paper_requirements())
+        if isinstance(old["project"]["paperRequirements"], str):
+            old["project"]["paperRequirements"] = legacy_paper_requirements(old["project"]["paperRequirements"])
+            event(old, "project_settings_migrated", {"field": "paperRequirements", "from": "legacy_string"})
+        old["project"].setdefault("optionalCollab", collab_options(None))
+        old["project"].setdefault("competition", "generic")
+        old["project"].setdefault("edition", "")
         return old
     if old.get("schema_version") is not None or old.get("version", 0) not in range(1, 7):
         raise WorkflowError("Unsupported state version; cannot safely migrate", "state_version")
@@ -127,6 +142,8 @@ def event(state, name, detail=None):
 
 
 def invalidate(store, state):
+    from .inputs import input_drift
+    input_drift(store.root, state)
     earliest = None
     order = list(GATES)
     for i, gate in enumerate(order):
@@ -202,6 +219,10 @@ def claim_check(store, state):
 
 
 def gate_check(store, state, gate, minimal_run_id=None):
+    from .inputs import input_integrity_errors
+    input_errors = input_integrity_errors(store.root, state, GATES[gate])
+    if input_errors:
+        return input_errors
     if gate == "P1":
         runs = [r for r in state["runs"].values() if r.get("phase") == "programming"]
         candidate = state["runs"].get(minimal_run_id) if minimal_run_id else (runs[-1] if runs else None)
@@ -254,6 +275,30 @@ def execute_action(store, state, action, args):
         result = doctor(args.get("features"))
         state["capabilities"] = result["capabilities"]
         return result
+    if action == "configure":
+        from .configuration import configure_project
+        result = configure_project(store, state, args)
+        if result["changed"]:
+            event(state, "project_configured", {"fields": result["changed"]})
+        invalidate(store, state)
+        return result
+    if action == "input-import":
+        from .inputs import import_input
+        result = import_input(store, state, args)
+        event(state, "input_imported", {"input_id": result["input"]["input_id"], "kind": result["input"]["kind"], "path": result["input"]["path"]})
+        invalidate(store, state)
+        return result
+    if action == "input-staging-cleanup":
+        from .inputs import staging_cleanup
+        return staging_cleanup(store, args)
+    if action == "input-list":
+        from .inputs import MAX_FILE_BYTES, MAX_PROJECT_BYTES, MAX_INPUTS
+        return {"ok": True, "inputs": deepcopy(state.get("inputs", {})), "limits": {"file_bytes": MAX_FILE_BYTES, "project_bytes": MAX_PROJECT_BYTES, "input_count": MAX_INPUTS}}
+    if action == "input-read":
+        from .inputs import read_input
+        return read_input(store, state, args)
+    if action == "context":
+        return {"ok": True, "project": deepcopy(state["project"]), "inputs": deepcopy(state.get("inputs", {}))}
     if action == "phase":
         phase = args.get("phase")
         if phase not in PHASES or state["project"]["scope"] not in {"full", phase}:
@@ -455,6 +500,12 @@ def dispatch(args):
         raise WorkflowError("project_root is required")
     skill = args.get("skill_root") or Path(__file__).resolve().parents[1]
     store = Store(args["project_root"], skill)
+    if action == "environment":
+        from .environment import environment_report
+        state = store.load()
+        if state is None:
+            raise WorkflowError("Initialize this project first", "not_initialized")
+        return environment_report(store, state)
     if action == "run":
         from .execution import run_action
         return run_action(store, args)
@@ -483,7 +534,9 @@ def dispatch(args):
                     store.save(state)
                     raise
         projection(state)
-        if action not in {"state", "checkpoint-list"} or state != persisted:
+        from .inputs import agent_context
+        context = agent_context(store, state)
+        if action not in {"state", "checkpoint-list", "input-list", "input-read", "context"} or state != persisted:
             store.save(state)
         if action == "state":
             result = {"ok": True, **state}
@@ -491,4 +544,6 @@ def dispatch(args):
             result = {**state, **result, "revision": state["revision"]}
         else:
             result["revision"] = state["revision"]
+        if action in {"init", "state", "phase", "configure", "input-import", "context"}:
+            result["agent_context"] = context
         return result

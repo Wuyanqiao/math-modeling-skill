@@ -1,0 +1,43 @@
+✔ custom project remains bound across tools and sessions remain isolated (56.8551ms)
+✔ payload encoding preserves Unicode, quotes and shell metacharacters without interpolation (757.887ms)
+✔ nonzero runtime JSON remains inspectable and shell denial is not bypassed (43.4047ms)
+✔ long configuration uses encoded stdin while preserving host policy and injection boundaries (79.547ms)
+✔ cancel waits for an in-flight host write and blocks new chunks until cleanup (152.4133ms)
+✔ skill content is returned in full and traversal is rejected (121.8049ms)
+✔ UI reads renamed preset projects, uses explicit binding and shares tool settings (89.9431ms)
+✔ environment RPC uses saved session binding, preserves policy and never forwards draft or install actions (87.4362ms)
+✔ workbench context follows the current preset projection and auto-init is idempotent (75.1418ms)
+✔ chunk uploads enforce session, project, ordering and host filesystem policy (136.6478ms)
+✔ opening an existing project migrates saved requirements once through the authorized runtime (878.7389ms)
+✔ unbound snapshots discover an initialized cwd without requiring executable Skill resources (46.4449ms)
+✔ snapshots detect initialization on the next read and discard bindings after a cwd change (64.7505ms)
+✔ read-only snapshot discovery preserves host filesystem denial without shell fallback (44.7615ms)
+✔ snapshot discovery preserves Skill directory boundaries and rejects an unknown Skill root (62.5034ms)
+✔ UI retains an explicitly stale snapshot when host cannot authorize refresh (53.9366ms)
+✔ UI checkpoint routes preserve session binding, explicit confirmation fields and runtime errors (49.1346ms)
+✔ real Python CLI: UI restore requires a current preview and restores the reported file changes (2678.4462ms)
+✔ project roots from state are never followed by the adapter (46.3179ms)
+✔ DSH 0.1.7 execute/result and CollectedOutput inherit the session sandbox unchanged (49.1632ms)
+✔ interrupted, denied and truncated runs never become successful JSON responses (43.7348ms)
+✔ modern Config-derived settings share one namespace without legacy register/get APIs (39.8424ms)
+✔ real Python CLI: init, manifest-safe state, todo, gate refusal and incomplete completion (2309.544ms)
+✔ real Python CLI: execution provenance, claim evidence, review receipt and drift invalidation (5539.7434ms)
+✔ browser: scoped sidebar, session races, evidence, snapshots, themes and scrollbars (9717.319ms)
+ℹ Real browser + React render with official session-scoped keyed guide/pane props and sidebar registry fixture; not a full DSH desktop E2E test.
+✔ official host: preset projection, lazy init, saved context and 20MiB upload through fs/shell (9397.3828ms)
+ℹ Actual official fs.writeText(createIfAbsent), shell.execute/result and SessionProjection selection event; actual shared CLI; exact 20MiB hash verified. Preset inventory, settings and RPC transport are in-process fixtures. No personal profile mutated.
+✔ official DSH 0.1.7 services mount workbench and execute shared CLI (19137.81ms)
+ℹ Actual saved-project dependency report: Python 3.13.13; 28 items; ready=true; no installation requested.
+ℹ Actual services: @deepseek-ai/dsh 0.1.7-alpha.1; Node v24.11.1; win32; real fs + shell.execute(spec).result() + tools + sessions + initiator; no GUI/model/settings persistence asserted.
+✔ official Loader + SettingsForms persist shared UI and project bindings across boot (4968.1333ms)
+ℹ Real Loader, Config, config-editor, SettingsForms and profile patch persistence; RPC transport is an in-process fixture.
+✔ official sidebar registry and renderer: keyed session guide, body and disposal (4547.2793ms)
+ℹ Actual published @deepseek-ai/dsh-client-ui-sidebar-right + SlotRegistry/SlotCore/GuideBody/renderer/Cordis/React in Edge or Chromium. Frame, sessions, built-in guide definitions, navigation actions and RPC are fixtures; no full DSH GUI or model tested. CSS imports of primitive dependencies omitted for this contract test.
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33757.3867

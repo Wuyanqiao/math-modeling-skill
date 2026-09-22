@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "mode": "local-development",
+  "redistribution_approved": false,
+  "version": "2.1.0",
+  "source": {
+    "commit": "595d73ef0c10fd2840cdcfd24d443448e2e9a002",
+    "dirty": true,
+    "content_sha256": "493a678330009dfe30b372d92cb114e3fddf7187465e248affd17aac6862fde3"
+  },
+  "upstream": {
+    "repository": "https://github.com/XiaoMaColtAI/math-modeling-skill",
+    "baseline_commit": "3c4bd1927663327812665941a445281b9c008a78",
+    "license_verified": false
+  },
+  "compatibility": {
+    "python": ">=3.11,<3.14",
+    "operating_systems": [
+      "Windows",
+      "Linux"
+    ],
+    "node_test_versions": [
+      "22",
+      "24"
+    ],
+    "dsh_host": {
+      "npm_package": "@deepseek-ai/dsh",
+      "version": "0.1.7-alpha.1",
+      "source_commit": "c36a83ff6bb95e3f82cf79f9be7c724270a8aa61",
+      "local_node": "24.11.1",
+      "minimum_node_version": null,
+      "note": "Adapter Node test targets do not imply official host minimum or mounting success."
+    }
+  },
+  "dependencies": {
+    "requires_python": ">=3.11,<3.14",
+    "core": [],
+    "optional": {
+      "docx": [
+        "python-docx>=1.1,<2",
+        "lxml>=5,<7",
+        "defusedxml>=0.7.1,<1",
+        "Pillow>=10,<13"
+      ],
+      "figure": [
+        "numpy>=1.26,<3",
+        "pandas>=2.2,<4",
+        "matplotlib>=3.8,<4",
+        "Pillow>=10,<13"
+      ],
+      "sensitivity": [
+        "SALib>=1.5,<2"
+      ],
+      "figure-styles": [
+        "SciencePlots>=2.1,<3",
+        "seaborn>=0.13.2,<0.14"
+      ],
+      "pdf": [
+        "pypdf>=5,<7",
+        "PyMuPDF>=1.24,<2"
+      ],
+      "xlsx": [
+        "openpyxl>=3.1,<4"
+      ],
+      "validation": [
+        "jsonschema>=4.21,<5"
+      ],
+      "science": [
+        "numpy>=1.26,<3",
+        "scipy>=1.12,<2",
+        "pandas>=2.2,<4",
+        "networkx>=3.2,<4",
+        "scikit-learn>=1.4,<2"
+      ],
+      "dev": [
+        "python-docx>=1.1,<2",
+        "lxml>=5,<7",
+        "defusedxml>=0.7.1,<1",
+        "Pillow>=10,<13",
+        "pypdf>=5,<7",
+        "PyMuPDF>=1.24,<2",
+        "jsonschema>=4.21,<5",
+        "numpy>=1.26,<3",
+        "pandas>=2.2,<4",
+        "matplotlib>=3.8,<4",
+        "scipy>=1.12,<2",
+        "networkx>=3.2,<4",
+        "openpyxl>=3.1,<4",
+        "scikit-learn>=1.4,<2",
+        "build>=1.2,<2",
+        "SALib>=1.5,<2"
+      ]
+    }
+  },
+  "excluded_components": [],
+  "artifacts": [
+    {
+      "name": "mathmodel-skill-2.1.0-LOCAL-DEVELOPMENT.zip",
+      "sha256": "f83b9a74f6f6bc05c9c6c930274cd1f90b50ce615923ff062d49c88c064d6e02",
+      "bytes": 5579463,
+      "file_count": 298
+    },
+    {
+      "name": "mathmodel-dsh-2.1.0-LOCAL-DEVELOPMENT.zip",
+      "sha256": "1c9b8c4a6856cd3538f594689197ff53b4654556d048c3ae34d1147cdb3fbd00",
+      "bytes": 11298299,
+      "file_count": 615
+    }
+  ],
+  "resource_audit": {
+    "required_resources": [
+      "SKILL.md",
+      "VERSION",
+      "scripts/mathmodel.py",
+      "mathmodel_runtime/__init__.py",
+      "mathmodel_runtime/resources/profiles/short.json",
+      "mathmodel_runtime/resources/profiles/balanced.json",
+      "mathmodel_runtime/resources/schemas/state.schema.json",
+      "tools/docx/scripts/check_env.py",
+      "tools/docx/scripts/paper_format.py",
+      "tools/xlsx/scripts/read_rows.py",
+      "tools/pdf/SKILL.md",
+      "references/roles/论文手/references/论文模板.docx"
+    ],
+    "checked_links": 126,
+    "preexisting_documentation_gaps": [
+      {
+        "document": "tools/figure/skills/matplotlib/references/styling_guide.md",
+        "target": "np.linspace(0, 1, n_categories"
+      },
+      {
+        "document": "tools/figure/skills/matplotlib/references/styling_guide.md",
+        "target": "np.linspace(0, 1, n_colors"
+      }
+    ],
+    "python_syntax": "passed"
+  },
+  "smoke_tests": [
+    {
+      "action": "init",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    },
+    {
+      "action": "state",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    },
+    {
+      "action": "complete",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    }
+  ]
+}

@@ -12,7 +12,8 @@ description: 数学建模、竞赛分析、代码求解、结果可视化与论�
 - `SKILL_ROOT` 是本文件目录，只读；`PROJECT_ROOT` 是独立题目目录，输入附件只读，输出写入项目目录。
 - 首次更新说明任务范围、两个根目录、已知规则和能力缺口；只读取当前阶段需要的入口。
 - 读取 `references/共享运行时.md`，用共享 CLI 初始化/恢复项目并运行 `doctor`。选择 `balanced`、`short` 或 `competition` profile 和用户需要的格式；默认 `balanced`、Word。
-- profile 的建议图数、篇幅和模型数量不是通用硬门槛。官方规则和用户明确要求写入带来源的项目 rules；不凑图、凑字数、凑模型。
+- profile 的建议图数和篇幅不是通用硬门槛。每道子问题最多两个独立模型体系；同一物理机理的基础近似与高精度展开按一个模型族计数，不凑第二个模型。官方规则和用户明确要求写入带来源的项目 rules。
+- 初始化或恢复后读取 `context` 返回的项目配置和材料清单；使用 `input-read` 按需读取原题、附件、模板和论文要求。面板中的绘图开关与七类可选协作保存在共享配置中，关闭项不得自动启用。
 - 无 CLI 时可按知识流程产出结果，报告未记录/未验证状态；无独立审查能力时按审查协议受限交付，不声称独立通过。
 
 ## 路由与产物
@@ -40,14 +41,15 @@ description: 数学建模、竞赛分析、代码求解、结果可视化与论�
 
 | 情形 | 入口 |
 |---|---|
-| 选算法、基线与验证 | `references/算法索引.md`，再读具体算法卡片 |
+| 选算法、基线与验证 | `references/算法索引.md`，只加载匹配卡片和示例；新增数值、几何、微分方程、反问题、动态决策、不确定性优化六类入口 |
+| 数据处理与模型验证 | `assets/algorithms/数据预处理/README.md`、`assets/algorithms/模型验证/README.md`；先划分后拟合，验证结论再写论文 |
 | 论文检索 | `tools/paper_search/SKILL.md`；来源匹配不代表原文支持结论 |
-| 数据图与流程图 | `tools/figure/SKILL.md` |
+| 数据图与流程图 | `tools/figure/SKILL.md`，按 `tools/figure/INTEGRATIONS.zh-CN.md` 加载基础 scientific-visualization + matplotlib 和用户选择的扩展 |
 | PDF、Excel | `tools/pdf/SKILL.md`、`tools/xlsx/SKILL.md`，先检查扩展依赖与组件授权 |
 | 高级 Word / LaTeX | `tools/docx/SKILL.md`、`tools/latex/SKILL.md`，按所选格式加载 |
 | 截止时间与打包 | `references/交付与截止时间协议.md` |
 
-基线优先：先跑简单可靠的方法，再用验证证明复杂方法增益。模型数量、异常阈值、容差、边界预期和退化策略由问题合同决定，不套通用数值。
+基线优先：先跑简单可靠的方法，再用验证证明复杂方法增益。在每道子问题最多两个独立模型体系的范围内选择主模型与必要对照；同族近似、数值求解和误差检验不另计模型。异常阈值、容差、边界预期和退化策略由问题合同决定，不套通用数值。
 
 ## 完成与反馈
 

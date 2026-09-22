@@ -2,11 +2,13 @@
 
 from contextlib import contextmanager
 from datetime import datetime, timezone
+import errno
 import hashlib
 import json
 import os
 from pathlib import Path
 import tempfile
+import sys
 import time
 
 
@@ -76,7 +78,7 @@ def project_files(root):
         dirs[:] = sorted(d for d in dirs if d not in EXCLUDED and not Path(directory, d).is_symlink())
         for name in sorted(files):
             path = Path(directory, name)
-            if path.is_symlink() or name.endswith((".pyc", ".tmp")):
+            if path.is_symlink() or (name.endswith((".pyc", ".tmp")) and path.relative_to(root).parts[0] != "inputs"):
                 continue
             yield path
 
@@ -98,6 +100,25 @@ def snapshot(root, state, phase, gate=None, minimal_run_id=None):
     hashes = {}
     registered = {artifact["path"]: artifact for artifact in state.get("artifacts", {}).values()}
     config = {key: state["project"].get(key) for key in ("scope", "profile", "paperFormat", "subproblems", "rules")}
+    for key, default in (("competition", "generic"), ("edition", "")):
+        value = state["project"].get(key, default)
+        if value != default:
+            config[key] = value
+    collaboration = state["project"].get("optionalCollab", {})
+    if any(collaboration.values()):
+        config["optionalCollab"] = collaboration
+    if index >= 1:
+        from .configuration import BASE_GRAPHICS
+        optional_graphics = {key: enabled for key, enabled in state["project"].get("graphicsTools", {}).items() if key not in BASE_GRAPHICS}
+        if any(optional_graphics.values()):
+            config["graphicsTools"] = optional_graphics
+    requirements = state["project"].get("paperRequirements", {})
+    if index == 2 and requirements.get("text"):
+        config["paperRequirements"] = requirements
+    input_records = [item for item in state.get("inputs", {}).values() if index == 2 or item["kind"] not in {"paper-template", "paper-requirements"}]
+    input_paths = {item["path"] for item in input_records} | {item["extraction"]["path"] for item in input_records if item.get("extraction", {}).get("path")}
+    if input_records:
+        config["input_bindings"] = {item["input_id"]: {key: item.get(key) for key in ("kind", "path", "sha256", "extraction")} for item in input_records}
     minimal_paths = set()
     if gate == "P1":
         if minimal_run_id is None:
@@ -121,13 +142,15 @@ def snapshot(root, state, phase, gate=None, minimal_run_id=None):
         suffix = path.suffix.lower()
         artifact = registered.get(relative, {})
         kind = artifact.get("kind")
-        modeling = (relative.startswith(("data/", "inputs/")) or path.name in {"题目分析报告.md", "术语表格.md"} or kind in {"model", "terms"})
+        paper_input = relative.startswith(("inputs/paper-template/", "inputs/paper-requirements/"))
+        modeling = (relative.startswith(("data/", "inputs/")) and not paper_input or path.name in {"题目分析报告.md", "术语表格.md"} or kind in {"model", "terms"})
         source = suffix in {".py", ".m", ".ipynb", ".r", ".jl"} and not paper_only_path(state, relative, artifact)
-        programming = modeling or (not paper_only_path(state, relative, artifact) and (source or relative.startswith(("results/", "figures/")) or kind in {"code", "table", "figure", "manifest"}))
+        source = source and not paper_input
+        programming = modeling or (not paper_input and not paper_only_path(state, relative, artifact) and (source or relative.startswith(("results/", "figures/")) or kind in {"code", "table", "figure", "manifest"}))
         if gate == "P1":
             include = modeling or source or relative in minimal_paths
         elif gate == "W1":
-            include = modeling or relative in claim_paths or kind == "outline" or path.name in {"论文大纲.md", "证据大纲.md"}
+            include = modeling or relative in input_paths or relative in claim_paths or kind == "outline" or path.name in {"论文大纲.md", "证据大纲.md"}
         else:
             include = modeling or (index >= 1 and programming) or index == 2
         if include:
@@ -165,14 +188,24 @@ class Store:
         while True:
             try:
                 fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-                with os.fdopen(fd, "w", encoding="utf-8") as stream:
-                    json.dump({"pid": os.getpid(), "created_at": now()}, stream)
+            except OSError as error:
+                # Windows CREATE_NEW can report delete-pending as CRT EACCES,
+                # without winerror. Retry only creation, within the same deadline;
+                # retain PermissionError at timeout so an ACL denial is not hidden.
+                permission = isinstance(error, PermissionError) and sys.platform == "win32" and error.errno == errno.EACCES
+                if not isinstance(error, FileExistsError) and not permission:
+                    raise
+                remaining = 5 - (time.monotonic() - started)
+                if remaining <= 0:
+                    if permission:
+                        raise
+                    raise WorkflowError("Project is locked; inspect state.lock and its owning process before recovery", "project_locked") from error
+                time.sleep(min(0.05, remaining))
+            else:
                 break
-            except FileExistsError:
-                if time.monotonic() - started > 5:
-                    raise WorkflowError("Project is locked; inspect state.lock and its owning process before recovery", "project_locked")
-                time.sleep(0.05)
         try:
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                json.dump({"pid": os.getpid(), "created_at": now()}, stream)
             yield
         finally:
             lock.unlink(missing_ok=True)
@@ -193,7 +226,7 @@ class Store:
             raise WorkflowError("Stored project root differs from the authorized invocation", "path_boundary")
         if state.get("schema_version") == 2:
             from .schema import validate_state
-            validate_state(state)
+            validate_state(state, allow_legacy_project=True)
         return state
 
     def save(self, state):

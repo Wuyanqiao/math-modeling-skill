@@ -1,0 +1,207 @@
+{
+  "repository": "https://github.com/K-Dense-AI/scientific-agent-skills",
+  "commit": "49c6e97775eaa18ba791bebe23162a70ae601c18",
+  "license": "MIT (skill documents/scripts); linked libraries retain their own licenses",
+  "adaptations": [
+    "Removed mandatory self-promotional citation insertion from SKILL.md; provenance and copyright retained here.",
+    "Workbench project configuration and source data contracts take precedence over generic upstream examples.",
+    "Moved top-level compatibility guidance into metadata.compatibility for Agent frontmatter compatibility; original content retained."
+  ],
+  "files": [
+    {
+      "path": "scientific-visualization/assets/color_palettes.py",
+      "upstream_sha256": "173d95887be654867db3602430ade84f6362ae80477c5373de0b44ce40375f57",
+      "vendored_sha256": "173d95887be654867db3602430ade84f6362ae80477c5373de0b44ce40375f57"
+    },
+    {
+      "path": "scientific-visualization/assets/nature.mplstyle",
+      "upstream_sha256": "1c0c6bcb4d6add27247f43541d8e588aa562f21c4c88c7eaa673a2eac63dfb35",
+      "vendored_sha256": "1c0c6bcb4d6add27247f43541d8e588aa562f21c4c88c7eaa673a2eac63dfb35"
+    },
+    {
+      "path": "scientific-visualization/assets/presentation.mplstyle",
+      "upstream_sha256": "db47ccdf7267a39407a959141b851d72295a66489f01c9a23ec8e963a02144c8",
+      "vendored_sha256": "db47ccdf7267a39407a959141b851d72295a66489f01c9a23ec8e963a02144c8"
+    },
+    {
+      "path": "scientific-visualization/assets/publication.mplstyle",
+      "upstream_sha256": "45973599d92b27e5b156b4a23aa794795b5d83173633acb47e55658af304f999",
+      "vendored_sha256": "45973599d92b27e5b156b4a23aa794795b5d83173633acb47e55658af304f999"
+    },
+    {
+      "path": "scientific-visualization/assets/publisher_profiles.json",
+      "upstream_sha256": "12633ca62d1b7539b40fa31c01aa5b266546a25734961a41fc79250a5b328b9b",
+      "vendored_sha256": "12633ca62d1b7539b40fa31c01aa5b266546a25734961a41fc79250a5b328b9b"
+    },
+    {
+      "path": "scientific-visualization/references/color_palettes.md",
+      "upstream_sha256": "9b6e7d74922d64e333aff67fd41c0b53891736f5d37b01f11e96225d2dc1bfc1",
+      "vendored_sha256": "9b6e7d74922d64e333aff67fd41c0b53891736f5d37b01f11e96225d2dc1bfc1"
+    },
+    {
+      "path": "scientific-visualization/references/journal_requirements.md",
+      "upstream_sha256": "17d36a91d5afc4975682038f36a3b13470e886f64d53b23100b3ea5688e07daa",
+      "vendored_sha256": "17d36a91d5afc4975682038f36a3b13470e886f64d53b23100b3ea5688e07daa"
+    },
+    {
+      "path": "scientific-visualization/references/matplotlib_examples.md",
+      "upstream_sha256": "0f603898a5ac91757fec3dccd62bb5ee2e24e254fdebfb97f8d2b3ecec167dd5",
+      "vendored_sha256": "0f603898a5ac91757fec3dccd62bb5ee2e24e254fdebfb97f8d2b3ecec167dd5"
+    },
+    {
+      "path": "scientific-visualization/references/publication_guidelines.md",
+      "upstream_sha256": "abfd60dbf157dcf87d396e5859d100b8d98a25bfe8b802bfcc149b049300dc20",
+      "vendored_sha256": "abfd60dbf157dcf87d396e5859d100b8d98a25bfe8b802bfcc149b049300dc20"
+    },
+    {
+      "path": "scientific-visualization/references/sources.md",
+      "upstream_sha256": "186544985dba77fe948393483cd2c7fd2c4b543c04c1fc1bcc652190d0fb9cd0",
+      "vendored_sha256": "186544985dba77fe948393483cd2c7fd2c4b543c04c1fc1bcc652190d0fb9cd0"
+    },
+    {
+      "path": "scientific-visualization/scripts/_common.py",
+      "upstream_sha256": "1bbbfb48500af7dd6df98076584085b2b2a24aee3024a7d9ce91dcb27ebd4b15",
+      "vendored_sha256": "1bbbfb48500af7dd6df98076584085b2b2a24aee3024a7d9ce91dcb27ebd4b15"
+    },
+    {
+      "path": "scientific-visualization/scripts/export_plan.py",
+      "upstream_sha256": "29e33fbb4a8a4f558e0a190afda50721f7bcb0fabf39a4f2b8f465152d9f20bf",
+      "vendored_sha256": "29e33fbb4a8a4f558e0a190afda50721f7bcb0fabf39a4f2b8f465152d9f20bf"
+    },
+    {
+      "path": "scientific-visualization/scripts/figure_export.py",
+      "upstream_sha256": "5fc7dd947621b861b12fad2c053f80f465f686b92258c9a7991db618d62b8627",
+      "vendored_sha256": "5fc7dd947621b861b12fad2c053f80f465f686b92258c9a7991db618d62b8627"
+    },
+    {
+      "path": "scientific-visualization/scripts/image_metadata.py",
+      "upstream_sha256": "bd8df685ae0a31f92ab10ac5e5ac7472275d06a62e1543adb94a4de6bfe78693",
+      "vendored_sha256": "bd8df685ae0a31f92ab10ac5e5ac7472275d06a62e1543adb94a4de6bfe78693"
+    },
+    {
+      "path": "scientific-visualization/scripts/palette_audit.py",
+      "upstream_sha256": "3a90b3c9a4a39dde6a341dc3de7b99cd2bca4773c66564fc90cdc2706a5a8165",
+      "vendored_sha256": "3a90b3c9a4a39dde6a341dc3de7b99cd2bca4773c66564fc90cdc2706a5a8165"
+    },
+    {
+      "path": "scientific-visualization/scripts/style_presets.py",
+      "upstream_sha256": "3c811ecb16c012691b69e9f27993ef096977754c3a6e73d247e816a674efff21",
+      "vendored_sha256": "3c811ecb16c012691b69e9f27993ef096977754c3a6e73d247e816a674efff21"
+    },
+    {
+      "path": "scientific-visualization/scripts/style_preview.py",
+      "upstream_sha256": "f96f2ec01b86423418446eebdd2ed887da83f0a1b54f499d920191d56a3542c0",
+      "vendored_sha256": "f96f2ec01b86423418446eebdd2ed887da83f0a1b54f499d920191d56a3542c0"
+    },
+    {
+      "path": "scientific-visualization/SKILL.md",
+      "upstream_sha256": "f7c7f9a2350ea02db2db55cd28921a54c74b089f6762f1b0b63a13b8f6eeec33",
+      "vendored_sha256": "f976d6610e4627ce951fcbd91e35b5fef354c5c9d23ea8e06ee3cc12929925df"
+    },
+    {
+      "path": "matplotlib/references/api_reference.md",
+      "upstream_sha256": "7db16c836bf62d9ac1bf952a70f3ffed785cfe51f76d806ded428a125ec9f1b5",
+      "vendored_sha256": "7db16c836bf62d9ac1bf952a70f3ffed785cfe51f76d806ded428a125ec9f1b5"
+    },
+    {
+      "path": "matplotlib/references/common_issues.md",
+      "upstream_sha256": "36d5439972718697be22222ba8a53e0e52d474153eaaa999c349f41b54e01cb5",
+      "vendored_sha256": "36d5439972718697be22222ba8a53e0e52d474153eaaa999c349f41b54e01cb5"
+    },
+    {
+      "path": "matplotlib/references/plot_types.md",
+      "upstream_sha256": "99b4c3c5c6c4d6590b722b6de7e414c2e443402df51cf99c3616b9f366a04c44",
+      "vendored_sha256": "99b4c3c5c6c4d6590b722b6de7e414c2e443402df51cf99c3616b9f366a04c44"
+    },
+    {
+      "path": "matplotlib/references/styling_guide.md",
+      "upstream_sha256": "e53cb0f55fd1c4b07122cf67c0aabcc3114a686598667e62856c9d797a6e7f35",
+      "vendored_sha256": "e53cb0f55fd1c4b07122cf67c0aabcc3114a686598667e62856c9d797a6e7f35"
+    },
+    {
+      "path": "matplotlib/scripts/plot_template.py",
+      "upstream_sha256": "24b362b1c2a96d4eda19ed8f4a913f356029e836069aab564e0cfb4ac2b84a1b",
+      "vendored_sha256": "24b362b1c2a96d4eda19ed8f4a913f356029e836069aab564e0cfb4ac2b84a1b"
+    },
+    {
+      "path": "matplotlib/scripts/style_configurator.py",
+      "upstream_sha256": "5839cebb22b21f7612c6d169b9f63f20316910d1d7a3f0eb68c2b79cc43e1b0d",
+      "vendored_sha256": "5839cebb22b21f7612c6d169b9f63f20316910d1d7a3f0eb68c2b79cc43e1b0d"
+    },
+    {
+      "path": "matplotlib/SKILL.md",
+      "upstream_sha256": "57c8fb3c504a7d11c338800d8dc2124d04176d9ec5d0428622d05bb498e3e8e4",
+      "vendored_sha256": "2ad946f6ee13765307dc8c49ed921fb977bd9de2804b6544a56a33ba4241b180"
+    },
+    {
+      "path": "scientific-schematics/references/best_practices.md",
+      "upstream_sha256": "bf8368c60e6e5db0f612501d1abf38170502d001125523b89c8fb86b6d08fd16",
+      "vendored_sha256": "bf8368c60e6e5db0f612501d1abf38170502d001125523b89c8fb86b6d08fd16"
+    },
+    {
+      "path": "scientific-schematics/references/iterative_refinement.md",
+      "upstream_sha256": "843f952647c3b94bb5f733964af7a97b1e9f02f58ce5c8c77b2b992bc5467a70",
+      "vendored_sha256": "843f952647c3b94bb5f733964af7a97b1e9f02f58ce5c8c77b2b992bc5467a70"
+    },
+    {
+      "path": "scientific-schematics/scripts/example_usage.sh",
+      "upstream_sha256": "62c514c31c34549e5a8fb25bb08c5e55a8e61a8a7de2d3713804929e10a0e35a",
+      "vendored_sha256": "62c514c31c34549e5a8fb25bb08c5e55a8e61a8a7de2d3713804929e10a0e35a"
+    },
+    {
+      "path": "scientific-schematics/scripts/generate_schematic.py",
+      "upstream_sha256": "5cec9c14d164c9ea9ccf6425f2010c40f1b077dd0c9e30395564cdc793c334b2",
+      "vendored_sha256": "5cec9c14d164c9ea9ccf6425f2010c40f1b077dd0c9e30395564cdc793c334b2"
+    },
+    {
+      "path": "scientific-schematics/scripts/generate_schematic_ai.py",
+      "upstream_sha256": "af055204033d446cd8e4501de0a0d0aaa952bad7c365e559f2e3a80698704ce9",
+      "vendored_sha256": "af055204033d446cd8e4501de0a0d0aaa952bad7c365e559f2e3a80698704ce9"
+    },
+    {
+      "path": "scientific-schematics/SKILL.md",
+      "upstream_sha256": "3ef33ab3eb6eed0f3625a9fe48d4dc7618abe07b5794015e125273220d7dafef",
+      "vendored_sha256": "7746e336d5d04fcc3294ea37ec707d1a916d7d80bf9f4db13d0637134d54e9f2"
+    },
+    {
+      "path": "seaborn/references/examples.md",
+      "upstream_sha256": "0bf1279af53b7464824853696fa8e06c1904538eafaf1b9a1b1afc874de5d78b",
+      "vendored_sha256": "0bf1279af53b7464824853696fa8e06c1904538eafaf1b9a1b1afc874de5d78b"
+    },
+    {
+      "path": "seaborn/references/function_reference.md",
+      "upstream_sha256": "d6e3098f0e2eee13c4b863b96f530b8937d4477d1d0c6b3cc3e2973d27deca64",
+      "vendored_sha256": "d6e3098f0e2eee13c4b863b96f530b8937d4477d1d0c6b3cc3e2973d27deca64"
+    },
+    {
+      "path": "seaborn/references/grids_and_levels.md",
+      "upstream_sha256": "2382a4504df55446ead1d8ba3495b1c4bbb010fa1ebafe5f7ee513a648332941",
+      "vendored_sha256": "2382a4504df55446ead1d8ba3495b1c4bbb010fa1ebafe5f7ee513a648332941"
+    },
+    {
+      "path": "seaborn/references/objects_interface.md",
+      "upstream_sha256": "ab5e4c8ae7309f7842ba5b9dcb7e1a098d64db45ae456c3a41b769f7467a1a5b",
+      "vendored_sha256": "ab5e4c8ae7309f7842ba5b9dcb7e1a098d64db45ae456c3a41b769f7467a1a5b"
+    },
+    {
+      "path": "seaborn/references/palettes_and_theming.md",
+      "upstream_sha256": "a9e8fbd48256dae8226fee94b215c0e0cde766790cc4e12cb5dfbe9fb208052c",
+      "vendored_sha256": "a9e8fbd48256dae8226fee94b215c0e0cde766790cc4e12cb5dfbe9fb208052c"
+    },
+    {
+      "path": "seaborn/references/patterns_and_troubleshooting.md",
+      "upstream_sha256": "7c4d2971bdcd6daa40461f145a0c7ef9f11264e20220a8544bab176cae48cfb7",
+      "vendored_sha256": "7c4d2971bdcd6daa40461f145a0c7ef9f11264e20220a8544bab176cae48cfb7"
+    },
+    {
+      "path": "seaborn/references/plotting_functions.md",
+      "upstream_sha256": "a5177194463865a3bb92568cf66f663cf3692bc891715464defe8275a9b77480",
+      "vendored_sha256": "a5177194463865a3bb92568cf66f663cf3692bc891715464defe8275a9b77480"
+    },
+    {
+      "path": "seaborn/SKILL.md",
+      "upstream_sha256": "9215df4ea0358f03af084dc2331c554016c26b524ae35518686c083672779b96",
+      "vendored_sha256": "4b674a6e929c3a80e1d1263121f7268a6f49f43ba2d469eb6a08052e5fd29a79"
+    }
+  ]
+}

@@ -36,8 +36,9 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
     const root = ReactDOM.createRoot(document.getElementById('host'))
     const fixture = window.fixture = {
       sid: 'a', mainSid: 'b', kind: 'guide', visible: true, enabled: true, initialized: { a: true, b: true, c: false },
-      projectGeneration: { a: 1, b: 1, c: 1 },
+      projectGeneration: { a: 1, b: 1, c: 1 }, presetSelected: false, config: { a: {}, b: {}, c: {} }, inputs: { a: [], b: [], c: [] }, uploads: {},
       calls: [], openCalls: [], registrations: [], effects: [], longContent: false,
+      copied: [], environmentError: false,
       holds: {}, pending: {}, restoreConflict: true, restoreRevision: 41,
       checkpoints: {
         a: [{ checkpoint_id: 'checkpoint_aaaaaaaaaaaaaaaa', name: '已验收基线', created_at: '2026-09-22T07:00:00Z', completed_when_created: true }],
@@ -48,13 +49,14 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
       setVisible(value) { this.visible = value; render() },
       release(key) { this.holds[key] = false; for (const resolve of this.pending[key] || []) resolve(); this.pending[key] = [] },
     }
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { fixture.copied.push(text) } } })
     async function hold(key) {
       if (fixture.holds[key]) await new Promise(resolve => (fixture.pending[key] ||= []).push(resolve))
     }
     const state = sid => fixture.initialized[sid] ? {
       initialized: true, stale: true, snapshotAt: '2026-09-22T08:00:00Z',
       project: { title: { a: '城市能源调度研究', b: '第二个独立项目', c: '刚初始化的项目' }[sid], scope: 'programming',
-        project_id: `project-${sid}-${fixture.projectGeneration[sid]}`, projectRoot: `D:/projects/${sid}-${fixture.projectGeneration[sid]}` },
+        project_id: `project-${sid}-${fixture.projectGeneration[sid]}`, projectRoot: `D:/projects/${sid}-${fixture.projectGeneration[sid]}`, ...fixture.config[sid] }, inputs: fixture.inputs[sid],
       currentPhase: 'programming', completed: false,
       blockers: fixture.longContent ? Array.from({ length: 30 }, (_, i) => `待复核结果 ${i + 1}：检查输入与输出来源`) : ['P2：结果表尚未关联实际运行'],
       progress: { steps: [{ key: 'programming', label: '编程求解', status: 'current' }], tasks: { programming: { done: 4, total: 6, pct: 67 } } },
@@ -66,6 +68,37 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
     } : { initialized: false }
     const rpc = async (_channel, endpoint, payload) => {
       fixture.calls.push({ endpoint, payload })
+      if (endpoint === 'mm.context') { const value = {enabled: fixture.enabled, eligible: fixture.enabled && (fixture.initialized[payload.sessionId] || fixture.presetSelected), initialized: fixture.initialized[payload.sessionId]}; await hold(`context:${payload.sessionId}`); return {ok:true,value} }
+      if (endpoint === 'mm.ensureProject') {
+        if (!fixture.initialized[payload.sessionId] && !fixture.presetSelected) return {ok: false, error: {message: 'preset required'}}
+        if (fixture.enabled) fixture.initialized[payload.sessionId] = true
+        return {ok: true, value: state(payload.sessionId)}
+      }
+      if (endpoint === 'mm.configure') {
+        const keys = {paper_format:'paperFormat',graphics_tools:'graphicsTools',optional_collab:'optionalCollab',paper_requirements:'paperRequirements'}
+        for (const [key,value] of Object.entries(payload.settings)) fixture.config[payload.sessionId][keys[key] || key] = value
+        return {ok: true, value: state(payload.sessionId)}
+      }
+      if (endpoint === 'mm.environment') {
+        const executable = `D:/env-${payload.sessionId}/python.exe`
+        const installCommand = `& '${executable}' -m pip install 'matplotlib>=3.8,<4'`
+        await hold(`environment:${payload.sessionId}`)
+        if (fixture.environmentError) return {ok:false,error:{message:'宿主拒绝执行环境检测'}}
+        return {ok:true,value:{ok:true,checked_at:'2026-09-22T08:00:00Z',python:'3.13.13',platform:'win32',executable,ready:false,
+          items:[
+            {id:'python',label:'Python',purpose:'项目状态与工作流',requirement:'required',status:'ready',version:'3.13.13'},
+            {id:'matplotlib',label:'Matplotlib',purpose:'绘制和导出论文数据图',requirement:'selected',status:'missing',install_command:installCommand,agent_prompt:`请在 ${executable} 中补齐 Matplotlib 并验证。`},
+            {id:'paraview',label:'ParaView',purpose:'三维仿真可视化',requirement:'optional',status:'manual',detail:'按实际三维任务配置',install_command:null,agent_prompt:'请检查当前三维任务是否需要 ParaView，然后安装并验证实际后端。'},
+          ],install_command:installCommand,agent_prompt:`请在 ${executable} 中为当前项目补齐 Matplotlib，保留已可用依赖并重新检测。`}}
+      }
+      if (endpoint === 'mm.importBegin') { fixture.uploads.u1 = {...payload,parts:[]}; return {ok:true,value:{upload_id:'u1',chunk_bytes:1048576}} }
+      if (endpoint === 'mm.importChunk') { fixture.uploads[payload.upload_id].parts.push(payload.content_base64); return {ok:true,value:{next_index:payload.index+1}} }
+      if (endpoint === 'mm.importCommit') {
+        const upload = fixture.uploads[payload.upload_id]
+        fixture.inputs[payload.sessionId].push({input_id:'i1',filename:upload.filename,kind:upload.kind,bytes:upload.size,extraction:{status:'ready'}})
+        return {ok:true,value:{input_id:'i1'}}
+      }
+      if (endpoint === 'mm.inputRead') return {ok:true,value:{content:'某城市电力供需分析'}}
       if (endpoint === 'mm.state') {
         const value = structuredClone(fixture.enabled ? { ...state(payload.sessionId), stale: !payload.refresh } : { hidden: true })
         await hold(`state:${payload.sessionId}`)
@@ -192,9 +225,11 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
   await page.waitForFunction(count => fixture.calls.filter(call => call.endpoint === 'mm.state').length > count, hiddenCalls)
   assert.notEqual(await panel.evaluate(el => getComputedStyle(el).position), 'fixed')
   assert.equal(await panel.locator('.mmwb-kicker').count(), 0)
-  assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['项目', '证据', '运行', '快照'])
+  assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['项目', '材料', '配置', '证据', '运行', '快照'])
   assert.match(await page.getByRole('tabpanel').innerText(), /结果表尚未关联实际运行/)
   await page.getByRole('tab', { name: '项目', exact: true }).focus()
+  await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('ArrowRight')
   await page.keyboard.press('ArrowRight')
   assert.equal(await page.getByRole('tab', { name: '证据', exact: true }).getAttribute('aria-selected'), 'true')
   await page.getByRole('button', { name: '预览 results/answer.csv' }).click()
@@ -369,14 +404,14 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
   assert.equal(await page.getByRole('button', { name: '确认恢复', exact: true }).count(), 0, 'preview arriving while disabled must remain discarded after reenable')
   assert.equal(await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.checkpointRestore' && call.payload.apply).length), 2)
 
-  await page.evaluate(() => { fixture.holds['state:a'] = true; fixture.guide('a') })
-  await page.waitForFunction(() => fixture.pending['state:a']?.length >= 1)
+  await page.evaluate(() => { fixture.holds['context:a'] = true; fixture.guide('a') })
+  await page.waitForFunction(() => fixture.pending['context:a']?.length >= 1)
   await page.evaluate(() => fixture.guide('c'))
-  await page.waitForFunction(() => fixture.calls.some(call => call.endpoint === 'mm.state' && call.payload.sessionId === 'c'))
-  await page.evaluate(() => fixture.release('state:a'))
+  await page.waitForFunction(() => fixture.calls.some(call => call.endpoint === 'mm.context' && call.payload.sessionId === 'c'))
+  await page.evaluate(() => fixture.release('context:a'))
   await settle()
   assert.equal(await entry.count(), 0, 'uninitialized sessions must not show the workbench entry')
-  await page.evaluate(() => { fixture.initialized.c = true; window.dispatchEvent(new Event('mmwb-settings-change')) })
+  await page.evaluate(() => { fixture.presetSelected = true; window.dispatchEvent(new Event('mmwb-settings-change')) })
   await entry.waitFor()
   await entry.click()
   await title('刚初始化的项目').waitFor()
@@ -384,6 +419,86 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
 
   await page.evaluate(() => fixture.change('a'))
   await title('城市能源调度研究').waitFor()
+  await page.getByRole('tab', { name: '配置', exact: true }).click()
+  await page.getByRole('switch', {name:'SciencePlots',exact:true}).check()
+  await page.getByRole('switch', {name:'独立实验',exact:true}).check()
+  await page.getByRole('button', {name:'保存配置',exact:true}).click()
+  await page.getByText('已保存',{exact:true}).waitFor()
+  assert.equal(await page.evaluate(() => fixture.config.a.graphicsTools.scienceplots), true)
+  assert.equal(await page.evaluate(() => fixture.config.a.optionalCollab.experiments), true)
+  await page.getByRole('tab', { name: '项目', exact: true }).click()
+  await page.getByRole('tab', { name: '配置', exact: true }).click()
+  assert.equal(await page.getByRole('switch', {name:'SciencePlots',exact:true}).isChecked(),true)
+  await page.getByRole('switch', {name:'SciencePlots',exact:true}).uncheck()
+  await page.getByRole('button', {name:'保存配置',exact:true}).click()
+  await page.getByText('已保存',{exact:true}).waitFor()
+  assert.equal(await page.evaluate(() => fixture.config.a.graphicsTools.scienceplots),false)
+  await page.getByText('项目设置',{exact:true}).click()
+  await page.getByRole('button',{name:'检测环境',exact:true}).click()
+  await page.getByText('当前配置有待补齐项',{exact:true}).waitFor()
+  assert.deepEqual(await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.environment').at(-1).payload), {sessionId:'a'})
+  assert.equal(await page.getByText('基础必需',{exact:true}).isVisible(),true)
+  assert.equal(await page.getByText('当前配置需要',{exact:true}).isVisible(),true)
+  assert.equal(await page.getByText('可选依赖',{exact:true}).isVisible(),true)
+  await page.getByRole('button',{name:'复制给 Agent 的 Prompt',exact:true}).click()
+  assert.match(await page.evaluate(() => fixture.copied.at(-1)),/补齐 Matplotlib/)
+  const matplotlib = page.locator('[data-environment-item="matplotlib"]')
+  const paraview = page.locator('[data-environment-item="paraview"]')
+  await matplotlib.getByRole('button',{name:'复制命令',exact:true}).click()
+  assert.match(await page.evaluate(() => fixture.copied.at(-1)),/env-a\/python.exe.*matplotlib/)
+  assert.equal(await paraview.getByRole('button',{name:'复制命令',exact:true}).count(),0)
+  await page.getByText('可选依赖',{exact:true}).click()
+  await paraview.getByRole('button',{name:'复制安装 Prompt',exact:true}).click()
+  assert.match(await page.evaluate(() => fixture.copied.at(-1)),/ParaView/)
+  await page.getByTestId('mmwb-content-scroll').evaluate(el => {el.scrollTop=0})
+  await panel.screenshot({path:path.join(screenshots,'sidebar-environment.png')})
+  await page.getByRole('switch',{name:'SciencePlots',exact:true}).check()
+  await page.getByText('检测依据已保存配置；请先保存修改。',{exact:true}).waitFor()
+  await page.evaluate(() => {fixture.holds['state:a']=true})
+  await page.getByRole('button',{name:'保存配置',exact:true}).click()
+  await page.waitForFunction(() => fixture.config.a.graphicsTools.scienceplots === true && fixture.pending['state:a']?.length > 0)
+  await page.getByText('配置或材料已变化，请重新检测',{exact:true}).waitFor()
+  assert.equal(await matplotlib.getByRole('button',{name:'复制命令',exact:true}).isDisabled(),true,'saved configuration invalidates old commands before the refreshed project state arrives')
+  await page.evaluate(() => fixture.release('state:a'))
+  await page.getByRole('button',{name:'保存配置',exact:true}).waitFor()
+  await page.evaluate(() => {fixture.environmentError=true})
+  await page.getByRole('button',{name:'重新检测',exact:true}).click()
+  await page.getByText('宿主拒绝执行环境检测',{exact:true}).waitFor()
+  await page.evaluate(() => {fixture.environmentError=false;fixture.holds['environment:a']=true})
+  await page.getByRole('button',{name:'重新检测',exact:true}).click()
+  await page.evaluate(() => fixture.change('b'))
+  await title('第二个独立项目').waitFor()
+  await page.getByRole('tab',{name:'配置',exact:true}).click()
+  await page.evaluate(() => fixture.release('environment:a'))
+  await settle()
+  assert.equal(await panel.locator('[title="D:/env-a/python.exe"]').count(),0,'late environment report cannot cross sessions')
+  await page.getByRole('button',{name:'检测环境',exact:true}).click()
+  await panel.locator('[title="D:/env-b/python.exe"]').waitFor()
+  await matplotlib.getByRole('button',{name:'复制命令',exact:true}).click()
+  assert.equal(await page.evaluate(() => fixture.copied.at(-1)),"& 'D:/env-b/python.exe' -m pip install 'matplotlib>=3.8,<4'",'the second session copies its own detected interpreter')
+  await page.getByRole('button',{name:'复制给 Agent 的 Prompt',exact:true}).click()
+  assert.match(await page.evaluate(() => fixture.copied.at(-1)),/env-b\/python.exe/)
+  await page.evaluate(() => fixture.change('a'))
+  await title('城市能源调度研究').waitFor()
+  await page.getByRole('tab',{name:'配置',exact:true}).click()
+  await page.getByText('项目设置',{exact:true}).click()
+  await page.getByText('环境与依赖',{exact:true}).click()
+  await page.getByTestId('mmwb-content-scroll').evaluate(el => {el.scrollTop=0})
+  assert.equal(await page.getByText('画可编辑的论文框架图',{exact:true}).isVisible(),true)
+  assert.equal(await page.getByText('画概念或机制示意图',{exact:true}).isVisible(),true)
+  await panel.screenshot({path:path.join(screenshots,'sidebar-config.png')})
+  await page.getByRole('tab', { name: '材料', exact: true }).click()
+  await page.getByLabel('材料文件',{exact:true}).setInputFiles({name:'建模原题.md',mimeType:'text/markdown',buffer:Buffer.from('某城市电力供需分析')})
+  await page.getByText('已导入 1 个文件',{exact:true}).waitFor()
+  await page.getByRole('button',{name:'读取 建模原题.md',exact:true}).click()
+  await page.getByRole('region',{name:'材料预览'}).getByText('某城市电力供需分析',{exact:true}).waitFor()
+  assert.equal(await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.importChunk').length),1)
+  await page.getByRole('textbox',{name:'论文要求',exact:true}).fill('中文论文，符号保持一致，附代码复现说明。')
+  await page.getByRole('button',{name:'保存要求',exact:true}).click()
+  await page.getByText('论文要求已保存',{exact:true}).waitFor()
+  assert.match(await page.evaluate(() => fixture.config.a.paperRequirements.text),/附代码复现说明/)
+  await page.getByTestId('mmwb-content-scroll').evaluate(el => {el.scrollTop=0})
+  await panel.screenshot({path:path.join(screenshots,'sidebar-materials.png')})
   await page.getByRole('tab', { name: '项目', exact: true }).click()
   await page.evaluate(() => { fixture.longContent = true })
   await refreshSnapshot()

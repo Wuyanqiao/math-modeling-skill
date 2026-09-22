@@ -34,7 +34,7 @@
 ## 生成路线
 
 1. 优先复用项目已有的流程图生成器（若 `PROJECT_ROOT` 内已存在）。
-2. 没有时，用已安装的 **Matplotlib 或 MATLAB 原生绘图能力**（`patches` / `annotation` / `arrow` 等）。**不为流程图新增依赖**；不要求安装 Graphviz、Mermaid 等外部渲染器。
+2. 项目选择 `graphicsTools.drawio=true` 时加载 `tools/figure/integrations/drawio/SKILL.md` 并保留可编辑 `.drawio`。没有选择时，用已安装的 **Matplotlib 或 MATLAB 原生绘图能力**（`patches` / `annotation` / `arrow` 等）。**不为流程图新增依赖**；不要求安装 Graphviz、Mermaid 等外部渲染器。
 3. **不把** PowerPoint 截图、手工修改的位图或 AI 生成的概念图作为权威源——它们无法与代码逐句对应，也无法复现。
 4. 保留可运行的生成代码，使流程图与模型、代码同步演进。
 
@@ -42,8 +42,7 @@
 
 - 命名：`flow_overall_model.*`（总体）或 `flow_qN_model.*`（子问题）。
 - 输出：**SVG**（可编辑矢量）＋ **至少 300 DPI PNG**，条件允许再输出灰度预览。
-- 流程图与其他图一样受 `check_figure.py` 与 `figure_audit.py` 检查：**必须同时给出 `.svg` 与 `.png` 配对**，
-  SVG 须含可编辑文本节点，PNG 须 ≥ 300 DPI；缺少配对格式会直接判 FAIL。
+- 按项目模板要求选择导出格式，不设通用 SVG/PNG 配对门槛；drawio 路线保留原生 `.drawio`。对已导出的 SVG 检查可编辑文本，对印刷 PNG 检查实际尺寸和 DPI。
 - 在论文最终尺寸下检查：字体、箭头、对齐、裁切、灰度辨识。
 
 ## 自检清单

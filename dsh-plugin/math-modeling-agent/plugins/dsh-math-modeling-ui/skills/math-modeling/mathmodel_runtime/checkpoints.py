@@ -69,7 +69,7 @@ def restore_files(root, base, saved):
 
 
 def checkpoint_action(store, state, action, args):
-    from .engine import event, invalidate
+    from .engine import event, invalidate, migrate
     from .schema import validate_state
     if action == "checkpoint-create":
         record = create(store, state, args.get("name"))
@@ -91,7 +91,8 @@ def checkpoint_action(store, state, action, args):
     if manifest.get("state_sha256") != digest(state_path):
         raise WorkflowError("Checkpoint state hash is missing or corrupt", "checkpoint_corrupt")
     restored = json.loads(state_path.read_text(encoding="utf-8"))
-    validate_state(restored)
+    validate_state(restored, allow_legacy_project=True)
+    restored = migrate(store, restored)
     if manifest.get("checkpoint_id") != checkpoint_id or Path(restored["project"]["projectRoot"]).resolve() != store.root:
         raise WorkflowError("Checkpoint does not belong to this project")
     current = file_index(store.root)

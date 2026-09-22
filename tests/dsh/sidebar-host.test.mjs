@@ -56,7 +56,8 @@ test('official sidebar registry and renderer: keyed session guide, body and disp
     const fixture = window.sidebarFixture = { calls: [], opens: [], selected: 'a', initialized: { a: true, b: false }, enabled: true }
     const rpc = async (_channel, endpoint, payload) => {
       fixture.calls.push({ endpoint, payload })
-      if (endpoint === 'mm.state') return { ok: true, value: fixture.enabled ? {
+      if (endpoint === 'mm.context') return {ok:true,value:{enabled:fixture.enabled,eligible:fixture.enabled && fixture.initialized[payload.sessionId],initialized:fixture.initialized[payload.sessionId]}}
+      if (endpoint === 'mm.state' || endpoint === 'mm.ensureProject') return { ok: true, value: fixture.enabled ? {
         initialized: fixture.initialized[payload.sessionId], project: { title: `项目 ${payload.sessionId}`, scope: 'modeling' },
         currentPhase: 'modeling', progress: { steps: [], tasks: {} }, gates: {}, blockers: [],
         artifacts: [], claims: [], runs: [], checkpoints: [], ledgerTail: [],
@@ -154,7 +155,7 @@ test('official sidebar registry and renderer: keyed session guide, body and disp
   assert.equal(await page.locator('[data-slot="sidebar.right.pane.tab"]').getByRole('region', { name: '数学建模 Workbench', exact: true }).count(), 1)
 
   await page.evaluate(() => window.sidebarFixture.switchSession('b'))
-  await page.waitForFunction(() => window.sidebarFixture.calls.some(call => call.endpoint === 'mm.state' && call.payload.sessionId === 'b'))
+  await page.waitForFunction(() => window.sidebarFixture.calls.some(call => call.endpoint === 'mm.context' && call.payload.sessionId === 'b'))
   assert.equal(await card.count(), 0, 'registered null-returning entry must not fall back to the shipped generic guide capsule')
   assert.equal(await page.getByRole('button', { name: '工作区文件' }).count(), 1)
   await page.evaluate(() => window.sidebarFixture.switchSession('a'))

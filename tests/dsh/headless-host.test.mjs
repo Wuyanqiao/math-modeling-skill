@@ -4,9 +4,87 @@ import * as fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { createHash } from 'node:crypto'
 
 const modules = process.env.DSH_TEST_NODE_MODULES
 const repo = fileURLToPath(new URL('../../', import.meta.url))
+
+test('official host: preset projection, lazy init, saved context and 20MiB upload through fs/shell', { skip: !modules, timeout: 120000 }, async t => {
+  const load = name => import(pathToFileURL(path.join(modules, '@deepseek-ai', name, 'lib/index.js')))
+  const { Context } = await load('cordis')
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), 'mathmodel-host-upload-'))
+  const ctx = new Context(), fibers = []
+  t.after(async () => {
+    await ctx.fiber.dispose()
+    assert.equal(path.dirname(path.resolve(base)), path.resolve(os.tmpdir()))
+    assert.ok(path.basename(base).startsWith('mathmodel-host-upload-'))
+    await fs.rm(base, { recursive: true, force: true })
+  })
+  const mount = async name => { const module = await load(name); const fiber = await ctx.plugin(module.default || module, { cwd: base }); fibers.push(fiber); return fiber }
+  await mount('dsh-fs-local'); await mount('dsh-subprocess-local'); await mount(process.platform === 'win32' ? 'dsh-pwsh-local' : 'dsh-bash-local')
+  await mount('dsh-system-prompt'); await mount('dsh-tools'); await mount('dsh-session'); await mount('dsh-agent'); await mount('dsh-session-projection')
+  const { agentPresetProjectionDefinition } = await load('dsh-agent-preset-registry')
+  ctx.sessionProjections.register(agentPresetProjectionDefinition)
+  const session = ctx.sessions.create('upload-session', { meta: { cwd: base, agentPreset: 'standard' } })
+  let value = { enabled: true, bindings: { 'upload-session': { cwd: base, projectRoot: base, skillRoot: repo } } }
+  let rpc
+  ctx.reflect.provide('settings', { describe: () => [{ ns: 'dsh-math-modeling-ui', revision: 1, value }], update: async (_ns, patch) => { value = { ...value, ...patch } } })
+  ctx.reflect.provide('agentPresets', { compositionInventory: async () => [{ id: 'native-renamed-math', name: '数学建模 Workbench', rows: [{ enabled: true, moduleName: 'dsh-math-modeling-ui/workbench', fiberState: 2 }] }] })
+  ctx.reflect.provide('connection', { rpc: { handle: (_channel, callback) => { rpc = callback; return () => {} } } })
+  await ctx.plugin(await import(new URL('../../dsh-plugin/math-modeling-agent/plugins/dsh-math-modeling-ui/lib/index.js', import.meta.url)))
+  await ctx.plugin(await import(new URL('../../dsh-plugin/math-modeling-agent/plugins/dsh-math-modeling-ui/lib/workbench.js', import.meta.url)))
+  assert.equal((await rpc('mm.context', { sessionId: session.id })).value.eligible, false)
+  session.append('agent-preset/selected', { agentPreset: 'native-renamed-math' })
+  assert.equal(session.header.agentPreset, 'standard', 'creation metadata stays unchanged')
+  assert.equal((await rpc('mm.context', { sessionId: session.id })).value.eligible, true, 'actual projection observes the selection event')
+  const initialized = await Promise.all([rpc('mm.ensureProject', { sessionId: session.id }), rpc('mm.ensureProject', { sessionId: session.id })])
+  assert.ok(initialized.every(result => result.ok && result.value.initialized), JSON.stringify(initialized))
+  assert.equal(initialized[0].value.project.project_id, initialized[1].value.project.project_id)
+  const statePath = path.join(base, '.math-modeling/state.json')
+  const legacy = JSON.parse(await fs.readFile(statePath, 'utf8'))
+  legacy.project.paperRequirements = '旧项目保存的要求'
+  delete legacy.project.graphicsTools; delete legacy.inputs; delete legacy.agent_context
+  await fs.writeFile(statePath, JSON.stringify(legacy))
+  const resumed = await rpc('mm.ensureProject', { sessionId: session.id })
+  assert.equal(resumed.ok, true, JSON.stringify(resumed))
+  assert.equal(resumed.value.project.project_id, legacy.project.project_id)
+  assert.equal(resumed.value.project.paperRequirements.text, '旧项目保存的要求', 'opening an existing project runs the actual migration')
+  const requirements = '用户要求保留公式推导' + '汉'.repeat(29990)
+  assert.equal(requirements.length, 30000)
+  const configured = await rpc('mm.configure', { sessionId: session.id, settings: { optional_collab: { literature: true, prototype: false }, graphics_tools: { drawio: true, seaborn: false }, paper_requirements: { text: requirements, source: 'user' } } })
+  assert.equal(configured.ok, true, JSON.stringify(configured))
+  const snapshot = (await rpc('mm.state', { sessionId: session.id })).value
+  assert.equal(snapshot.project.optionalCollab.literature, true)
+  assert.equal(snapshot.project.optionalCollab.prototype, false)
+  assert.equal(snapshot.project.graphicsTools.drawio, true)
+  assert.equal(snapshot.project.paperRequirements.text, requirements, '30000 Chinese characters survive the real shell stdin transport')
+  const assembly = await ctx.systemPrompt.assemble({ agent: { session } })
+  const context = assembly.contexts.find(item => item.name === 'math-modeling-project')
+  assert.match(context.text, /用户要求保留公式推导/)
+  assert.match(context.text, /mm_context/)
+  assert.equal(assembly.sections.some(item => item.text.includes('用户要求保留公式推导')), false, 'uploaded user configuration is not elevated into system sections')
+
+  const raw = Buffer.alloc(20 * 1024 * 1024, 0xa5)
+  const begun = await rpc('mm.importBegin', { sessionId: session.id, kind: 'attachment', filename: "样本 ' $.bin", size: raw.length })
+  assert.equal(begun.ok, true, JSON.stringify(begun))
+  const { upload_id, chunk_bytes } = begun.value
+  for (let offset = 0, index = 0; offset < raw.length; offset += chunk_bytes, index++) {
+    const result = await rpc('mm.importChunk', { sessionId: session.id, upload_id, index, content_base64: raw.subarray(offset, offset + chunk_bytes).toString('base64') })
+    assert.equal(result.ok, true, JSON.stringify(result))
+    assert.equal(result.value.received_bytes, Math.min(raw.length, offset + chunk_bytes))
+  }
+  const imported = await rpc('mm.importCommit', { sessionId: session.id, upload_id })
+  assert.equal(imported.ok, true, JSON.stringify(imported))
+  assert.equal(imported.value.input.bytes, raw.length)
+  assert.equal(imported.value.input.sha256, createHash('sha256').update(raw).digest('hex'))
+  assert.deepEqual(await fs.readFile(path.join(base, imported.value.input.path)), raw)
+  await assert.rejects(fs.stat(path.join(base, '.math-modeling/incoming', upload_id)), { code: 'ENOENT' })
+  const canceled = await rpc('mm.importBegin', { sessionId: session.id, kind: 'attachment', filename: 'cancel.txt', size: 3 })
+  await rpc('mm.importChunk', { sessionId: session.id, upload_id: canceled.value.upload_id, index: 0, content_base64: 'YWJj' })
+  assert.equal((await rpc('mm.importCancel', { sessionId: session.id, upload_id: canceled.value.upload_id })).ok, true)
+  await assert.rejects(fs.stat(path.join(base, '.math-modeling/incoming', canceled.value.upload_id)), { code: 'ENOENT' })
+  t.diagnostic('Actual official fs.writeText(createIfAbsent), shell.execute/result and SessionProjection selection event; actual shared CLI; exact 20MiB hash verified. Preset inventory, settings and RPC transport are in-process fixtures. No personal profile mutated.')
+})
 
 test('official DSH 0.1.7 services mount workbench and execute shared CLI', { skip: !modules, timeout: 120000 }, async t => {
   const load = name => import(pathToFileURL(path.join(modules, '@deepseek-ai', name, 'lib/index.js')))
@@ -50,6 +128,24 @@ test('official DSH 0.1.7 services mount workbench and execute shared CLI', { ski
   assert.match(initialized.bindingNotice, /当前进程/)
   const state = await call('mm_state')
   assert.equal(state.project.projectRoot, await fs.realpath(custom))
+  const stateBeforeEnvironment = await fs.readFile(path.join(custom, '.math-modeling/state.json'), 'utf8')
+  const environment = await call('mm_environment')
+  assert.equal(environment.ok, true, JSON.stringify(environment))
+  assert.equal(typeof environment.ready, 'boolean')
+  assert.ok(path.isAbsolute(environment.executable), 'the report must identify the actual Python executable')
+  assert.ok((await fs.stat(environment.executable)).isFile())
+  assert.match(environment.python, /^\d+\.\d+/)
+  assert.equal(environment.platform, process.platform)
+  assert.ok(Number.isFinite(Date.parse(environment.checked_at)))
+  assert.ok(environment.items.length > 0)
+  for (const item of environment.items) {
+    assert.ok(['required', 'selected', 'optional'].includes(item.requirement))
+    assert.ok(['ready', 'missing', 'error', 'manual'].includes(item.status))
+    assert.equal(typeof item.agent_prompt, 'string')
+    assert.ok(item.install_command === null || typeof item.install_command === 'string')
+  }
+  assert.equal(await fs.readFile(path.join(custom, '.math-modeling/state.json'), 'utf8'), stateBeforeEnvironment, 'environment detection must not rewrite project state')
+  t.diagnostic(`Actual saved-project dependency report: Python ${environment.python}; ${environment.items.length} items; ready=${environment.ready}; no installation requested.`)
   const phase = await call('mm_phase_enter', { phase: 'modeling' })
   assert.equal(phase.ok, true, JSON.stringify(phase))
   assert.match(phase.skillMd, /建模/)

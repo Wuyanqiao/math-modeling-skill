@@ -62,6 +62,38 @@
     },
     "rules": {
       "type": "object"
+    },
+    "optionalCollab": {
+      "type": "object",
+      "properties": {
+        "rulesCheck": {"type": "boolean"},
+        "attachmentInventory": {"type": "boolean"},
+        "literature": {"type": "boolean"},
+        "prototype": {"type": "boolean"},
+        "experiments": {"type": "boolean"},
+        "bilingual": {"type": "boolean"},
+        "terminology": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "graphicsTools": {
+      "type": "object",
+      "properties": {
+        "scientific-visualization": {"const": true},
+        "matplotlib": {"const": true},
+        "scienceplots": {"type": "boolean"},
+        "drawio": {"type": "boolean"},
+        "scientific-schematics": {"type": "boolean"},
+        "scivis-agent-skills": {"type": "boolean"},
+        "seaborn": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "paperRequirements": {
+      "type": ["object", "string"],
+      "required": ["text", "source"],
+      "properties": {"text": {"type": "string"}, "source": {"type": "string"}},
+      "additionalProperties": false
     }
   }
 }

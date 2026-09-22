@@ -10,10 +10,11 @@ import venv
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-LOG = ROOT / "project-review/logs/upgrade-final-wheel.log"
-SUMMARY = ROOT / "project-review/logs/upgrade-final-wheel-summary.json"
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+LOG = ROOT / f"dist/wheel-{VERSION}.log"
+SUMMARY = ROOT / f"dist/wheel-{VERSION}-summary.json"
 lines = []
-summary = {"version": "2.0.0", "status": "running", "checks": []}
+summary = {"version": VERSION, "status": "running", "checks": []}
 
 
 def run(argv, cwd):
@@ -24,8 +25,8 @@ def run(argv, cwd):
 
 
 try:
-    output = run([sys.executable, "-m", "build", "--wheel", "--outdir", "dist/runtime"], ROOT)
-    wheel = ROOT / "dist/runtime/mathmodel_workbench-2.0.0-py3-none-any.whl"
+    output = run([sys.executable, "-m", "build", "--wheel", "--outdir", f"dist/runtime-{VERSION}"], ROOT)
+    wheel = ROOT / f"dist/runtime-{VERSION}/mathmodel_workbench-{VERSION}-py3-none-any.whl"
     assert wheel.is_file(), output
     summary.update(wheel=str(wheel), wheel_sha256=hashlib.sha256(wheel.read_bytes()).hexdigest(), wheel_bytes=wheel.stat().st_size)
     lines.append("PASS build: " + wheel.name)
@@ -68,7 +69,7 @@ print(json.dumps({"python": sys.version, "isolated": sys.flags.isolated, "prefix
         assert observed["isolated"] == 1 and observed["prefix"] != observed["base_prefix"]
         assert Path(observed["module"]).resolve().is_relative_to(environment.resolve())
         assert not any(Path(entry).resolve() == ROOT for entry in observed["sys_path"] if entry)
-        assert observed["installed"]["mathmodel-workbench"] == "2.0.0"
+        assert observed["installed"]["mathmodel-workbench"] == VERSION
         summary["isolated_environment"] = observed
         lines.append("PASS isolated imports: installed wheel only; optional modules absent; all schemas/profiles load; malformed state rejected")
         for profile in ("short", "balanced", "competition"):
@@ -85,9 +86,26 @@ print(json.dumps({"python": sys.version, "isolated": sys.flags.isolated, "prefix
                     assert report["done"] is False and report["blockers"], report
                 summary["checks"].append({"profile": profile, "action": action, "ok": True, "completed": state["completed"], "done": report.get("done"), "blockers": report.get("blockers", [])})
             lines.append(f"PASS {profile}: init/state/complete from outside checkout using python -I; completed=false; completion blockers present")
+        import base64
+        content = "原题：求一个满足约束的方案。\n".encode("utf-8")
+        options = {"kind": "problem", "filename": "题目.md", "content_base64": base64.b64encode(content).decode("ascii")}
+        report = json.loads(run([python, "-I", "-m", "mathmodel_runtime", "input-import", "--project-root", project, "--options", json.dumps(options)], outside))
+        assert report["ok"], report
+        options = {"settings": {"graphics_tools": {"drawio": True}, "paper_requirements": {"text": "中文论文，保留可编辑框架图。", "source": "wheel 验证输入"}}}
+        report = json.loads(run([python, "-I", "-m", "mathmodel_runtime", "configure", "--project-root", project, "--options", json.dumps(options)], outside))
+        assert report["ok"], report
+        state = json.loads((project / ".math-modeling/state.json").read_text(encoding="utf-8"))
+        assert state["project"]["graphicsTools"]["drawio"] is True
+        assert state["project"]["paperRequirements"]["text"] == options["settings"]["paper_requirements"]["text"]
+        assert len(state["inputs"]) == 1
+        record = next(iter(state["inputs"].values()))
+        assert (project / record["path"]).read_bytes() == content
+        assert record["sha256"] == hashlib.sha256(content).hexdigest()
+        lines.append("PASS installed input-import/configure: Chinese source bytes/hash and graphics/requirements persisted without optional packages")
+        summary["project_inputs_and_configuration"] = True
         command = environment / ("Scripts/mathmodel.exe" if os.name == "nt" else "bin/mathmodel")
         version = run([command, "--version"], outside).strip()
-        assert version == "mathmodel 2.0.0", version
+        assert version == f"mathmodel {VERSION}", version
         summary["console_entrypoint"] = version
         lines.append("PASS installed console entrypoint: " + version)
     summary["status"] = "passed"

@@ -52,12 +52,15 @@ async function harness(t, { real = false, skillName = "skill ' 中文" } = {}) {
     contains: (root, target) => { const rel = path.relative(root, target); return !rel || (!rel.startsWith('..') && !path.isAbsolute(rel)) },
     stat: async target => { const value = await fs.stat(target); return { type: value.isDirectory() ? 'directory' : 'file', size: value.size } },
     readText: target => fs.readFile(target, 'utf8'),
+    lstat: async target => { try { const info = await fs.lstat(target); return { type: info.isSymbolicLink() ? 'symlink' : info.isDirectory() ? 'directory' : 'file' } } catch (error) { if (error.code === 'ENOENT') return undefined; throw error } },
+    writeText: async (target, content, expected, signal) => { signal?.throwIfAborted(); await fs.mkdir(path.dirname(target), { recursive: true }); await fs.writeFile(target, content, { encoding: 'utf8', flag: expected?.kind === 'createIfAbsent' ? 'wx' : 'w' }); return { operation: 'create' } },
   }
   const services = { fs: hostFs, settings, sessions: { get: id => sessions.get(id) }, agents: { currentInitiator: () => ({ session: sessions.get(selected), agent: { id: `author-${selected}` } }) },
     tools: { register: definition => tools.set(definition.name, definition) },
     shell: { resolve: request => { shellRequests.push(request); return request }, run: async shellRequest => {
-      const encoded = shellRequest.command.match(/--request-base64 '([A-Za-z0-9+/=]+)'$/)?.[1]
-      assert.ok(encoded, 'JSON must be carried as one base64 argument')
+      const argument = shellRequest.command.match(/--request-base64 '([A-Za-z0-9+/=-]+)'$/)?.[1]
+      const encoded = argument === '-' ? shellRequest.stdin : argument
+      assert.ok(encoded, 'JSON must be carried as one base64 argument or stdin payload')
       const request = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8')); requests.push(request)
       assert.equal(shellRequest.workdir, request.project_root)
       assert.equal('sandbox_permissions' in shellRequest, false)
@@ -72,7 +75,7 @@ async function harness(t, { real = false, skillName = "skill ' 中文" } = {}) {
     select: value => { selected = value }, respond: value => { responder = value },
     call: (name, args = {}) => tools.get(name).execute(args),
     init: args => tools.get('mm_project_init').execute({ skillRoot: skill, ...args }),
-    ui() { let handler; applyUi({ ...ctx, connection: { rpc: { handle: (_channel, callback) => { handler = callback; return () => {} } } } }); return (endpoint, payload) => handler(endpoint, payload) },
+    ui() { let handler; applyUi({ ...ctx, connection: { rpc: { handle: (_channel, callback) => { handler = callback; return () => {} } } } }); return (endpoint, payload, signal) => handler(endpoint, payload, signal) },
   }
 }
 
@@ -129,6 +132,50 @@ test('nonzero runtime JSON remains inspectable and shell denial is not bypassed'
   assert.match((await h.call('mm_state')).error, /host approval denied/)
 })
 
+test('long configuration uses encoded stdin while preserving host policy and injection boundaries', async t => {
+  const h = await harness(t)
+  await h.init({})
+  const standing = { mode: 'read-only', workspaceRoot: h.cwd }
+  h.services.sandboxPolicy = { resolve: () => standing }
+  const text = '汉'.repeat(29000) + " $(throw 'injected') ` & ;"
+  const result = await h.ui()('mm.configure', { sessionId: 'a', settings: { paper_requirements: { text, source: 'user' } } })
+  assert.equal(result.ok, true)
+  assert.equal(h.requests.at(-1).settings.paper_requirements.text, text)
+  const request = h.shellRequests.at(-1)
+  assert.match(request.command, /--request-base64 '-'$/)
+  assert.ok(request.command.length < 8192)
+  assert.equal(request.command.includes('throw'), false)
+  assert.equal(request.stdin.includes('汉'), false)
+  assert.equal(request.sandboxPolicy, standing)
+  h.services.shell.run = async () => { throw new Error('host stdin approval denied') }
+  assert.match((await h.ui()('mm.configure', { sessionId: 'a', settings: { paper_requirements: { text } } })).error.message, /host stdin approval denied/)
+})
+
+test('cancel waits for an in-flight host write and blocks new chunks until cleanup', async t => {
+  const h = await harness(t)
+  await h.init({})
+  const rpc = h.ui()
+  const begun = await rpc('mm.importBegin', { sessionId: 'a', filename: 'closing.txt', kind: 'attachment', size: 3 })
+  const upload_id = begun.value.upload_id
+  let release, entered
+  const gate = new Promise(resolve => { release = resolve })
+  const started = new Promise(resolve => { entered = resolve })
+  const write = h.services.fs.writeText
+  h.services.fs.writeText = async (...args) => { entered(); await gate; return write(...args) }
+  const chunk = rpc('mm.importChunk', { sessionId: 'a', upload_id, index: 0, content_base64: 'YWJj' })
+  await started
+  const cancellation = rpc('mm.importCancel', { sessionId: 'a', upload_id })
+  const additional = await rpc('mm.importChunk', { sessionId: 'a', upload_id, index: 0, content_base64: 'YWJj' })
+  assert.equal(additional.ok, false)
+  assert.equal(h.requests.some(request => request.action === 'input-staging-cleanup'), false)
+  release()
+  assert.equal((await chunk).ok, true)
+  assert.equal((await cancellation).ok, true)
+  assert.equal(h.requests.at(-1).action, 'input-staging-cleanup')
+  assert.equal(h.requests.at(-1).upload_id, upload_id)
+  assert.equal((await rpc('mm.importCommit', { sessionId: 'a', upload_id })).ok, false)
+})
+
 test('skill content is returned in full and traversal is rejected', async t => {
   const h = await harness(t)
   await h.init({})
@@ -153,6 +200,144 @@ test('UI reads renamed preset projects, uses explicit binding and shares tool se
   await h.call('mm_ui_toggle', { action: 'on' })
   assert.equal((await rpc('mm.getEnabled', {})).value.enabled, true)
   assert.equal((await rpc('mm.state', { sessionId: 'unknown' })).value.hidden, true)
+})
+
+test('environment RPC uses saved session binding, preserves policy and never forwards draft or install actions', async t => {
+  const h = await harness(t)
+  await h.init({ projectRoot: h.custom })
+  const rpc = h.ui()
+  const standing = { mode: 'read-only', workspaceRoot: h.cwd }
+  h.services.sandboxPolicy = { resolve: ({ session }) => { assert.equal(session.id, 'a'); return standing } }
+  h.services.fs.writeText = () => { throw new Error('environment detection must not write uploads') }
+  const report = { ok: true, ready: false, checked_at: '2026-09-22T00:00:00Z', executable: 'fixture-python', python: '3.13', platform: 'fixture',
+    items: [{ id: 'fixture', label: 'fixture', purpose: 'test', requirement: 'required', status: 'missing', install_command: 'python -m pip install example', agent_prompt: 'Inspect before installing' }], install_command: null, agent_prompt: 'Inspect' }
+  h.respond(async () => ({ exitCode: 0, stdout: JSON.stringify(report) }))
+  const before = h.requests.length
+  assert.equal((await rpc('mm.environment', {})).ok, false)
+  assert.equal((await rpc('mm.environment', { sessionId: 'unknown' })).ok, false)
+  assert.equal(h.requests.length, before)
+  const detected = await rpc('mm.environment', { sessionId: 'a', projectRoot: h.cwd, settings: { graphics_tools: { drawio: true } }, install: true })
+  assert.deepEqual(detected.value, report)
+  assert.equal(detected.value.ready, false, 'a handled request does not mean dependencies are ready')
+  assert.equal(h.requests.at(-1).action, 'environment')
+  assert.equal(h.requests.at(-1).project_root, h.custom)
+  assert.equal('settings' in h.requests.at(-1), false)
+  assert.equal('install' in h.requests.at(-1), false)
+  assert.equal(h.shellRequests.at(-1).sandboxPolicy, standing)
+  assert.equal(h.shellRequests.at(-1).timeoutMs, 90000)
+  assert.equal(h.shellRequests.at(-1).command.includes('pip'), false)
+  assert.equal((await h.call('mm_environment')).ready, false)
+  await rpc('mm.setEnabled', { enabled: false })
+  const disabledCount = h.requests.length
+  assert.equal((await rpc('mm.environment', { sessionId: 'a' })).error.code, 'workbench-disabled')
+  assert.equal(h.requests.length, disabledCount)
+  await rpc('mm.setEnabled', { enabled: true })
+  h.respond(async () => ({ exitCode: 1, stdout: JSON.stringify({ ok: false, code: 'probe_error', error: 'probe could not run' }) }))
+  assert.equal((await rpc('mm.environment', { sessionId: 'a' })).error.code, 'probe_error')
+  h.services.shell.run = async () => { throw new Error('host environment check denied') }
+  assert.match((await rpc('mm.environment', { sessionId: 'a' })).error.message, /host environment check denied/)
+})
+
+test('workbench context follows the current preset projection and auto-init is idempotent', async t => {
+  const h = await harness(t)
+  h.sessions.get('a').header.agentPreset = 'obsolete-preset'
+  let currentPreset = 'renamed-math'
+  const row = { moduleName: 'dsh-math-modeling-ui/workbench', enabled: true, fiberState: 2 }
+  h.services.sessionProjections = { stateOf: (session, key) => { assert.equal(key, 'agentPreset'); return session.id === 'a' ? currentPreset : 'unrelated' } }
+  h.services.agentPresets = { compositionInventory: async () => [{ id: 'renamed-math', name: '我的建模台', rows: [row] }, { id: 'unrelated', name: '数学建模 Workbench', rows: [] }] }
+  const rpc = h.ui()
+  const before = (await rpc('mm.context', { sessionId: 'a' })).value
+  assert.equal(before.eligible, true)
+  assert.equal(before.initialized, false)
+  assert.equal(before.session.presetId, 'renamed-math')
+  assert.equal(h.shellRequests.length, 0, 'entry discovery is read-only')
+  currentPreset = 'unrelated'
+  assert.equal((await rpc('mm.context', { sessionId: 'a' })).value.eligible, false, 'display names and stale creation headers cannot select the capability')
+  assert.equal((await rpc('mm.ensureProject', { sessionId: 'a' })).ok, false)
+  currentPreset = 'renamed-math'; row.enabled = false
+  assert.equal((await rpc('mm.context', { sessionId: 'a' })).value.eligible, false)
+  row.enabled = true
+  const initialized = await Promise.all([rpc('mm.ensureProject', { sessionId: 'a' }), rpc('mm.ensureProject', { sessionId: 'a' })])
+  assert.ok(initialized.every(result => result.ok && result.value.initialized), JSON.stringify(initialized))
+  assert.equal(h.requests.filter(request => request.action === 'init').length, 1)
+  await rpc('mm.ensureProject', { sessionId: 'a' })
+  assert.equal(h.requests.filter(request => request.action === 'init').length, 1)
+  assert.equal((await rpc('mm.context', { sessionId: 'b' })).value.eligible, false)
+})
+
+test('chunk uploads enforce session, project, ordering and host filesystem policy', async t => {
+  const h = await harness(t)
+  await h.init({})
+  const rpc = h.ui()
+  const policy = { mode: 'workspace-write', workspaceRoot: h.cwd }
+  h.services.sandboxPolicy = { resolve: ({ session }) => { assert.equal(session.id, 'a'); return policy } }
+  h.services.fs.sandboxMode = 'workspace-write'
+  const write = h.services.fs.writeText
+  let writes = 0
+  h.services.fs.writeText = async (target, content, expected, signal, sandboxPolicy) => {
+    assert.equal(sandboxPolicy, policy)
+    assert.deepEqual(expected, { kind: 'createIfAbsent' })
+    assert.ok(target.startsWith(h.cwd + path.sep) || target.startsWith(h.cwd + '/'))
+    writes++; return write(target, content, expected, signal)
+  }
+  for (const filename of ['../bad.pdf', 'C:\\secret.pdf', 'CON.txt']) assert.equal((await rpc('mm.importBegin', { sessionId: 'a', kind: 'problem', filename, size: 5 })).ok, false)
+  assert.equal((await rpc('mm.importBegin', { sessionId: 'a', kind: 'problem', filename: 'a'.repeat(157) + '.txt', size: 5 })).ok, false, '161-character names fail before writing upload chunks')
+  assert.equal(writes, 0)
+  const longest = await rpc('mm.importBegin', { sessionId: 'a', kind: 'problem', filename: 'a'.repeat(156) + '.txt', size: 5 })
+  assert.equal(longest.ok, true, '160-character basename matches the core limit')
+  await rpc('mm.importCancel', { sessionId: 'a', upload_id: longest.value.upload_id })
+  assert.equal((await rpc('mm.importBegin', { sessionId: 'a', kind: 'problem', filename: 'big.pdf', size: 20 * 1024 * 1024 + 1 })).ok, false)
+  const upload = (await rpc('mm.importBegin', { sessionId: 'a', kind: 'attachment', filename: "中文 ' $.txt", size: 5 })).value
+  const chunk = { sessionId: 'a', upload_id: upload.upload_id, index: 0, content_base64: Buffer.from('hello').toString('base64') }
+  assert.equal((await rpc('mm.importChunk', { ...chunk, sessionId: 'b' })).ok, false)
+  assert.equal((await rpc('mm.importChunk', { ...chunk, index: 1 })).ok, false)
+  assert.equal((await rpc('mm.importChunk', { ...chunk, content_base64: 'a===' })).ok, false)
+  assert.equal((await rpc('mm.importCommit', { sessionId: 'a', upload_id: upload.upload_id })).ok, false)
+  assert.equal((await rpc('mm.importChunk', chunk)).ok, true)
+  assert.equal((await rpc('mm.importChunk', chunk)).ok, false, 'duplicates never overwrite chunks')
+  assert.equal(writes, 1)
+  const beforeCommit = h.requests.length
+  await rpc('mm.importCommit', { sessionId: 'a', upload_id: upload.upload_id })
+  assert.equal(h.requests[beforeCommit].action, 'input-import')
+  assert.deepEqual(h.requests[beforeCommit].source_base64_parts, [`.math-modeling/incoming/${upload.upload_id}/0.base64`])
+  assert.equal(h.requests[beforeCommit].expected_size, 5)
+  assert.equal('content_base64' in h.requests[beforeCommit], false)
+  const changed = (await rpc('mm.importBegin', { sessionId: 'a', kind: 'attachment', filename: 'new.txt', size: 5 })).value
+  await h.init({ projectRoot: h.custom, title: 'new project' })
+  assert.equal((await rpc('mm.importChunk', { ...chunk, upload_id: changed.upload_id })).ok, false, 'an upload cannot follow a newly bound project')
+})
+
+test('opening an existing project migrates saved requirements once through the authorized runtime', async t => {
+  const h = await harness(t, { real: true })
+  await h.init({ scope: 'modeling', profile: 'short', projectRoot: h.custom })
+  const file = path.join(h.custom, '.math-modeling/state.json')
+  const legacy = JSON.parse(await fs.readFile(file, 'utf8'))
+  legacy.project.paperRequirements = '旧项目要求：保留完整推导'
+  delete legacy.project.graphicsTools; delete legacy.inputs; delete legacy.agent_context
+  await fs.writeFile(file, JSON.stringify(legacy))
+  const rpc = h.ui()
+  const before = h.requests.length
+  assert.equal((await rpc('mm.state', { sessionId: 'a' })).value.project.paperRequirements, legacy.project.paperRequirements)
+  await rpc('mm.context', { sessionId: 'a' })
+  assert.equal(h.requests.length, before, 'ordinary discovery and polling stay read-only')
+  const opened = await Promise.all([rpc('mm.ensureProject', { sessionId: 'a' }), rpc('mm.ensureProject', { sessionId: 'a' })])
+  assert.equal(h.requests.length, before + 1, 'concurrent pane opening coalesces one runtime state call')
+  assert.equal(h.requests.at(-1).action, 'state')
+  for (const result of opened) {
+    assert.equal(result.ok, true, JSON.stringify(result))
+    assert.equal(result.value.project.project_id, legacy.project.project_id)
+    assert.equal(result.value.project.paperRequirements.text, legacy.project.paperRequirements)
+    assert.equal(result.value.project.paperRequirements.source, '旧版项目字段（来源未核实）')
+    assert.equal(result.value.project.graphicsTools.matplotlib, true)
+    assert.deepEqual(result.value.inputs, {})
+  }
+  await rpc('mm.state', { sessionId: 'a' })
+  assert.equal(h.requests.length, before + 1)
+  h.services.shell.run = async () => { throw new Error('host migration approval denied') }
+  const denied = await rpc('mm.ensureProject', { sessionId: 'a' })
+  assert.equal(denied.ok, false)
+  assert.match(denied.error.message, /host migration approval denied/)
+  assert.equal((await rpc('mm.state', { sessionId: 'a' })).value.project.paperRequirements.text, legacy.project.paperRequirements)
 })
 
 test('unbound snapshots discover an initialized cwd without requiring executable Skill resources', async t => {
