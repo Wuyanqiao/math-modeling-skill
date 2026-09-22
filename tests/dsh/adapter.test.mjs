@@ -13,7 +13,7 @@ import { RuntimeBridge } from '../../dsh-plugin/math-modeling-agent/plugins/dsh-
 const execute = promisify(execFile)
 const repo = fileURLToPath(new URL('../../', import.meta.url))
 
-async function harness(t, { real = false } = {}) {
+async function harness(t, { real = false, skillName = "skill ' 中文" } = {}) {
   const base = await fs.mkdtemp(path.join(os.tmpdir(), 'mathmodel-adapter-'))
   t.after(async () => {
     assert.equal(path.dirname(path.resolve(base)), path.resolve(os.tmpdir()))
@@ -22,7 +22,7 @@ async function harness(t, { real = false } = {}) {
   })
   const cwd = path.join(base, 'workspace')
   const custom = path.join(base, 'custom-project')
-  const skill = real ? repo : path.join(base, "skill ' 中文")
+  const skill = real ? repo : path.join(base, skillName)
   await fs.mkdir(cwd); await fs.mkdir(custom)
   if (!real) {
     await fs.mkdir(path.join(skill, 'scripts'), { recursive: true })
@@ -91,8 +91,8 @@ test('custom project remains bound across tools and sessions remain isolated', a
 })
 
 test('payload encoding preserves Unicode, quotes and shell metacharacters without interpolation', async t => {
-  const h = await harness(t)
-  const title = '中文 \' " ` $(throw "BAD") ; & test'
+  const h = await harness(t, { skillName: "skill ' 中文 $(echo path-injected) &;" })
+  const title = '中文 \' " ` $(throw "BAD") $(echo INJECTED > payload-injected.txt) ; & test'
   const result = await h.init({ title, optionalCollab: 'literature,prototype', subproblems: 'q1，q2', paperFormat: 'latex' })
   assert.equal(result.ok, true)
   assert.equal(h.requests[0].title, title)
@@ -100,7 +100,24 @@ test('payload encoding preserves Unicode, quotes and shell metacharacters withou
   assert.deepEqual(h.requests[0].subproblems, ['q1', 'q2'])
   assert.equal(h.requests[0].paper_format, 'latex')
   assert.equal(h.shellRequests[0].command.includes('throw'), false)
-  assert.ok(h.shellRequests[0].command.includes("skill '' 中文"))
+  assert.equal(h.shellRequests[0].command.includes('payload-injected.txt'), false)
+
+  const script = path.join(h.skill, 'scripts/mathmodel.py')
+  await fs.writeFile(script, [
+    'import base64, json, sys',
+    'from pathlib import Path',
+    "assert sys.argv[1] == '--request-base64' and len(sys.argv) == 3",
+    "request = json.loads(base64.b64decode(sys.argv[2]).decode('utf-8'))",
+    "Path('shell-roundtrip.json').write_text(json.dumps({'request': request, 'script': str(Path(__file__).resolve())}, ensure_ascii=False), encoding='utf-8')",
+  ].join('\n'))
+  const request = h.shellRequests[0]
+  const shell = process.platform === 'win32' ? 'pwsh.exe' : '/bin/sh'
+  const argv = process.platform === 'win32' ? ['-NoProfile', '-NonInteractive', '-Command', request.command] : ['-c', request.command]
+  await execute(shell, argv, { cwd: request.workdir, env: { ...process.env, ...request.env }, timeout: 15000 })
+  const observed = JSON.parse(await fs.readFile(path.join(h.cwd, 'shell-roundtrip.json'), 'utf8'))
+  assert.deepEqual(observed.request, h.requests[0], 'the real shell must preserve the entire decoded request')
+  assert.equal(await fs.realpath(observed.script), await fs.realpath(script), 'the real shell must preserve the quoted script path')
+  await assert.rejects(fs.stat(path.join(h.cwd, 'payload-injected.txt')), { code: 'ENOENT' })
 })
 
 test('nonzero runtime JSON remains inspectable and shell denial is not bypassed', async t => {
