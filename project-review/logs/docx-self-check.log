@@ -1,0 +1,21 @@
+必需环境 OK: python-docx, lxml
+可选工具 OK: pandoc
+Traceback (most recent call last):
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\office\validate.py", line 23, in <module>
+    from validators import DOCXSchemaValidator, PPTXSchemaValidator, RedliningValidator
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\office\validators\__init__.py", line 5, in <module>
+    from .base import BaseSchemaValidator
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\office\validators\base.py", line 8, in <module>
+    import defusedxml.minidom
+ModuleNotFoundError: No module named 'defusedxml'
+Traceback (most recent call last):
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\self_check.py", line 120, in <module>
+    main()
+    ~~~~^^
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\self_check.py", line 114, in main
+    check_three_line_table()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\self_check.py", line 75, in check_three_line_table
+    assert result.returncode == 0
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

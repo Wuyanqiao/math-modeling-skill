@@ -1,0 +1,83 @@
+{
+  "task_id": "review_7335a3ad94a6489d",
+  "snapshot_hash": "9bf4767ef86450e2fa21a8c355f36638dfa1c12045717cb3ff534e69e98e90ba",
+  "run_id": "run_45c6383d300e4c7f",
+  "scope": "Independent full figures rerun in temporary copied-source directory; no project writes",
+  "snapshot_sha_verified": true,
+  "manifest_bound_to_actual_run": true,
+  "artifact_bindings_q1_and_run_verified": true,
+  "byte_identical_reproductions": {
+    "results/solution.csv": true,
+    "figures/result_q1_region.png": true,
+    "figures/result_q1_usage.png": true
+  },
+  "svg_byte_identity_required": false,
+  "svg_reason": "SVG timestamps and generated element identifiers can vary; inspected actual text and rendering/source semantics instead",
+  "svg_text": {
+    "figures/result_q1_region.svg": [
+      "0.0",
+      "0.5",
+      "1.0",
+      "1.5",
+      "2.0",
+      "2.5",
+      "3.0",
+      "3.5",
+      "4.0",
+      "Decision x",
+      "0.0",
+      "0.5",
+      "1.0",
+      "1.5",
+      "2.0",
+      "2.5",
+      "3.0",
+      "3.5",
+      "4.0",
+      "Decision y",
+      "Optimum (2, 2), value 10",
+      "Feasible region and optimum",
+      "x + y = 4",
+      "x = 2",
+      "y = 3"
+    ],
+    "figures/result_q1_usage.svg": [
+      "Shared resource",
+      "x capacity",
+      "y capacity",
+      "0.0",
+      "0.5",
+      "1.0",
+      "1.5",
+      "2.0",
+      "2.5",
+      "3.0",
+      "3.5",
+      "4.0",
+      "Units",
+      "Resource use at the optimum",
+      "Used",
+      "Capacity"
+    ]
+  },
+  "result": {
+    "x": 2.0,
+    "y": 2.0,
+    "objective": 10.0
+  },
+  "resource_usage": [
+    4.0,
+    2.0,
+    2.0
+  ],
+  "capacity": [
+    4,
+    2,
+    3
+  ],
+  "visual_review": {
+    "region": "Actual PNG inspected: correct feasible polygon, optimum (2,2), constraints, labels and legend; readable without clipping.",
+    "usage": "Actual PNG inspected: paired bars 4/4,2/2,2/3, zero baseline, labels and units readable."
+  },
+  "stderr": ""
+}

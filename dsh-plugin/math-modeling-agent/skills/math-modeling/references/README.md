@@ -7,22 +7,22 @@
 - `SKILL_ROOT`：本仓库根目录，只读。
 - `PROJECT_ROOT`：用户项目目录，所有产物写入这里。
 
-任何参考文档中的相对路径均以其所属 `SKILL.md` 目录为基准。角色文档通过 `../../..` 回到 `SKILL_ROOT`。
+相对链接以当前文档目录为基准；标注 SKILL_ROOT 的资源路径以仓库根目录为基准。执行命令使用绝对脚本路径，不依赖当前工作目录。共享运行时入口见 `共享运行时.md`。
 
 ## 三角色
 
 | 阶段 | 入口 | 固定交付物 |
 |---|---|---|
 | 建模分析 | `roles/建模手/SKILL.md` | `题目分析报告.md`、`术语表格.md` |
-| 代码实现 | `roles/编程手/SKILL.md` | Python/MATLAB 代码、结果表格、三类各至少 3 张且覆盖全部子问题的候选图、至少 1 幅总体建模流程图、复现清单 |
-| 论文撰写 | `roles/论文手/SKILL.md` | 默认交付 `完整论文.docx`；用户显式要求时同时交付 LaTeX 源码项目与编译 PDF |
+| 代码实现 | `roles/编程手/SKILL.md` | Python/MATLAB 代码、结果表格、覆盖必要主张的候选图、按需总体建模流程图、复现清单 |
+| 论文撰写 | `roles/论文手/SKILL.md` | 默认 Word；按用户选择交付 Word、LaTeX/PDF 或两者 |
 
 ## 按任务加载
 
 | 任务 | 读取 |
 |---|---|
 | 选模型 | `roles/建模手/references/建模设计理论.md` |
-| 查具体算法 | `算法索引.md`，再读取一个匹配的 `../assets/*.md` |
+| 查具体算法 | `算法索引.md`，先读匹配算法卡片，再按需读长文 |
 | Python/MATLAB 实现 | `roles/编程手/references/工作流程.md` |
 | MATLAB 工具箱与出图 | `roles/编程手/references/MATLAB规范.md` |
 | 可视化 | `../tools/figure/SKILL.md` |

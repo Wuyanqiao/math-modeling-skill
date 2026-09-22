@@ -1,0 +1,38 @@
+{
+  "scope": "Independent P1 isolated rerun; no demo project writes",
+  "task_id": "review_69a9990da9fb4a59",
+  "snapshot_hash": "4cd6ae2ffae02c344e95de68afca7b579a8b3c77465471ded8b2d56a9af46aee",
+  "snapshot_sha_verified": true,
+  "run_id": "run_ec3fcce760954088",
+  "command": [
+    "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\project-review\\.venv\\Scripts\\python.exe",
+    "solver.py"
+  ],
+  "dependencies_observed": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "exit_code": 0,
+  "stdout": "{\"x\": [2.0, 2.0], \"objective\": 10.0, \"max_constraint_violation\": 0.0}\n",
+  "stderr": "",
+  "result": {
+    "x": 2.0,
+    "y": 2.0,
+    "objective": 10.0
+  },
+  "absolute_errors": {
+    "x": 0.0,
+    "y": 0.0,
+    "objective": 0.0
+  },
+  "all_constraint_residuals": [
+    0.0,
+    0.0,
+    -1.0,
+    -2.0,
+    -2.0
+  ],
+  "csv_sha256": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+  "author_csv_equal": true,
+  "independent_optimality_bound": "3x+2y = 2(x+y)+x <= 2*4+2 = 10; equality forces x=y=2"
+}

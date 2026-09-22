@@ -1,0 +1,38 @@
+{
+  "task_id": "review_e31b875496c34f13",
+  "snapshot_hash": "71783cebb05ed589184c1a49d47c3987c3dfa60ead83d1a1cde6854c99b9ec58",
+  "run_id": "run_9782c9bc9e8b41fd",
+  "scope": "Independent copied-source P1 rerun, no writes to project",
+  "snapshot_sha_verified": true,
+  "source_explicit_absolute_tolerance": true,
+  "all_constraints_explicitly_asserted": true,
+  "result": {
+    "x": 2.0,
+    "y": 2.0,
+    "objective": 10.0
+  },
+  "absolute_errors": {
+    "x": 0.0,
+    "y": 0.0,
+    "objective": 0.0
+  },
+  "all_constraint_residuals": [
+    0.0,
+    0.0,
+    -1.0,
+    -2.0,
+    -2.0
+  ],
+  "byte_identical_csv": true,
+  "stdout": "{\"x\": [2.0, 2.0], \"objective\": 10.0, \"max_constraint_violation\": 0.0}\n",
+  "stderr": "",
+  "observed_environment": {
+    "version": "3.13.13",
+    "dependencies": {
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "matplotlib": "3.11.2"
+    }
+  },
+  "optimality_proof": "3x+2y = 2(x+y)+x <= 10, equality at (2,2)."
+}

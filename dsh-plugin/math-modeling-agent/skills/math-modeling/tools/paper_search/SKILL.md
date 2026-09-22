@@ -1,38 +1,27 @@
 ---
 name: 双引擎论文搜索
-description: 使用 OpenAlex 与 AnySearch 两个真实数据源并行搜索、交叉匹配和输出可追溯论文元数据。
+description: 用可用学术检索源发现候选文献，区分后端失败与零结果、元数据匹配与原文支持。
 ---
 
-# 双引擎论文搜索
+# 学术检索与证据核验
 
-## 数据源
-
-- OpenAlex：结构化学术元数据。
-- AnySearch Academic：学术垂直搜索，支持当前 MCP Markdown 响应解析。
-
-默认并行调用两个引擎。DOI 相同的记录直接交叉验证；无 DOI 时仅在标题高度相似且年份相容时合并。同一引擎中标题规范化后相同的预印本与正式出版记录也会折叠，并优先保留引用信息和元数据更完整的记录。交叉匹配结果、OpenAlex 独有结果和 AnySearch 独有结果分开输出。
-
-融合时按查询词覆盖率过滤和重排，相关性优先于引用量，避免高被引但主题无关的论文挤占结果。包含多个专业术语时，候选文献至少命中两个有效查询词；这一阈值兼顾缺少摘要的元数据，不能代替人工核验。物理、材料和光学主题应组合使用材料名、机理名与模型名，例如 `Sellmeier 4H-SiC Fabry-Perot`；结果过少时逐步放宽查询，不直接接受无关结果。
-
-## 使用
+OpenAlex 提供结构化元数据，AnySearch 提供学术搜索。默认并行检索；可按宿主能力选择单源，搜索源数量不等于证据质量。可能需要服务授权/密钥；不在日志和报告中写密钥。
 
 ```powershell
-python scripts/hybrid_scholar.py --query "robust optimization vehicle routing" --limit 10 --json
+python "<SKILL_ROOT>/tools/paper_search/scripts/hybrid_scholar.py" --query "robust optimization vehicle routing" --limit 10 --json
+python "<SKILL_ROOT>/tools/paper_search/scripts/hybrid_scholar.py" --query "analytic hierarchy process" --openalex-only --json
 ```
 
-如 AnySearch 需要鉴权：
+## 输出语义
 
-```powershell
-$env:ANYSEARCH_API_KEY = "<密钥>"
-python scripts/hybrid_scholar.py --query "analytic hierarchy process" --limit 8
-```
+- `providers` 记录各后端 `ok`、`empty` 或 `failed`、条数、时间和安全错误类别；空结果是成功搜索后的零记录，服务失败不能解释为没有论文。
+- `search_status` 为 ok / partial / failed；全部启用源失败时 CLI 返回非零。partial 保留成功源结果并报告失败来源。
+- `metadata_matched` 表示 DOI 或题名/年份匹配；兼容字段 `cross_validated` 保留相同含义，不代表理论正确或原文支持结论。
+- 每项 `claim_support` 默认 unverified。打开原始出版页核验作者、题名、年份、期刊等，再阅读与主张相关原文并记录页码/段落；检索器不自动将它改成 verified。
+- 引用量不是正确性的证明；不得根据标题或摘要编造结论。同 DOI 优先匹配，无 DOI 需题名高度相似且年份相容；排序考虑查询相关性。
 
-诊断单个引擎时可用 `--openalex-only` 或 `--anysearch-only`；正式文献检索默认不得只运行一个引擎。
+Python 的旧 `search_papers()` 仍返回列表，服务状态可从该 provider 的 `last_result` 读取；新调用优先 `search_result()`，返回 ProviderResult。HybridScholar 保留原分组并新增后端状态。
 
-## 核验规则
+## 回退与证据登记
 
-1. 搜索结果只用于发现候选文献。
-2. 引用前打开 DOI 或出版机构页面核对作者、题名、年份、期刊/会议、卷期页。
-3. 不把引用量当作正确性的证明。
-4. 不根据标题或摘要编造不存在的结论。
-5. 输出中保留 `sources` 和 `cross_validated` 状态。
+某后端缺权限或失败时，可以用可用源发现候选并单独核验出版机构原文，记录能力缺口，不静默标成双源通过。对话或共享 runtime 的 claim 证据应包含原文位置与支持范围；跨源匹配和原文语义审核是两项不同工作。开发测试使用模拟响应，不需要调用付费服务。

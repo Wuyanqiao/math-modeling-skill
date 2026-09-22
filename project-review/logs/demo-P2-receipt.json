@@ -1,0 +1,62 @@
+{
+  "task_id": "review_7335a3ad94a6489d",
+  "snapshot_hash": "9bf4767ef86450e2fa21a8c355f36638dfa1c12045717cb3ff534e69e98e90ba",
+  "reviewer_id": "independent-demo-reviewer",
+  "review_source": "subagent",
+  "status": "PASS",
+  "scope": "P2 only: inspected actual source/data/result/manifest, all snapshot hashes and q1/run artifact bindings. Independently reran --figures outside the project: CSV and both PNG files match byte-for-byte; objective 10 and usage (4,2,2) obey capacity (4,2,3). Viewed both actual PNG charts, checked feasible polygon/labels/zero baseline and SVG editable text against code/data. Environment probe and persisted logs support this deterministic synthetic fixture only; this receipt does not approve paper or assert general solver/chart support for arbitrary instances.",
+  "evidence": [
+    {
+      "path": "solver.py",
+      "sha256": "26c4082c7cb9307f8073ecb866ec33688204f869fa202cb11197f7e411ea16c3",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "术语表格.md",
+      "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "题目分析报告.md",
+      "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "data/case.json",
+      "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "figures/result_q1_region.png",
+      "sha256": "ed4a0a131098dcbde5d2d264b5a7b8f3f4d5f1d18ac4e54ba556c270944125a8",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "figures/result_q1_region.svg",
+      "sha256": "f6beaef5fd707c14345596f47f0182723460927159f42e3c710f7776dc077e15",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "figures/result_q1_usage.png",
+      "sha256": "8e07e7f4a7d617acd18ebd21f889db0e2e849cd16fc54f19b09e7f6dce000cdd",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "figures/result_q1_usage.svg",
+      "sha256": "26e9dc5350c342d75e5ac450d946c25ec88e8b3c3b873fd3414ac1932736273d",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "results/solution.csv",
+      "sha256": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    },
+    {
+      "path": "results/复现清单.json",
+      "sha256": "2eace1a361f8c17348c922e51c76c77b48660088f3fbe656b0a87596a50f89ed",
+      "locator": "Actual file SHA verified; result/source/manifest bindings checked, both PNG charts viewed, SVG text inspected, independent full rerun compared."
+    }
+  ],
+  "findings": [],
+  "rework": ""
+}

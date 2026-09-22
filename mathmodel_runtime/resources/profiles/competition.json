@@ -1,0 +1,7 @@
+{
+  "name": "competition",
+  "description": "Only sourced project.rules are mandatory; verify current official rules.",
+  "recommendations": {
+    "figures": 8
+  }
+}

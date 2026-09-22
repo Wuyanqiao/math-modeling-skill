@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "artifact": {
+    "artifact_id": "artifact_4faa2d3966334f87",
+    "path": "solver.py",
+    "kind": "code",
+    "sha256": "26c4082c7cb9307f8073ecb866ec33688204f869fa202cb11197f7e411ea16c3",
+    "bytes": 3252,
+    "question": null,
+    "run_id": null,
+    "validation": {
+      "path": "solver.py",
+      "ok": true,
+      "blocked": false,
+      "errors": [],
+      "details": {},
+      "bytes": 3252,
+      "sha256": "26c4082c7cb9307f8073ecb866ec33688204f869fa202cb11197f7e411ea16c3"
+    },
+    "stale": false,
+    "registered_at": "2026-09-22T07:12:45.776265+00:00",
+    "logical_id": "solver"
+  },
+  "revision": 19
+}

@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "mode": "local-development",
+  "redistribution_approved": false,
+  "version": "2.0.0",
+  "source": {
+    "commit": "3c4bd1927663327812665941a445281b9c008a78",
+    "dirty": true,
+    "content_sha256": "d19d3cafceb0c42a223d37e1b35e972a54b63c1c281284fab6fe3fe367e9b48a"
+  },
+  "upstream": {
+    "repository": "https://github.com/XiaoMaColtAI/math-modeling-skill",
+    "baseline_commit": "3c4bd1927663327812665941a445281b9c008a78",
+    "license_verified": false
+  },
+  "compatibility": {
+    "python": ">=3.11,<3.14",
+    "operating_systems": [
+      "Windows",
+      "Linux"
+    ],
+    "node_test_versions": [
+      "22",
+      "24"
+    ],
+    "dsh_host": {
+      "npm_package": "@deepseek-ai/dsh",
+      "version": "0.1.7-alpha.1",
+      "source_commit": "c36a83ff6bb95e3f82cf79f9be7c724270a8aa61",
+      "local_node": "24.11.1",
+      "minimum_node_version": null,
+      "note": "Adapter Node test targets do not imply official host minimum or mounting success."
+    }
+  },
+  "dependencies": {
+    "requires_python": ">=3.11,<3.14",
+    "core": [],
+    "optional": {
+      "docx": [
+        "python-docx>=1.1,<2",
+        "lxml>=5,<7",
+        "defusedxml>=0.7.1,<1",
+        "Pillow>=10,<13"
+      ],
+      "figure": [
+        "numpy>=1.26,<3",
+        "pandas>=2.2,<4",
+        "matplotlib>=3.8,<4",
+        "Pillow>=10,<13"
+      ],
+      "pdf": [
+        "pypdf>=5,<7",
+        "PyMuPDF>=1.24,<2"
+      ],
+      "xlsx": [
+        "openpyxl>=3.1,<4"
+      ],
+      "validation": [
+        "jsonschema>=4.21,<5"
+      ],
+      "science": [
+        "numpy>=1.26,<3",
+        "scipy>=1.12,<2",
+        "pandas>=2.2,<4",
+        "networkx>=3.2,<4",
+        "scikit-learn>=1.4,<2"
+      ],
+      "dev": [
+        "python-docx>=1.1,<2",
+        "lxml>=5,<7",
+        "defusedxml>=0.7.1,<1",
+        "Pillow>=10,<13",
+        "pypdf>=5,<7",
+        "PyMuPDF>=1.24,<2",
+        "jsonschema>=4.21,<5",
+        "numpy>=1.26,<3",
+        "pandas>=2.2,<4",
+        "matplotlib>=3.8,<4",
+        "scipy>=1.12,<2",
+        "networkx>=3.2,<4",
+        "openpyxl>=3.1,<4",
+        "scikit-learn>=1.4,<2",
+        "build>=1.2,<2"
+      ]
+    }
+  },
+  "excluded_components": [],
+  "artifacts": [
+    {
+      "name": "mathmodel-skill-2.0.0-LOCAL-DEVELOPMENT.zip",
+      "sha256": "18c6c7fcd48a6ca83d1694b9e03f56d9da93f4e22270b3958ea96a40f9d7b8c4",
+      "bytes": 5290151,
+      "file_count": 225
+    },
+    {
+      "name": "mathmodel-dsh-2.0.0-LOCAL-DEVELOPMENT.zip",
+      "sha256": "4e07047eb8101b44392089fc8de283f89c0aef8851b5f5f932ba8daff56acc19",
+      "bytes": 10680656,
+      "file_count": 469
+    }
+  ],
+  "resource_audit": {
+    "required_resources": [
+      "SKILL.md",
+      "VERSION",
+      "scripts/mathmodel.py",
+      "mathmodel_runtime/__init__.py",
+      "mathmodel_runtime/resources/profiles/short.json",
+      "mathmodel_runtime/resources/profiles/balanced.json",
+      "mathmodel_runtime/resources/schemas/state.schema.json",
+      "tools/docx/scripts/check_env.py",
+      "tools/docx/scripts/paper_format.py",
+      "tools/xlsx/scripts/read_rows.py",
+      "tools/pdf/SKILL.md",
+      "references/roles/论文手/references/论文模板.docx"
+    ],
+    "checked_links": 45,
+    "preexisting_documentation_gaps": [],
+    "python_syntax": "passed"
+  },
+  "smoke_tests": [
+    {
+      "action": "init",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    },
+    {
+      "action": "state",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    },
+    {
+      "action": "complete",
+      "returncode": 0,
+      "working_directory": "temporary Chinese and space path",
+      "scope": "stdlib initialization/state/incomplete-project check; external converters and DSH mounting are separate checks"
+    }
+  ]
+}

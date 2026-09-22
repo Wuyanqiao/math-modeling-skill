@@ -1,0 +1,40 @@
+{
+  "engine": "xelatex",
+  "bibliography_backend": "none",
+  "tools": {
+    "latexmk": {
+      "path": "D:\\texlive\\2025\\bin\\windows\\latexmk.EXE",
+      "version": "perl: warning: Setting locale failed."
+    },
+    "xelatex": {
+      "path": "D:\\texlive\\2025\\bin\\windows\\xelatex.EXE",
+      "version": "XeTeX 3.141592653-2.6-0.999997 (TeX Live 2025)"
+    },
+    "bibtex": {
+      "path": "D:\\texlive\\2025\\bin\\windows\\bibtex.EXE",
+      "version": "BibTeX 0.99d (TeX Live 2025)"
+    },
+    "biber": {
+      "path": "D:\\texlive\\2025\\bin\\windows\\biber.EXE",
+      "version": null
+    },
+    "pandoc": {
+      "path": "C:\\Users\\Renaissance2\\AppData\\Local\\Pandoc\\pandoc.EXE",
+      "version": "pandoc 3.11"
+    },
+    "pdfimages": {
+      "path": "D:\\texlive\\2025\\bin\\windows\\pdfimages.EXE",
+      "version": "pdfimages version 25.02.0"
+    },
+    "pdftoppm": {
+      "path": "C:\\Users\\Renaissance2\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+      "version": "pdftoppm version 26.07.0"
+    },
+    "pypdf": {
+      "available": true,
+      "version": "6.18.1"
+    }
+  },
+  "issues": [],
+  "passed": true
+}

@@ -31,7 +31,7 @@ class LatexPaperTests(unittest.TestCase):
             output = Path(temporary) / "完整论文-LaTeX"
             result = prepare_project(output, contest="cumcm")
 
-            self.assertEqual(Path(result["main_tex"]), output / "main.tex")
+            self.assertEqual(Path(result["main_tex"]).resolve(), (output / "main.tex").resolve())
             self.assertTrue((output / "references.bib").is_file())
             self.assertTrue((output / "latex-project.json").is_file())
             with self.assertRaises(FileExistsError):
@@ -83,7 +83,7 @@ class LatexPaperTests(unittest.TestCase):
                 (root / "paper" / "latex-project.json").read_text(encoding="utf-8")
             )
 
-            self.assertEqual(Path(result["main_tex"]), root / "paper/src/paper.tex")
+            self.assertEqual(Path(result["main_tex"]).resolve(), (root / "paper/src/paper.tex").resolve())
             self.assertEqual(manifest["main_tex"], "src/paper.tex")
             self.assertEqual(manifest["template"]["version"], "2026")
             with self.assertRaisesRegex(ValueError, "必须"):

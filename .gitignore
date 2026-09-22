@@ -6,8 +6,17 @@ temp_release/
 
 CLAUDE.md
 
-examples
-
-docs
-
 mms-index
+
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+node_modules/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.math-modeling/
+project-review/.venv/
+project-review/tmp/

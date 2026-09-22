@@ -1,289 +1,179 @@
 window.__ModuleLoader__.load({
-  id: "dsh-math-modeling-ui",
-  factory: (require) => {
-    var module = { exports: {} };
-    var exports = module.exports;
-    var React = require("react");
-    var __defProp = Object.defineProperty;
-    var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-    var __getOwnPropNames = Object.getOwnPropertyNames;
-    var __hasOwnProp = Object.prototype.hasOwnProperty;
-    var __export = (target, all) => {
-      for (var name2 in all)
-        __defProp(target, name2, { get: all[name2], enumerable: true });
-    };
-    var __copyProps = (to, from, except, desc) => {
-      if (from && typeof from === "object" || typeof from === "function") {
-        for (let key of __getOwnPropNames(from))
-          if (!__hasOwnProp.call(to, key) && key !== except)
-            __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-      }
-      return to;
-    };
-    var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-    var index_exports = {};
-    __export(index_exports, {
-      name: () => name,
-      inject: () => inject,
-      apply: () => apply,
-    });
-    module.exports = __toCommonJS(index_exports);
-
-    var name = "dsh-math-modeling-ui";
-    var inject = ["slots", "connection", "locale", "sessions"];
-
-    var MM_CHANNEL = "/math-modeling-ui";
-    var MM_ENDPOINTS = {
-      state: "mm.state",
-      setEnabled: "mm.setEnabled",
-      getEnabled: "mm.getEnabled",
-    };
-    var TARGET = "math-modeling-agent";
-
-    var CSS = ".mm-overlay{pointer-events:auto;position:fixed;top:12px;right:12px;width:360px;max-height:calc(100vh - 24px);z-index:30;box-shadow:0 8px 30px rgba(0,0,0,.18);border-radius:12px;overflow:hidden;background:#F8FAFC}.mm-overlay.mm-collapsed{width:auto;box-shadow:0 4px 16px rgba(0,0,0,.15)}.mm-overlay .mmui{height:auto;max-height:calc(100vh - 24px);overflow-y:auto}.mmui{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.5;color:#1E3A8A;padding:20px;overflow-y:auto;height:100%;background:#F8FAFC;box-sizing:border-box}.mmui *{box-sizing:border-box}.mmui .hdr{background:linear-gradient(135deg,#1E40AF,#3B82F6);border-radius:12px;padding:20px 22px;color:#fff;margin-bottom:20px;box-shadow:0 1px 3px rgba(30,64,175,.12),0 4px 12px rgba(30,64,175,.08)}.mmui .hdr-eyebrow{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;opacity:.8;margin-bottom:6px;display:flex;align-items:center;gap:6px}.mmui .hdr-dot{width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981}.mmui .hdr-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.mmui .hdr-toggle{font-size:11px;font-weight:600;color:#fff;background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:3px 8px;cursor:pointer;flex-shrink:0}.mmui .hdr-toggle:hover{background:rgba(255,255,255,.32)}.mmui .mmui-collapsed{padding:10px 14px}.mmui .mmui-collapsed .hdr-top{margin-bottom:0}.mmui .hdr-title{font-size:20px;font-weight:700;line-height:1.3;margin-bottom:8px;word-break:break-word}.mmui .hdr-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;font-weight:500;opacity:.95}.mmui .hdr-tag{background:rgba(255,255,255,.18);padding:3px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}.mmui .hdr-tag-accent{background:#D97706;color:#fff}.mmui .card{background:#fff;border:1px solid #E9EEF6;border-radius:10px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}.mmui .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #F1F5F9}.mmui .card-title{font-size:13px;font-weight:700;color:#1E3A8A;display:flex;align-items:center;gap:8px}.mmui .card-action{font-size:12px;font-weight:600;color:#1E40AF;cursor:pointer;padding:4px 10px;border-radius:6px;background:#EEF2FF;border:none}.mmui .card-action:hover{background:#1E40AF;color:#fff}.mmui .step{display:flex;align-items:stretch;gap:14px;padding:12px 0;border-bottom:1px solid #F8FAFC}.mmui .step:last-child{border-bottom:none;padding-bottom:0}.mmui .step:first-child{padding-top:0}.mmui .step-rail{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0}.mmui .step-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid #E9EEF6;background:#fff;color:#94A3B8}.mmui .step.done .step-circle{background:#10B981;border-color:#10B981;color:#fff}.mmui .step.cur .step-circle{background:#1E40AF;border-color:#1E40AF;color:#fff;box-shadow:0 0 0 4px rgba(30,64,175,.15)}.mmui .step-line{width:2px;flex:1;background:#E9EEF6;margin:4px 0}.mmui .step.done .step-line{background:#10B981}.mmui .step-body{flex:1;min-width:0;padding:6px 0}.mmui .step-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}.mmui .step-name{font-size:14px;font-weight:600;color:#1E3A8A}.mmui .step.cur .step-name{color:#1E40AF}.mmui .step.done .step-name{color:#64748B}.mmui .step-meta{font-size:11px;font-weight:600;color:#94A3B8;font-family:monospace;background:#F1F5F9;padding:2px 8px;border-radius:4px}.mmui .step.cur .step-meta{background:rgba(30,64,175,.1);color:#1E40AF}.mmui .step-bar{height:6px;background:#F1F5F9;border-radius:3px;overflow:hidden;margin-top:6px}.mmui .step-bar-fill{height:100%;background:linear-gradient(90deg,#1E40AF,#3B82F6);border-radius:3px}.mmui .step.done .step-bar-fill{background:#10B981}.mmui .gate-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mmui .gate{background:#fff;border:1px solid #E9EEF6;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px}.mmui .gate-ico{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;font-family:monospace;flex-shrink:0}.mmui .gate.pass .gate-ico{background:#D1FAE5;color:#047857}.mmui .gate.fail .gate-ico{background:#FEE2E2;color:#B91C1C}.mmui .gate.blocked .gate-ico{background:#FEF3C7;color:#B45309}.mmui .gate.pending .gate-ico{background:#F1F5F9;color:#94A3B8}.mmui .gate-body{flex:1;min-width:0}.mmui .gate-id{font-size:12px;font-weight:700;color:#1E3A8A;font-family:monospace}.mmui .gate-label{font-size:10px;font-weight:600;color:#64748B;letter-spacing:.5px;margin-top:1px}.mmui .gate-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;flex-shrink:0;font-family:monospace}.mmui .gate.pass .gate-status{background:#D1FAE5;color:#047857}.mmui .gate.fail .gate-status{background:#FEE2E2;color:#B91C1C}.mmui .gate.blocked .gate-status{background:#FEF3C7;color:#B45309}.mmui .gate.pending .gate-status{background:#F1F5F9;color:#94A3B8}.mmui .tasks-empty{padding:24px 12px;text-align:center;color:#94A3B8;font-size:13px;background:#F8FAFC;border-radius:8px;border:1px dashed #E9EEF6}.mmui .tasks{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}.mmui .task{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:8px;background:#F8FAFC;border:1px solid #F1F5F9}.mmui .task-check{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;background:#fff;border:2px solid #CBD5E1;color:#fff}.mmui .task.done{opacity:.6}.mmui .task.done .task-check{background:#10B981;border-color:#10B981}.mmui .task-text{flex:1;font-size:13px;color:#1E3A8A}.mmui .task.done .task-text{text-decoration:line-through;color:#94A3B8}.mmui .completed{background:linear-gradient(135deg,#D1FAE5,#A7F3D0);border:1px solid #10B981;border-radius:10px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:12px}.mmui .completed-ico{width:36px;height:36px;border-radius:50%;background:#10B981;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}.mmui .completed-title{font-size:14px;font-weight:700;color:#065F46}.mmui .completed-sub{font-size:12px;color:#047857;margin-top:2px}.mmui .next{background:linear-gradient(135deg,#EEF2FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}.mmui .next-ico{width:32px;height:32px;border-radius:8px;background:#1E40AF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}.mmui .next-label{font-size:11px;font-weight:700;color:#1E40AF;letter-spacing:.8px;margin-bottom:4px}.mmui .next-text{font-size:13px;color:#1E3A8A;line-height:1.5}.mmui .actions{display:flex;gap:8px;margin-top:8px}.mmui .btn{flex:1;padding:10px 14px;border:1px solid #E9EEF6;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#475569}.mmui .btn-primary{background:#1E40AF;color:#fff;border-color:#1E40AF}.mmui .err{background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:14px 16px;font-size:13px;color:#B91C1C}.mmui .init{background:#EEF2FF;border:1px dashed #BFDBFE;border-radius:10px;padding:20px;text-align:center;color:#1E40AF;font-size:13px;line-height:1.6}.mmui .init-title{font-weight:700;margin-bottom:4px;font-size:14px}.mmu-set{font-family:Inter,sans-serif;padding:4px}.mmu-set .card{background:#fff;border:1px solid #E9EEF6;border-radius:10px;padding:18px;max-width:560px}.mmu-set .row{display:flex;align-items:center;justify-content:space-between;gap:16px}.mmu-set .title{font-size:14px;font-weight:700;color:#1E3A8A}.mmu-set .desc{font-size:12px;color:#64748B;margin-top:4px;line-height:1.5}.mmu-set .toggle{position:relative;width:44px;height:24px;border-radius:12px;background:#CBD5E1;border:none;cursor:pointer;flex-shrink:0;transition:background .2s}.mmu-set .toggle.on{background:#1E40AF}.mmu-set .toggle::after{content:\"\";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}.mmu-set .toggle.on::after{transform:translateX(20px)}.mmu-set .toggle:disabled{opacity:.5;cursor:default}.mmu-set .note{margin-top:12px;font-size:12px;color:#64748B;background:#F8FAFC;border:1px solid #E9EEF6;border-radius:8px;padding:10px 12px;line-height:1.5}@media (prefers-reduced-motion:reduce){.mmui *{transition:none!important;animation:none!important}}";
-
-    function useRpc(ctx) {
-      return function (endpoint, payload, signal) {
-        return ctx.connection.rpc.call(MM_CHANNEL, endpoint, payload, signal);
-      };
+  id: 'dsh-math-modeling-ui',
+  factory(require) {
+    const React = require('react')
+    const h = React.createElement
+    const CHANNEL = '/math-modeling-ui'
+    const names = { modeling: '建模', programming: '求解', paper: '论文' }
+    const scopes = { full: '完整流程', modeling: '建模任务', programming: '求解任务', paper: '论文任务' }
+    const statuses = { pass: '通过', fail: '未通过', blocked: '阻塞', pending: '待审', invalidated: '需复验', stale: '需复验', done: '完成', current: '进行中', inprogress: '进行中', skipped: '不适用' }
+    const records = value => Array.isArray(value) ? value : Object.entries(value || {}).map(([id, item]) => ({ id, ...item }))
+    const message = value => typeof value === 'string' ? value : value?.message || value?.text || value?.reason || JSON.stringify(value)
+    const timestamp = value => value ? new Date(value).toLocaleString() : '时间未记录'
+    const CSS = `
+.mmwb{--paper:#f8f7f2;--ink:#202c2b;--muted:#65736e;--line:#dce1d9;--accent:#176f64;--warning:#985414;color:var(--ink);background:var(--paper);font-family:'Segoe UI','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.6;box-sizing:border-box}
+.mmwb *{box-sizing:border-box}.mmwb button{font:inherit;color:inherit;cursor:pointer}.mmwb button:disabled{cursor:wait;opacity:.55}.mmwb button:focus-visible,.mmwb summary:focus-visible{outline:3px solid #d8a83b;outline-offset:3px}
+.mmwb-dock{pointer-events:auto;position:fixed;right:16px;top:16px;width:min(390px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:3px;box-shadow:0 10px 36px #162e2426;z-index:30}
+.mmwb-dock.mmwb-closed{width:auto;max-width:calc(100vw - 32px)}.mmwb-head{padding:16px 18px 12px;border-bottom:1px solid var(--line)}.mmwb-kicker{font-family:Consolas,monospace;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent)}.mmwb-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.mmwb h2{font-family:Georgia,'Songti SC','SimSun',serif;font-size:21px;line-height:1.35;margin:6px 0;overflow-wrap:anywhere}.mmwb h3{font-size:12px;letter-spacing:.4px;margin:0 0 10px}.mmwb p{margin:6px 0}.mmwb-muted{color:var(--muted);font-size:11px}.mmwb-btn{border:1px solid var(--line);border-radius:3px;padding:5px 10px;background:transparent;white-space:nowrap}.mmwb-btn:hover{background:#176f640c}.mmwb-btn-primary{background:var(--accent);color:#fff!important;border-color:var(--accent)}.mmwb-tabs{display:flex;padding:0 14px;border-bottom:1px solid var(--line)}.mmwb-tab{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:10px 4px;font-size:12px!important}.mmwb-tab[aria-selected=true]{border-color:var(--accent);font-weight:700;color:var(--accent)}.mmwb-content{padding:16px 18px}.mmwb-section{margin-bottom:20px}.mmwb-section:last-child{margin-bottom:0}.mmwb-warning{border-left:3px solid #cc9237;padding:10px 12px;background:#f4ebda;font-size:12px;margin-bottom:14px}.mmwb-error{border-left-color:#b54434;background:#fae9e4}.mmwb-success{border-left:3px solid var(--accent);padding:9px 12px;background:#e4eee7;margin-bottom:14px}.mmwb-list{list-style:none;margin:0;padding:0}.mmwb-list>li{padding:9px 0;border-bottom:1px solid var(--line)}.mmwb-list>li:last-child{border-bottom:0}.mmwb-badge{display:inline-block;border-radius:2px;padding:2px 6px;background:#e4e8e2;font-size:10px;white-space:nowrap}.mmwb-badge[data-status=pass],.mmwb-badge[data-status=done]{color:#176446;background:#dfece0}.mmwb-badge[data-status=fail],.mmwb-badge[data-status=blocked],.mmwb-badge[data-status=invalidated]{color:#873b22;background:#f2e1d2}.mmwb summary{cursor:pointer;overflow-wrap:anywhere}.mmwb details+details{margin-top:10px}.mmwb code,.mmwb pre{font-family:Consolas,'Cascadia Code',monospace;font-size:11px}.mmwb pre{margin:8px 0;padding:10px;background:#eaede6;border:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto}.mmwb-path{font-size:11px;color:var(--muted);overflow-wrap:anywhere}.mmwb-foot{padding:12px 18px;border-top:1px solid var(--line)}.mmwb-empty{color:var(--muted);padding:12px 0;font-size:12px}.mmwb-progress{height:3px;background:#dce2d7;margin-top:6px}.mmwb-progress>span{height:100%;display:block;background:var(--accent)}.mmwb-settings{max-width:580px;padding:20px;border:1px solid var(--line)}.mmwb-close{border:0;background:none;font-size:16px!important}.mmwb-preview{padding-top:12px;margin-top:12px;border-top:1px solid var(--line)}
+@media(prefers-color-scheme:dark){.mmwb{--paper:#202925;--ink:#e5e9df;--muted:#a3b0a7;--line:#3d4840;--accent:#7bb7a1}.mmwb-warning{background:#463a28;color:#f0d6aa}.mmwb-error{background:#472d29}.mmwb-success{background:#293f32}.mmwb pre{background:#19211c}.mmwb-badge{background:#3d4840}.mmwb-btn-primary{color:#13251d!important}}
+@media(prefers-reduced-motion:reduce){.mmwb *{scroll-behavior:auto!important}}
+.mmwb summary>.mmwb-row{display:inline-flex;width:calc(100% - 16px)}
+`
+    function Badge({ status }) {
+      const key = String(status || 'pending').toLowerCase()
+      return h('span', { className: 'mmwb-badge', 'data-status': key }, statuses[key] || key)
     }
-
-    function MathModelingDock(props) {
-      var h = React.createElement;
-      var ctx = props.ctx;
-      var rpcCall = props.rpcCall;
-      // 当前会话 preset：shell.overlay 是 root scope 无 sessionId prop，
-      // 用 ctx.sessions.list.getSnapshot() 读当前活跃会话的 agentPreset 做门控。
-      var currentSession = function () {
+    function Section({ title, children }) { return h('section', { className: 'mmwb-section' }, h('h3', null, title), children) }
+    function Empty({ children }) { return h('p', { className: 'mmwb-empty' }, children) }
+    function useSession(ctx) {
+      const store = ctx.sessions?.list
+      const subscribe = React.useCallback(listener => {
+        if (store?.subscribe) return store.subscribe(listener)
+        const timer = setInterval(listener, 1000)
+        return () => clearInterval(timer)
+      }, [store])
+      const snapshot = React.useCallback(() => {
+        const value = store?.getSnapshot?.()
+        return Object.values(value?.byId || {}).find(session => (session.retainedBy?.mainView || 0) > 0)?.id || value?.current || null
+      }, [store])
+      return React.useSyncExternalStore(subscribe, snapshot, () => null)
+    }
+    function Overview({ data }) {
+      const blockers = data.blockers || []
+      const steps = data.progress?.steps || []
+      const gates = records(data.gates)
+      return h(React.Fragment, null,
+        data.stale ? h('p', { className: 'mmwb-warning' }, data.refreshNotice || '当前显示保存的快照。重新验证可检查产物变更。') : null,
+        data.refreshError ? h('p', { className: 'mmwb-warning mmwb-error', role: 'alert' }, data.refreshError) : null,
+        data.completed ? h('div', { className: 'mmwb-success' }, data.stale ? '上次验证已完成' : '当前任务验证完成', h('div', { className: 'mmwb-muted' }, timestamp(data.completedAt))) : null,
+        h(Section, { title: '当前阻塞' }, blockers.length ? h('ul', { className: 'mmwb-list' }, blockers.map((item, index) => h('li', { key: index }, message(item)))) : h(Empty, null, data.completed ? '没有阻塞项。' : '尚无记录；以运行时验证结果为准。')),
+        h(Section, { title: '阶段进度' }, h('ul', { className: 'mmwb-list' }, steps.map(step => {
+          const task = data.progress?.tasks?.[step.key]
+          return h('li', { key: step.key }, h('div', { className: 'mmwb-row' }, h('span', null, step.label || names[step.key]), h(Badge, { status: step.status })),
+            task ? h('div', { className: 'mmwb-muted' }, `${task.done ?? 0} / ${task.total ?? 0} 项`, h('div', { className: 'mmwb-progress', role: 'progressbar', 'aria-label': `${step.label || step.key}任务进度`, 'aria-valuenow': task.pct || 0, 'aria-valuemin': 0, 'aria-valuemax': 100 }, h('span', { style: { width: `${Math.max(0, Math.min(100, task.pct || 0))}%` } }))) : null)
+        }))),
+        h(Section, { title: '审核门禁' }, gates.map(gate => h('details', { key: gate.id }, h('summary', null, h('span', { className: 'mmwb-row' }, h('span', null, `${gate.id} · ${gate.title || ''}`), h(Badge, { status: gate.status }))),
+          gate.invalidation_reason ? h('p', { className: 'mmwb-warning' }, gate.invalidation_reason) : null,
+          gate.receipt ? h(React.Fragment, null, h('p', { className: 'mmwb-muted' }, `审核来源：${gate.receipt.review_source || '未记录'}；身份为审计声明`), h('pre', null, JSON.stringify(gate.receipt, null, 2))) : h(Empty, null, '尚无审核回执。')))),
+        data.progress?.nextAction ? h('p', { className: 'mmwb-muted' }, data.progress.nextAction) : null,
+        h('details', null, h('summary', null, '运行能力'), h('pre', null, JSON.stringify(data.capabilities || {}, null, 2))))
+    }
+    function Evidence({ data, preview, openPreview, busy }) {
+      return h(React.Fragment, null,
+        h(Section, { title: '已登记产物' }, records(data.artifacts).length ? h('ul', { className: 'mmwb-list' }, records(data.artifacts).map(item => h('li', { key: item.id || item.path },
+          h('div', { className: 'mmwb-row' }, h('span', null, `${item.kind || '文件'}${item.question ? ` · ${item.question}` : ''}`), h('button', { className: 'mmwb-btn', disabled: busy, onClick: () => openPreview(item.path), 'aria-label': `预览 ${item.path}` }, '预览')),
+          h('div', { className: 'mmwb-path' }, item.path), h('div', { className: 'mmwb-muted' }, item.sha256 ? `SHA-256 ${item.sha256.slice(0, 16)}…` : '未记录哈希')))) : h(Empty, null, '用 mm_artifact_add 登记结果、图表或文档。')),
+        preview ? h('div', { className: 'mmwb-preview', role: 'region', 'aria-label': '产物预览' }, h('h3', null, '文件预览'), h('pre', null, preview.content ?? JSON.stringify(preview, null, 2))) : null,
+        h(Section, { title: '主张与证据' }, records(data.claims).length ? h('ul', { className: 'mmwb-list' }, records(data.claims).map(item => h('li', { key: item.id || item.claim_id }, h('p', null, item.text), h('div', { className: 'mmwb-path' }, (item.artifact_ids || []).join(' · ')), item.locator ? h('div', { className: 'mmwb-muted' }, item.locator) : null))) : h(Empty, null, '用 mm_claim_add 关联主张与产物。')),
+        h('details', null, h('summary', null, '审核任务与检查点'), h('pre', null, JSON.stringify({ review_tasks: data.review_tasks, checkpoints: data.checkpoints }, null, 2))))
+    }
+    function Runs({ data, preview, openLog, busy }) {
+      const runs = records(data.runs).slice(-20).reverse()
+      return h(React.Fragment, null,
+        h(Section, { title: '运行记录' }, runs.length ? runs.map(run => h('details', { key: run.id || run.run_id }, h('summary', null, h('span', { className: 'mmwb-row' }, h('code', null, (run.argv || []).join(' ') || run.id), h('span', { className: 'mmwb-badge' }, `退出码 ${run.exit_code ?? run.exitCode ?? '未知'}`))),
+          h('div', { className: 'mmwb-row' }, ['stdout', 'stderr'].map(stream => h('button', { key: stream, className: 'mmwb-btn', disabled: busy, onClick: () => openLog(run.run_id || run.id, stream) }, `读取 ${stream}`))),
+          h('pre', null, JSON.stringify(run, null, 2)))) : h(Empty, null, '通过 mm_run 执行命令后，真实日志会显示在这里。')),
+        preview ? h('section', { className: 'mmwb-preview', 'aria-label': '运行日志' }, h('h3', null, '运行日志'), preview.truncated ? h('p', { className: 'mmwb-warning' }, '日志过长，当前显示受限预览。') : null, h('pre', null, preview.content || '（空日志）')) : null,
+        h(Section, { title: '最近活动' }, h('ul', { className: 'mmwb-list' }, (data.ledgerTail || []).slice().reverse().map((entry, index) => h('li', { key: `${entry.at}-${index}` }, h('div', null, entry.event), h('div', { className: 'mmwb-muted' }, timestamp(entry.at)), entry.detail ? h('pre', null, typeof entry.detail === 'string' ? entry.detail : JSON.stringify(entry.detail, null, 2)) : null)))))
+    }
+    function Dock({ ctx, rpc }) {
+      const sid = useSession(ctx)
+      const [data, setData] = React.useState(null)
+      const [error, setError] = React.useState(null)
+      const [open, setOpen] = React.useState(false)
+      const [tab, setTab] = React.useState('overview')
+      const [busy, setBusy] = React.useState(false)
+      const [preview, setPreview] = React.useState(null)
+      const [logPreview, setLogPreview] = React.useState(null)
+      const sequence = React.useRef(0)
+      const previewSequence = React.useRef(0)
+      const refresh = React.useCallback(async (verify = false) => {
+        if (!sid) return
+        const request = ++sequence.current
+        if (verify) setBusy(true)
         try {
-          var st = ctx.sessions.list.getSnapshot();
-          var id = st.current;
-          return (id && st.byId[id]) ? st.byId[id] : null;
-        } catch (e) { return null; }
-      };
-      var cs = currentSession();
-      var sid = cs ? cs.id : null;
-      var preset = cs ? cs.agentPreset : undefined;
-      var state = React.useState(null);
-      var data = state[0], setData = state[1];
-      var expPair = React.useState(false);
-      var exp = expPair[0], setExp = expPair[1];
-      var colPair = React.useState(true);
-      var collapsed = colPair[0], setCollapsed = colPair[1];
-      var errPair = React.useState(null);
-      var err = errPair[0], setErr = errPair[1];
-
-      var ref = React.useCallback(function () {
-        rpcCall(MM_ENDPOINTS.state, { sessionId: sid }).then(function (res) {
-          if (res && res.ok) { setData(res.value); setErr(null); }
-          else setErr((res && res.error && res.error.message) || 'RPC failed');
-        }).catch(function (e) { setErr(String((e && e.message) || e)); });
-      }, [sid]);
-      React.useEffect(function () {
-        ref();
-        var timer = setInterval(ref, 10000);
-        return function () { clearInterval(timer); };
-      }, [ref]);
-
-      if (data && data.hidden) return null;
-      if (err) return h("div", { className: "mm-overlay" }, h("div", { className: "mmui" }, h("div", { className: "err" }, "ERR " + err)));
-      // 门控：仅数学建模 agent 预设会话显示（不区分数据是否已加载）
-      if (preset !== undefined && preset !== TARGET) return null;
-      // 折叠状态：即使数据未加载也显示折叠条（标题 + 展开按钮）
-      if (collapsed) {
-        var colTitle = (data && data.project && data.project.title) || "数学建模 Workbench";
-        return h("div", { className: "mm-overlay mm-collapsed" },
-          h("div", { className: "mmui" },
-            h("div", { className: "hdr mmui-collapsed" },
-              h("div", { className: "hdr-top" },
-                h("div", { className: "hdr-eyebrow" }, h("div", { className: "hdr-dot" }), "📐 " + colTitle),
-                h("button", { className: "hdr-toggle", onClick: function () { setCollapsed(false); setExp(true); }, "aria-expanded": false }, "展开")
-              )
-            )
-          )
-        );
+          const result = await rpc('mm.state', { sessionId: sid, refresh: verify })
+          if (sequence.current !== request) return
+          if (!result.ok) throw new Error(result.error?.message || '无法读取项目')
+          setData(result.value); setError(null)
+        } catch (error) { if (sequence.current === request) setError(String(error.message || error)) }
+        finally { if (sequence.current === request) setBusy(false) }
+      }, [sid, rpc])
+      React.useEffect(() => {
+        setData(null); setError(null); setPreview(null); setLogPreview(null); setBusy(false)
+        refresh()
+        const timer = setInterval(() => { if (document.visibilityState !== 'hidden') refresh() }, 10000)
+        const changed = () => refresh()
+        window.addEventListener('mmwb-settings-change', changed)
+        return () => { clearInterval(timer); window.removeEventListener('mmwb-settings-change', changed); sequence.current++; previewSequence.current++ }
+      }, [refresh])
+      async function openPreview(path) {
+        const request = ++previewSequence.current
+        setBusy(true)
+        try {
+          const result = await rpc('mm.artifact', { sessionId: sid, path })
+          if (previewSequence.current !== request) return
+          if (!result.ok) throw new Error(result.error?.message || '无法预览')
+          setPreview(result.value); setError(null)
+        } catch (error) { if (previewSequence.current === request) setError(String(error.message || error)) }
+        finally { if (previewSequence.current === request) setBusy(false) }
       }
-      if (!data) return h("div", { className: "mm-overlay" }, h("div", { className: "mmui" }, h("div", { className: "init" }, "加载中…")));
-      if (data.ok === false) return h("div", { className: "mm-overlay" }, h("div", { className: "mmui" }, h("div", { className: "err" }, data.error || "")));
-      if (!data.initialized) return h("div", { className: "mm-overlay" }, h("div", { className: "mmui" }, h("div", { className: "init" }, h("div", { className: "init-title" }, "项目未初始化"), "运行 mm_project_init 启动数学建模工作流")));
-
-      var SC = { done: "done", current: "cur", inprogress: "inprogress", pending: "pending" };
-      var GC = { pass: "pass", fail: "fail", blocked: "blocked" };
-      var PI = { modeling: "建模 · 题目分析与模型设计", programming: "编程 · 代码求解与结果验证", paper: "论文 · 撰写与排版交付" };
-      var PHASE_NUM = { modeling: "01", programming: "02", paper: "03" };
-      var PHASE_SHORT = { modeling: "建模手", programming: "编程手", paper: "论文手" };
-      var GL = { pass: "PASS", fail: "FAIL", blocked: "BLOCK", pending: "待" };
-      var NEXT = { modeling: "进入 M1 门禁质检 → 准备编程实现", programming: "通过 P1/P2 门禁 → 进入论文阶段", paper: "通过 W1/W2 门禁 → 准备完成判定" };
-
-      var cur = data.steps && data.steps.find(function (s) { return s.status === "current"; });
-      var ct = cur ? (cur.tasks || []) : [];
-      var proj = data.project;
-
-      var metaTags = [];
-      if (proj && proj.competition) metaTags.push(h("span", { className: "hdr-tag", key: "c" }, proj.competition));
-      if (proj && proj.edition) metaTags.push(h("span", { className: "hdr-tag", key: "e" }, proj.edition));
-      if (cur) metaTags.push(h("span", { className: "hdr-tag hdr-tag-accent", key: "p" }, "▶ " + (PHASE_SHORT[cur.key] || cur.label)));
-
-      var headerEl = h("div", { className: "hdr" + (collapsed ? " mmui-collapsed" : ""), key: "hdr" },
-        h("div", { className: "hdr-top" },
-          h("div", { className: "hdr-eyebrow" }, h("div", { className: "hdr-dot" }), data.completed ? "已交付" : "进行中"),
-          h("button", { className: "hdr-toggle", onClick: function () { setCollapsed(!collapsed); }, "aria-expanded": !collapsed }, collapsed ? "▶ 展开" : "◀ 收起")
-        ),
-        !collapsed ? [
-          h("div", { className: "hdr-title" }, proj ? proj.title : "数学建模 Workbench"),
-          h("div", { className: "hdr-meta" }, metaTags)
-        ] : null
-      );
-
-      var nextEl = cur && !data.completed ? h("div", { className: "next", key: "next" },
-        h("div", { className: "next-ico" }, "→"),
-        h("div", null, h("div", { className: "next-label" }, "NEXT"), h("div", { className: "next-text" }, NEXT[cur.key] || ""))
-      ) : null;
-
-      var phaseItems = (data.steps || []).map(function (s, i, arr) {
-        var tasks = s.tasks || [];
-        var doneCnt = tasks.filter(function (t) { return t.done; }).length;
-        var pct = tasks.length ? Math.round(doneCnt / tasks.length * 100) : 0;
-        var isLast = i === arr.length - 1;
-        var statusLabel = s.status === "done" ? "已完成" : s.status === "current" ? "进行中" : s.status === "inprogress" ? "已启动" : "未开始";
-        var icon = s.status === "done" ? "✓" : s.status === "current" ? "▶" : s.status === "inprogress" ? "◐" : "○";
-        var barEl = tasks.length > 0 ? h("div", { className: "step-bar" }, h("div", { className: "step-bar-fill", style: { width: pct + "%" } })) : null;
-        return h("div", { className: "step " + SC[s.status], key: s.key },
-          h("div", { className: "step-rail" }, h("div", { className: "step-circle" }, icon), !isLast ? h("div", { className: "step-line" }) : null),
-          h("div", { className: "step-body" },
-            h("div", { className: "step-head" },
-              h("div", { className: "step-name" }, (PHASE_NUM[s.key] || "") + " " + (PI[s.key] || s.label)),
-              h("div", { className: "step-meta" }, statusLabel + (tasks.length ? " · " + doneCnt + "/" + tasks.length : ""))
-            ),
-            barEl
-          )
-        );
-      });
-
-      var phaseCard = h("div", { className: "card", key: "ph" },
-        h("div", { className: "card-h" }, h("div", { className: "card-title" }, "阶段进度")),
-        h("div", { className: "stepper" }, phaseItems)
-      );
-
-      var gateItems = ["M1", "P1", "P2", "W1", "W2"].map(function (g) {
-        var st = data.gates && data.gates[g] ? data.gates[g].status : "pending";
-        var title = data.gates && data.gates[g] ? data.gates[g].title : "";
-        var ico = GL[st] === "PASS" ? "✓" : GL[st] === "FAIL" ? "✗" : GL[st] === "BLOCK" ? "!" : "·";
-        return h("div", { className: "gate " + (GC[st] || "pending"), key: g, title: title },
-          h("div", { className: "gate-ico" }, ico),
-          h("div", { className: "gate-body" }, h("div", { className: "gate-id" }, g), h("div", { className: "gate-label" }, title)),
-          h("div", { className: "gate-status" }, GL[st])
-        );
-      });
-      var gateCard = h("div", { className: "card", key: "g" },
-        h("div", { className: "card-h" }, h("div", { className: "card-title" }, "五门禁状态")),
-        h("div", { className: "gate-grid" }, gateItems)
-      );
-
-      var completedEl = data.completed ? h("div", { className: "completed", key: "cb" },
-        h("div", { className: "completed-ico" }, "✓"),
-        h("div", null, h("div", { className: "completed-title" }, "项目已完成"), h("div", { className: "completed-sub" }, "所有门禁通过，交付物齐全"))
-      ) : null;
-
-      var taskCard = null;
-      if (cur && ct.length > 0) {
-        var taskListEl = exp
-          ? h("div", { className: "tasks", role: "list" }, ct.map(function (t, i) { return h("div", { className: "task" + (t.done ? " done" : ""), key: i, role: "listitem" },
-              h("div", { className: "task-check" }, t.done ? "✓" : ""),
-              h("div", { className: "task-text" }, t.text)
-            ); }))
-          : h("div", { className: "tasks-empty" }, "共 " + ct.length + " 项任务 · 点击展开查看详情");
-        taskCard = h("div", { className: "card", key: "t" },
-          h("div", { className: "card-h" },
-            h("div", { className: "card-title" }, "当前任务 · " + (PHASE_SHORT[cur.key] || cur.label)),
-            h("button", { className: "card-action", onClick: function () { setExp(!exp); }, "aria-expanded": exp }, exp ? "收起" : "展开")
-          ),
-          taskListEl
-        );
+      async function openLog(runId, stream) {
+        const request = ++previewSequence.current
+        setBusy(true)
+        try {
+          const result = await rpc('mm.runLog', { sessionId: sid, run_id: runId, stream })
+          if (previewSequence.current !== request) return
+          if (!result.ok) throw new Error(result.error?.message || '无法读取日志')
+          setLogPreview(result.value); setError(null)
+        } catch (error) { if (previewSequence.current === request) setError(String(error.message || error)) }
+        finally { if (previewSequence.current === request) setBusy(false) }
       }
-
-      var actions = h("div", { className: "actions", key: "a" },
-        h("button", { className: "btn btn-primary", onClick: ref }, "↻ 刷新数据")
-      );
-
-      // 展开时显示完整内容（右侧悬浮面板）
-      return h("div", { className: "mm-overlay" },
-        h("div", { className: "mmui" }, headerEl, nextEl, phaseCard, gateCard, completedEl, taskCard, actions)
-      );
+      if (!sid || data?.hidden || (!data && !error)) return null
+      const title = data?.project?.title || '数学建模工作台'
+      const tabs = [['overview', '项目'], ['evidence', '证据'], ['runs', '运行']]
+      return h('aside', { className: `mmwb mmwb-dock${open ? '' : ' mmwb-closed'}`, 'aria-label': '数学建模项目状态' },
+        h('header', { className: 'mmwb-head' }, h('div', { className: 'mmwb-row' }, h('div', null, h('div', { className: 'mmwb-kicker' }, 'MODEL / VERIFY / WRITE'), open ? h('h2', null, title) : h('span', null, title)), h('button', { className: 'mmwb-btn', onClick: () => setOpen(value => !value), 'aria-expanded': open, 'aria-label': open ? '收起项目看板' : '展开项目看板' }, open ? '收起' : '展开')),
+          open ? h('div', { className: 'mmwb-muted' }, `${data?.project?.competition || '研究项目'} · ${scopes[data?.project?.scope] || '任务范围待定'} · ${names[data?.currentPhase] || ''}`) : null),
+        open ? h(React.Fragment, null,
+          h('div', { className: 'mmwb-tabs', role: 'tablist', 'aria-label': '项目详情' }, tabs.map(([id, label], index) => h('button', {
+            key: id, id: `mmwb-tab-${id}`, className: 'mmwb-tab', role: 'tab', tabIndex: tab === id ? 0 : -1,
+            'aria-selected': tab === id, 'aria-controls': `mmwb-panel-${id}`, onClick: () => setTab(id),
+            onKeyDown: event => {
+              const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : null
+              if (next === null) return
+              event.preventDefault(); setTab(tabs[next][0]); event.currentTarget.parentElement.children[next].focus()
+            },
+          }, label))),
+          h('div', { className: 'mmwb-content', id: `mmwb-panel-${tab}`, role: 'tabpanel', 'aria-labelledby': `mmwb-tab-${tab}`, tabIndex: 0 }, error ? h('p', { className: 'mmwb-warning mmwb-error', role: 'alert' }, error) : null,
+            data?.initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'evidence' ? h(Evidence, { data, preview, openPreview, busy }) : h(Runs, { data, preview: logPreview, openLog, busy }) : null),
+          h('footer', { className: 'mmwb-foot' }, h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-muted' }, data?.stale ? '已保存快照' : '运行时已核验'), h('button', { className: 'mmwb-btn mmwb-btn-primary', disabled: busy, onClick: () => refresh(true) }, busy ? '正在读取…' : '重新验证')), h('div', { className: 'mmwb-muted' }, timestamp(data?.snapshotAt || data?.updated_at)))) : null)
     }
-
-    function SettingsToggle(props) {
-      var h = React.createElement;
-      var rpcCall = props.rpcCall;
-      var enabledPair = React.useState(null);
-      var enabled = enabledPair[0], setEnabled = enabledPair[1];
-      var busyPair = React.useState(false);
-      var busy = busyPair[0], setBusy = busyPair[1];
-      React.useEffect(function () {
-        rpcCall(MM_ENDPOINTS.getEnabled, {}).then(function (res) {
-          if (res && res.ok) setEnabled(!!res.value.enabled);
-          else setEnabled(true);
-        }).catch(function () { setEnabled(true); });
-      }, []);
-      function toggle() {
-        if (busy || enabled === null) return;
-        var target = !enabled;
-        setBusy(true);
-        rpcCall(MM_ENDPOINTS.setEnabled, { enabled: target }).then(function (res) {
-          if (res && res.ok) setEnabled(!!res.value.enabled);
-          setBusy(false);
-        }).catch(function () {
-          setBusy(false);
-        });
+    function Settings({ rpc }) {
+      const [enabled, setEnabled] = React.useState(null)
+      const [busy, setBusy] = React.useState(false)
+      const [error, setError] = React.useState(null)
+      React.useEffect(() => {
+        let active = true
+        rpc('mm.getEnabled', {}).then(result => { if (!active) return; if (!result.ok) throw new Error(result.error?.message); setEnabled(result.value.enabled) }).catch(error => { if (active) setError(String(error.message || error)) })
+        return () => { active = false }
+      }, [rpc])
+      async function toggle() {
+        setBusy(true)
+        try { const result = await rpc('mm.setEnabled', { enabled: !enabled }); if (!result.ok) throw new Error(result.error?.message); setEnabled(result.value.enabled); setError(null); window.dispatchEvent(new Event('mmwb-settings-change')) }
+        catch (error) { setError(String(error.message || error)) }
+        finally { setBusy(false) }
       }
-      var noteText = enabled ? "看板已开启：切换到数学建模 Workbench 预设的会话即可自动显示。" : "看板已关闭：数学建模会话不再显示看板。";
-      return h("div", { className: "mmu-set" },
-        h("div", { className: "card" },
-          h("div", { className: "row" },
-            h("div", null,
-              h("div", { className: "title" }, "数学建模进度看板"),
-              h("div", { className: "desc" }, "在「数学建模 Workbench」会话的右侧详情面板显示三阶段进度、五门禁状态与当前任务清单。")
-            ),
-            h("button", { className: "toggle" + (enabled ? " on" : ""), onClick: toggle, disabled: busy || enabled === null, "aria-pressed": enabled === true, "aria-label": "开关数学建模看板" })
-          ),
-          h("div", { className: "note" }, noteText)
-        )
-      );
+      return h('section', { className: 'mmwb mmwb-settings' }, h('div', { className: 'mmwb-row' }, h('div', null, h('h3', null, '数学建模项目看板'), h('p', { className: 'mmwb-muted' }, '对已初始化的项目显示状态、证据与运行记录；支持自定义预设名称。')), h('button', { className: 'mmwb-btn', role: 'switch', 'aria-checked': enabled === true, disabled: busy || enabled === null, onClick: toggle }, enabled ? '已开启' : '已关闭')), error ? h('p', { role: 'alert', className: 'mmwb-warning mmwb-error' }, error) : null)
     }
-
     function apply(ctx) {
-      if (typeof document !== "undefined") {
-        var tag = document.createElement("style");
-        tag.dataset.mmui = "dsh-math-modeling-ui";
-        tag.textContent = CSS;
-        document.head.append(tag);
-      }
-      var rpcCall = useRpc(ctx);
-      // 右侧悬浮面板（shell.overlay 无冲突，能常驻；用 sessions.list.getSnapshot().current 门控当前会话）
-      ctx.slots.inject("shell.overlay", function () {
-        return ctx.slots.register(
-          { name: "shell.overlay", id: "mathmodeling-board", order: 50 },
-          function () {
-            return React.createElement(MathModelingDock, { ctx: ctx, rpcCall: rpcCall });
-          }
-        );
-      });
-      // 设置入口（settings.section：dsh-pocket 已验证该槽位能把 inject 返回值传给组件）
-      ctx.slots.inject("settings.section", function () {
-        return ctx.slots.register(
-          {
-            name: "settings.section",
-            id: "math-modeling",
-            order: 11,
-            label: function () { return "数学建模"; },
-            inject: function () { return { rpcCall: rpcCall }; },
-          },
-          SettingsToggle
-        );
-      });
+      const tag = document.createElement('style')
+      tag.dataset.mmui = 'dsh-math-modeling-ui'; tag.textContent = CSS; document.head.append(tag)
+      ctx.on?.('dispose', () => tag.remove())
+      const rpc = (endpoint, payload) => ctx.connection.rpc.call(CHANNEL, endpoint, payload)
+      ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: 'mathmodeling-board', order: 50 }, () => h(Dock, { ctx, rpc })))
+      ctx.slots.inject('settings.section', () => ctx.slots.register({ name: 'settings.section', id: 'math-modeling', order: 11, label: () => '数学建模', inject: () => ({ rpc }) }, Settings))
     }
-
-    return module.exports;
-  }
-});
+    return { name: 'dsh-math-modeling-ui', inject: ['slots', 'connection', 'sessions'], apply }
+  },
+})

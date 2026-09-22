@@ -1,0 +1,10 @@
+✔ browser: project, evidence, keyboard tabs, settings and session races (3500.1616ms)
+ℹ Real Edge + React render; host RPC/session fixture, not a full DSH desktop E2E test.
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3675.0701

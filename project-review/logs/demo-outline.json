@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "artifact": {
+    "artifact_id": "artifact_376aca0bf5874e73",
+    "path": "论文大纲.md",
+    "kind": "outline",
+    "sha256": "9b3b61191037afe708ea7ba3a4a9f374ed2a77a325d07b880385d93f7bd56d55",
+    "bytes": 933,
+    "question": null,
+    "run_id": null,
+    "validation": {
+      "path": "论文大纲.md",
+      "ok": true,
+      "blocked": false,
+      "errors": [],
+      "details": {
+        "content_units": 932
+      },
+      "bytes": 933,
+      "sha256": "9b3b61191037afe708ea7ba3a4a9f374ed2a77a325d07b880385d93f7bd56d55"
+    },
+    "stale": false,
+    "registered_at": "2026-09-22T07:15:32.561041+00:00",
+    "logical_id": "论文大纲"
+  },
+  "revision": 23
+}

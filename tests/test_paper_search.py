@@ -1,5 +1,10 @@
 import sys
 import unittest
+import json
+import io
+import urllib.error
+from contextlib import redirect_stdout
+from unittest import mock
 from pathlib import Path
 
 
@@ -7,9 +12,87 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "tools" / "paper_search" / "scri
 sys.path.insert(0, str(SCRIPTS))
 
 from anysearch_academic import AnySearchAcademic
-from hybrid_scholar import HybridScholar
+from hybrid_scholar import HybridPaper, HybridScholar
 from openalex_scholar import Paper
 from openalex_scholar import OpenAlexScholar
+from provider_result import ProviderResult
+from openalex_scholar import main as openalex_main
+
+
+class ProviderOutcomeTests(unittest.TestCase):
+    def test_network_failure_is_not_a_successful_empty_search(self):
+        provider = OpenAlexScholar()
+        with mock.patch("urllib.request.urlopen", side_effect=urllib.error.URLError("offline")):
+            result = provider.search_result("test")
+            self.assertEqual(result.status, "failed")
+            self.assertEqual(result.error["kind"], "network")
+            self.assertEqual(provider.search_papers("test"), [])
+            self.assertEqual(provider.last_result.status, "failed")
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"results": []}'
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            self.assertEqual(provider.search_result("test").status, "empty")
+
+    def test_anysearch_rpc_and_schema_errors_are_failed(self):
+        provider = AnySearchAcademic()
+        for payload, error_kind in [
+            ({"error": {"code": -32000, "message": "redacted"}}, "rpc"),
+            ({"result": {"isError": True, "content": []}}, "tool_error"),
+            ({"result": {"content": [{"type": "text", "text": "service unavailable"}]}}, "unrecognized_response"),
+        ]:
+            response = mock.MagicMock()
+            response.__enter__.return_value.read.return_value = json.dumps(payload).encode()
+            with mock.patch("urllib.request.urlopen", return_value=response):
+                result = provider.search_result("test")
+            self.assertEqual(result.status, "failed")
+            self.assertEqual(result.error["kind"], error_kind)
+
+    def test_partial_service_failure_remains_visible_with_valid_results(self):
+        scholar = HybridScholar()
+        paper = Paper("AHP", ["A"], 2020, 0, None, None)
+        with mock.patch.object(scholar.openalex, "search_result", return_value=ProviderResult("openalex", "ok", [paper])), \
+             mock.patch.object(scholar.anysearch, "search_result", return_value=ProviderResult("anysearch", "failed", error={"kind": "http", "code": 503})):
+            result = scholar.search_papers("AHP")
+        self.assertEqual(result["search_status"], "partial")
+        self.assertEqual(result["providers"]["anysearch"]["status"], "failed")
+        self.assertEqual(len(result["openalex_only"]), 1)
+
+    def test_matching_metadata_never_asserts_original_text_support(self):
+        paper = HybridPaper("Example", [], 2020, 0, None, None,
+                            sources=["openalex", "anysearch"])
+        payload = paper.to_dict()
+        self.assertTrue(payload["cross_validated"])
+        self.assertTrue(payload["metadata_matched"])
+        self.assertEqual(payload["claim_support"], "unverified")
+
+    def test_standalone_json_reports_failure_without_empty_search_claim(self):
+        output = io.StringIO()
+        failure = ProviderResult("openalex", "failed", error={"kind": "network"})
+        with mock.patch.object(sys, "argv", ["openalex_scholar.py", "--query", "AHP", "--json"]), \
+             mock.patch.object(OpenAlexScholar, "search_result", return_value=failure), redirect_stdout(output):
+            exit_code = openalex_main()
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(payload["status"], "failed")
+        self.assertEqual(payload["papers"], [])
+
+    def test_explicit_anysearch_empty_response_is_successful(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps({
+            "result": {"content": [{"type": "text", "text": "## Search Results (0 results)"}]}
+        }).encode()
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            result = AnySearchAcademic().search_result("test")
+        self.assertEqual(result.status, "empty")
+        self.assertIsNone(result.error)
+
+    def test_all_failed_hybrid_search_is_visible(self):
+        scholar = HybridScholar()
+        with mock.patch.object(scholar.openalex, "search_result", return_value=ProviderResult("openalex", "failed", error={"kind": "network"})), \
+             mock.patch.object(scholar.anysearch, "search_result", return_value=ProviderResult("anysearch", "failed", error={"kind": "network"})):
+            result = scholar.search_papers("AHP")
+        self.assertEqual(result["search_status"], "failed")
+        self.assertEqual(len(result["providers"]), 2)
 
 
 class AnySearchParserTests(unittest.TestCase):

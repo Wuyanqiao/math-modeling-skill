@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "seed": 42,
+  "stochastic": false,
+  "provenance": "Original deterministic synthetic fixtures; no external or competition data",
+  "input": {
+    "path": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\benchmarks\\synthetic-v1.json",
+    "sha256": "cb892beaba50ce91f3d076363f3e5d1f644047152dfb0a6cdc9a8c198df88276"
+  },
+  "code": [
+    {
+      "path": "benchmarks/run_baselines.py",
+      "sha256": "453d11edd199af40a55da5d6bcd035d599c7c1b9e5870fdaf17d4609321d6f28"
+    },
+    {
+      "path": "assets/algorithms/baselines.py",
+      "sha256": "1d7e6ab17c4e1596e61076cd7869963c4c00d488807ce4c74bce89f1dfe1d9a6"
+    }
+  ],
+  "runtime": {
+    "python": "3.13.13",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "dependencies": {
+      "numpy": "2.5.3",
+      "scipy": "1.18.1"
+    }
+  },
+  "command": [
+    "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\project-review\\.venv\\Scripts\\python.exe",
+    "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\benchmarks\\run_baselines.py",
+    "--fixtures",
+    "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\benchmarks\\synthetic-v1.json"
+  ],
+  "cases": [
+    {
+      "name": "optimization",
+      "actual": {
+        "allocation": [
+          2.0,
+          2.0
+        ],
+        "objective": 10.0,
+        "slack": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "expected": {
+        "allocation": [
+          2,
+          2
+        ],
+        "objective": 10
+      },
+      "absolute_tolerance": 1e-09,
+      "checks": {
+        "allocation": true,
+        "objective": true,
+        "feasible": true
+      },
+      "passed": true
+    },
+    {
+      "name": "prediction",
+      "actual": {
+        "intercept": 2.9999999999999947,
+        "slope": 2.0000000000000018,
+        "predictions": [
+          23.000000000000014,
+          25.000000000000014,
+          27.000000000000014,
+          29.000000000000014
+        ]
+      },
+      "expected": {
+        "predictions": [
+          23,
+          25,
+          27,
+          29
+        ],
+        "intercept": 3,
+        "slope": 2
+      },
+      "absolute_tolerance": 1e-09,
+      "checks": {
+        "predictions": true,
+        "intercept": true,
+        "slope": true
+      },
+      "passed": true
+    },
+    {
+      "name": "evaluation",
+      "actual": {
+        "scores": [
+          0.0,
+          0.5,
+          1.0
+        ],
+        "ranking": [
+          2,
+          1,
+          0
+        ]
+      },
+      "expected": {
+        "scores": [
+          0,
+          0.5,
+          1
+        ],
+        "ranking": [
+          2,
+          1,
+          0
+        ]
+      },
+      "absolute_tolerance": 1e-12,
+      "checks": {
+        "scores": true,
+        "ranking": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "results_sha256": "ef2b99995f150e376630ba14e5d7423986819296195a75499082362c24ae9df7",
+  "timing": {
+    "elapsed_seconds": 0.118107,
+    "cases_seconds": {
+      "optimization": 0.004534,
+      "prediction": 0.000349,
+      "evaluation": 0.000156
+    },
+    "budget_seconds": 30,
+    "within_budget": true,
+    "note": "Measured wall time; the budget is reported, not a process-kill deadline."
+  },
+  "metrics": {
+    "numeric_cases_passed": 3,
+    "numeric_cases_total": 3,
+    "numeric_success_rate": 1.0
+  }
+}

@@ -1,0 +1,2 @@
+# Supported-version resolver used by the Windows/Linux CI matrix.
+-e .[dev]

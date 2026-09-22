@@ -1,0 +1,22 @@
+{
+  "task_id": "review_bb9edb2b1b1c4a29",
+  "snapshot_hash": "56f92573daebddb3565995dabd5a6f84a75283a192c70b913ba9275f81e18e66",
+  "prior_independent_check": "demo-P2-independent-check.json",
+  "all_source_input_output_sha_unchanged": true,
+  "persisted_run_exact_match": true,
+  "execution_binding_fields": [
+    "phase",
+    "argv",
+    "actual_argv",
+    "executable",
+    "environment",
+    "seed",
+    "parameters",
+    "inputs",
+    "code",
+    "outputs",
+    "status",
+    "exit_code"
+  ],
+  "actual_environment_reprobe_equal": true
+}

@@ -1,0 +1,27 @@
+{
+  "task_id": "review_f8cce86d599d420f",
+  "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+  "reviewer_id": "independent-demo-reviewer",
+  "review_source": "subagent",
+  "status": "PASS",
+  "scope": "M1 only: read actual synthetic input, model report and terminology; independently enumerated all feasible vertices using exact rationals and proved unique optimum (2,2), value 10. Checked continuous/nonnegative assumptions, units, stated 1e-9 validation target and limited synthetic scope. Solver execution, figures and paper are not covered by this review.",
+  "evidence": [
+    {
+      "path": "术语表格.md",
+      "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+      "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+    },
+    {
+      "path": "题目分析报告.md",
+      "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+      "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+    },
+    {
+      "path": "data/case.json",
+      "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+      "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+    }
+  ],
+  "findings": [],
+  "rework": ""
+}

@@ -1,0 +1,168 @@
+test_markdown_residual_and_support_package_checks_are_wired (test_delivery_protocol.DeliveryProtocolTests.test_markdown_residual_and_support_package_checks_are_wired) ... ok
+test_protocol_is_routed_through_root_and_paper_role (test_delivery_protocol.DeliveryProtocolTests.test_protocol_is_routed_through_root_and_paper_role) ... ok
+test_protocol_preserves_a_submit_ready_version (test_delivery_protocol.DeliveryProtocolTests.test_protocol_preserves_a_submit_ready_version) ... ok
+test_protocol_requires_official_deadline_and_end_to_end_rehearsal (test_delivery_protocol.DeliveryProtocolTests.test_protocol_requires_official_deadline_and_end_to_end_rehearsal) ... ok
+test_docx_tools (unittest.loader._FailedTest.test_docx_tools) ... ERROR
+test_cases_environment_generates_two_rows (test_equations.EquationConversionTests.test_cases_environment_generates_two_rows) ... ok
+test_common_commands_are_not_silently_corrupted (test_equations.EquationConversionTests.test_common_commands_are_not_silently_corrupted) ... ok
+test_common_modeling_operators_and_styles_are_supported (test_equations.EquationConversionTests.test_common_modeling_operators_and_styles_are_supported) ... ok
+test_common_physics_constants_delimiters_and_number_sets_are_supported (test_equations.EquationConversionTests.test_common_physics_constants_delimiters_and_number_sets_are_supported) ... ok
+test_conversion_pair_restores_old_files_when_manifest_replace_fails (test_equations.EquationConversionTests.test_conversion_pair_restores_old_files_when_manifest_replace_fails) ... ok
+test_converts_complete_latex_to_docx_with_pandoc_atomically (test_equations.EquationConversionTests.test_converts_complete_latex_to_docx_with_pandoc_atomically) ... FAIL
+test_matrix_generates_matrix_rows (test_equations.EquationConversionTests.test_matrix_generates_matrix_rows) ... ok
+test_nth_root_contains_visible_degree (test_equations.EquationConversionTests.test_nth_root_contains_visible_degree) ... ok
+test_physics_greek_letters_relations_and_inverse_trig_are_supported (test_equations.EquationConversionTests.test_physics_greek_letters_relations_and_inverse_trig_are_supported) ... ok
+test_replaces_every_matching_placeholder (test_equations.EquationConversionTests.test_replaces_every_matching_placeholder) ... ok
+test_replaces_placeholder_inside_table_cell (test_equations.EquationConversionTests.test_replaces_placeholder_inside_table_cell) ... ok
+test_unbalanced_group_fails_explicitly (test_equations.EquationConversionTests.test_unbalanced_group_fails_explicitly) ... ok
+test_unknown_command_fails_explicitly (test_equations.EquationConversionTests.test_unknown_command_fails_explicitly) ... ok
+test_accepts_three_candidates_per_category_with_svg_png_pairs (test_figure_tools.FigureAuditTests.test_accepts_three_candidates_per_category_with_svg_png_pairs) ... ok
+test_rejects_global_shortage_and_uncovered_questions (test_figure_tools.FigureAuditTests.test_rejects_global_shortage_and_uncovered_questions) ... ok
+test_rejects_low_dpi_and_missing_editable_text (test_figure_tools.FigureAuditTests.test_rejects_low_dpi_and_missing_editable_text) ... ok
+test_rejects_missing_format_pair (test_figure_tools.FigureAuditTests.test_rejects_missing_format_pair) ... ok
+test_requires_explicit_complete_question_list (test_figure_tools.FigureAuditTests.test_requires_explicit_complete_question_list) ... ok
+test_copied_helper_allows_output_inside_project_root (test_figure_tools.PlotStyleTests.test_copied_helper_allows_output_inside_project_root) ... ok
+test_copied_helper_still_refuses_the_real_skill_root (test_figure_tools.PlotStyleTests.test_copied_helper_still_refuses_the_real_skill_root) ... ok
+test_design_audit_associates_colorbar_with_its_own_image (test_figure_tools.PlotStyleTests.test_design_audit_associates_colorbar_with_its_own_image) ... ok
+test_design_audit_reads_left_title_negative_bars_and_figure_legend (test_figure_tools.PlotStyleTests.test_design_audit_reads_left_title_negative_bars_and_figure_legend) ... ok
+test_design_audit_rejects_dense_markers_and_nonzero_bar_baseline (test_figure_tools.PlotStyleTests.test_design_audit_rejects_dense_markers_and_nonzero_bar_baseline) ... ok
+test_design_audit_rejects_redundant_colorbar_for_annotated_2x2_matrix (test_figure_tools.PlotStyleTests.test_design_audit_rejects_redundant_colorbar_for_annotated_2x2_matrix) ... ok
+test_layout_audit_detects_overlapping_ticks (test_figure_tools.PlotStyleTests.test_layout_audit_detects_overlapping_ticks) ... ok
+test_matlab_export_uses_design_audit (test_figure_tools.PlotStyleTests.test_matlab_export_uses_design_audit) ... ok
+test_palette_is_unique_and_colorblind_oriented (test_figure_tools.PlotStyleTests.test_palette_is_unique_and_colorblind_oriented) ... ok
+test_publication_subplots_preserves_declared_panel_hierarchy (test_figure_tools.PlotStyleTests.test_publication_subplots_preserves_declared_panel_hierarchy) ... ok
+test_real_export_passes_file_audit (test_figure_tools.PlotStyleTests.test_real_export_passes_file_audit) ... ok
+test_refuses_output_inside_skill_root (test_figure_tools.PlotStyleTests.test_refuses_output_inside_skill_root) ... ok
+test_all_contests_share_the_eight_figure_quality_default (test_latex_paper.LatexPaperTests.test_all_contests_share_the_eight_figure_quality_default) ... ok
+test_appendix_page_argument_requires_appendix_source (test_latex_paper.LatexPaperTests.test_appendix_page_argument_requires_appendix_source) ... ok
+test_binding_rejects_invalid_existing_entries (test_latex_paper.LatexPaperTests.test_binding_rejects_invalid_existing_entries) ... ok
+test_bound_resource_drift_blocks_validation (test_latex_paper.LatexPaperTests.test_bound_resource_drift_blocks_validation) ... ok
+test_build_gate_rejects_layout_and_font_warnings (test_latex_paper.LatexPaperTests.test_build_gate_rejects_layout_and_font_warnings) ... ok
+test_compilation_runs_in_isolated_copy_and_cannot_modify_original (test_latex_paper.LatexPaperTests.test_compilation_runs_in_isolated_copy_and_cannot_modify_original) ... ok
+test_copies_complete_official_template_project (test_latex_paper.LatexPaperTests.test_copies_complete_official_template_project) ... ok
+test_counts_each_double_dollar_formula_once (test_latex_paper.LatexPaperTests.test_counts_each_double_dollar_formula_once) ... ok
+test_cumcm_page_limit_counts_body_without_abstract_or_appendix (test_latex_paper.LatexPaperTests.test_cumcm_page_limit_counts_body_without_abstract_or_appendix) ... ok
+test_doctor_reports_selected_toolchain (test_latex_paper.LatexPaperTests.test_doctor_reports_selected_toolchain) ... ok
+test_explicit_missing_pdf_always_fails (test_latex_paper.LatexPaperTests.test_explicit_missing_pdf_always_fails) ... ok
+test_external_bibliography_requires_latexmk (test_latex_paper.LatexPaperTests.test_external_bibliography_requires_latexmk) ... ok
+test_inspects_nested_sources_figures_tables_and_bibliography (test_latex_paper.LatexPaperTests.test_inspects_nested_sources_figures_tables_and_bibliography) ... ok
+test_latexmk_build_uses_relative_output_and_disables_shell_escape (test_latex_paper.LatexPaperTests.test_latexmk_build_uses_relative_output_and_disables_shell_escape) ... ok
+test_legacy_manifest_requires_existing_resource_copies_to_be_bound (test_latex_paper.LatexPaperTests.test_legacy_manifest_requires_existing_resource_copies_to_be_bound) ... ok
+test_line_break_spacing_is_not_counted_as_display_math (test_latex_paper.LatexPaperTests.test_line_break_spacing_is_not_counted_as_display_math) ... ok
+test_non_cumcm_page_limit_uses_total_pdf_pages (test_latex_paper.LatexPaperTests.test_non_cumcm_page_limit_uses_total_pdf_pages) ... ok
+test_odd_backslash_run_still_starts_display_math (test_latex_paper.LatexPaperTests.test_odd_backslash_run_still_starts_display_math) ... ok
+test_pair_publish_restores_old_pdf_and_manifest_when_replace_fails (test_latex_paper.LatexPaperTests.test_pair_publish_restores_old_pdf_and_manifest_when_replace_fails) ... ok
+test_pdf_audit_detects_blank_pages_and_page_size_changes (test_latex_paper.LatexPaperTests.test_pdf_audit_detects_blank_pages_and_page_size_changes) ... ok
+test_pdf_font_embedding_check_distinguishes_standard_and_external_fonts (test_latex_paper.LatexPaperTests.test_pdf_font_embedding_check_distinguishes_standard_and_external_fonts) ... ok
+test_pdf_must_match_current_source_and_build_manifest (test_latex_paper.LatexPaperTests.test_pdf_must_match_current_source_and_build_manifest) ... ok
+test_percent_inside_verb_does_not_hide_following_input (test_latex_paper.LatexPaperTests.test_percent_inside_verb_does_not_hide_following_input) ... ok
+test_prepares_bundled_template_without_overwriting (test_latex_paper.LatexPaperTests.test_prepares_bundled_template_without_overwriting) ... FAIL
+test_quality_thresholds_require_valid_values_and_override_reason (test_latex_paper.LatexPaperTests.test_quality_thresholds_require_valid_values_and_override_reason) ... ok
+test_rejects_custom_build_directory_before_compilation (test_latex_paper.LatexPaperTests.test_rejects_custom_build_directory_before_compilation) ... ok
+test_rejects_empty_figures_and_tables_even_when_counts_are_met (test_latex_paper.LatexPaperTests.test_rejects_empty_figures_and_tables_even_when_counts_are_met) ... ok
+test_rejects_sources_outside_project_and_missing_engine (test_latex_paper.LatexPaperTests.test_rejects_sources_outside_project_and_missing_engine) ... ok
+test_rejects_svg_in_safe_compilation_chain (test_latex_paper.LatexPaperTests.test_rejects_svg_in_safe_compilation_chain) ... ok
+test_reports_duplicate_labels (test_latex_paper.LatexPaperTests.test_reports_duplicate_labels) ... ok
+test_reports_placeholders_orphans_and_missing_citations (test_latex_paper.LatexPaperTests.test_reports_placeholders_orphans_and_missing_citations) ... ok
+test_requires_each_declared_question_to_have_a_formal_figure (test_latex_paper.LatexPaperTests.test_requires_each_declared_question_to_have_a_formal_figure) ... ok
+test_resource_binding_rejects_project_root_as_source (test_latex_paper.LatexPaperTests.test_resource_binding_rejects_project_root_as_source) ... ok
+test_single_file_binding_allows_destination_rename (test_latex_paper.LatexPaperTests.test_single_file_binding_allows_destination_rename) ... ok
+test_supports_generic_template_with_nested_main_and_provenance (test_latex_paper.LatexPaperTests.test_supports_generic_template_with_nested_main_and_provenance) ... FAIL
+test_unbound_common_code_and_data_formats_are_rejected (test_latex_paper.LatexPaperTests.test_unbound_common_code_and_data_formats_are_rejected) ... ok
+test_unbound_resource_in_any_directory_is_rejected (test_latex_paper.LatexPaperTests.test_unbound_resource_in_any_directory_is_rejected) ... ok
+test_unusable_latexmk_falls_back_to_engine_without_bibliography (test_latex_paper.LatexPaperTests.test_unusable_latexmk_falls_back_to_engine_without_bibliography) ... ok
+test_verbatim_inputs_and_nocite_star_do_not_create_false_issues (test_latex_paper.LatexPaperTests.test_verbatim_inputs_and_nocite_star_do_not_create_false_issues) ... ok
+test_warning_build_does_not_publish_unless_explicitly_allowed (test_latex_paper.LatexPaperTests.test_warning_build_does_not_publish_unless_explicitly_allowed) ... ok
+test_complete_cumcm_front_matter_passes (test_paper_format.PaperFormatTests.test_complete_cumcm_front_matter_passes) ... ok
+test_completion_gate_rejects_incomplete_docx (test_paper_format.PaperFormatTests.test_completion_gate_rejects_incomplete_docx) ... ok
+test_compound_reference_citations_are_recognized (test_paper_format.PaperFormatTests.test_compound_reference_citations_are_recognized) ... ok
+test_cumcm_structure_validator_requires_abstract_and_keywords (test_paper_format.PaperFormatTests.test_cumcm_structure_validator_requires_abstract_and_keywords) ... ok
+test_final_quality_phrasing_does_not_trigger_internal_process_check (test_paper_format.PaperFormatTests.test_final_quality_phrasing_does_not_trigger_internal_process_check) ... ok
+test_internal_process_terms_are_rejected_from_docx (test_paper_format.PaperFormatTests.test_internal_process_terms_are_rejected_from_docx) ... ok
+test_markdown_residuals_are_rejected_from_docx_text (test_paper_format.PaperFormatTests.test_markdown_residuals_are_rejected_from_docx_text) ... ok
+test_official_fixed_template_content_can_be_preserved (test_paper_format.PaperFormatTests.test_official_fixed_template_content_can_be_preserved) ... ok
+test_other_contests_share_the_eight_figure_default (test_paper_format.PaperFormatTests.test_other_contests_share_the_eight_figure_default) ... ok
+test_plain_math_symbols_do_not_trigger_markdown_residual_check (test_paper_format.PaperFormatTests.test_plain_math_symbols_do_not_trigger_markdown_residual_check) ... ok
+test_quality_validation_reports_length_formula_figure_table_and_page_gaps (test_paper_format.PaperFormatTests.test_quality_validation_reports_length_formula_figure_table_and_page_gaps) ... ok
+test_reference_list_and_body_citations_are_bidirectionally_checked (test_paper_format.PaperFormatTests.test_reference_list_and_body_citations_are_bidirectionally_checked) ... ok
+test_reference_template_styles_are_kept_but_sample_body_is_cleared (test_paper_format.PaperFormatTests.test_reference_template_styles_are_kept_but_sample_body_is_cleared) ... ok
+test_rendered_page_limits_distinguish_target_from_official_maximum (test_paper_format.PaperFormatTests.test_rendered_page_limits_distinguish_target_from_official_maximum) ... ok
+test_safe_save_rejects_skill_root (test_paper_format.PaperFormatTests.test_safe_save_rejects_skill_root) ... ok
+test_table_caption_must_be_referenced_in_body (test_paper_format.PaperFormatTests.test_table_caption_must_be_referenced_in_body) ... ok
+test_parses_markdown_mcp_response (test_paper_search.AnySearchParserTests.test_parses_markdown_mcp_response) ... ok
+test_same_engine_duplicate_titles_with_different_dois_are_collapsed (test_paper_search.FusionTests.test_same_engine_duplicate_titles_with_different_dois_are_collapsed) ... ok
+test_single_engine_respects_requested_limit (test_paper_search.FusionTests.test_single_engine_respects_requested_limit) ... ok
+test_specialist_query_filters_topically_unrelated_high_citation_results (test_paper_search.FusionTests.test_specialist_query_filters_topically_unrelated_high_citation_results) ... ok
+test_specialist_query_keeps_partial_match_when_metadata_has_no_abstract (test_paper_search.FusionTests.test_specialist_query_keeps_partial_match_when_metadata_has_no_abstract) ... ok
+test_title_match_without_doi_becomes_cross_validated (test_paper_search.FusionTests.test_title_match_without_doi_becomes_cross_validated) ... ok
+test_title_match_works_when_only_one_engine_has_doi (test_paper_search.FusionTests.test_title_match_works_when_only_one_engine_has_doi) ... ok
+test_extracts_venue_volume_issue_pages_and_url (test_paper_search.OpenAlexMetadataTests.test_extracts_venue_volume_issue_pages_and_url) ... ok
+test_success_uses_temporary_output_and_counts_formulas (test_recalc.RecalcTests.test_success_uses_temporary_output_and_counts_formulas) ... ok
+test_timeout_is_reported_as_failure (test_recalc.RecalcTests.test_timeout_is_reported_as_failure) ... ok
+test_only_checks_selected_features (test_reproducibility.DynamicDependencyTests.test_only_checks_selected_features) ... ok
+test_can_record_matlab_runtime_and_toolboxes (test_reproducibility.ReproManifestTests.test_can_record_matlab_runtime_and_toolboxes) ... ok
+test_records_hash_seed_parameters_and_command (test_reproducibility.ReproManifestTests.test_records_hash_seed_parameters_and_command) ... ok
+test_refuses_output_that_points_back_into_skill_root (test_reproducibility.ReproManifestTests.test_refuses_output_that_points_back_into_skill_root) ... ok
+test_refuses_project_root_inside_skill_root (test_reproducibility.ReproManifestTests.test_refuses_project_root_inside_skill_root) ... ok
+test_generates_16_9_svg_with_dynamic_y_ticks (test_star_history.StarHistoryTests.test_generates_16_9_svg_with_dynamic_y_ticks) ... ok
+test_x_axis_includes_updated_month (test_star_history.StarHistoryTests.test_x_axis_includes_updated_month) ... ok
+test_y_axis_interval_grows_with_star_count (test_star_history.StarHistoryTests.test_y_axis_interval_grows_with_star_count) ... ok
+test_midstage_gates_precede_expensive_work (test_subagent_protocol.SubagentProtocolTests.test_midstage_gates_precede_expensive_work) ... ok
+test_optional_subagents_are_opt_in (test_subagent_protocol.SubagentProtocolTests.test_optional_subagents_are_opt_in) ... ok
+test_reviewers_are_read_only_and_evidence_based (test_subagent_protocol.SubagentProtocolTests.test_reviewers_are_read_only_and_evidence_based) ... ok
+test_role_entries_require_independent_review (test_subagent_protocol.SubagentProtocolTests.test_role_entries_require_independent_review) ... ok
+test_root_requires_stage_gates (test_subagent_protocol.SubagentProtocolTests.test_root_requires_stage_gates) ... ok
+test_single_format_and_missing_subagent_have_explicit_states (test_subagent_protocol.SubagentProtocolTests.test_single_format_and_missing_subagent_have_explicit_states) ... ok
+test_expected_row_count_mismatch_fails_loudly (test_xlsx_read.ExcelReadTests.test_expected_row_count_mismatch_fails_loudly) ... ok
+test_headerless_sheet_keeps_first_value_and_all_7470_rows (test_xlsx_read.ExcelReadTests.test_headerless_sheet_keeps_first_value_and_all_7470_rows) ... ok
+
+======================================================================
+ERROR: test_docx_tools (unittest.loader._FailedTest.test_docx_tools)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_docx_tools
+Traceback (most recent call last):
+  File "D:\Users\Renaissance2\miniforge3\Lib\unittest\loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "D:\Users\Renaissance2\miniforge3\Lib\unittest\loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tests\test_docx_tools.py", line 14, in <module>
+    import comment
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tools\docx\scripts\comment.py", line 24, in <module>
+    import defusedxml.minidom
+ModuleNotFoundError: No module named 'defusedxml'
+
+
+======================================================================
+FAIL: test_converts_complete_latex_to_docx_with_pandoc_atomically (test_equations.EquationConversionTests.test_converts_complete_latex_to_docx_with_pandoc_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tests\test_equations.py", line 161, in test_converts_complete_latex_to_docx_with_pandoc_atomically
+    self.assertIn(f"--resource-path={source.parent}", command)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '--resource-path=C:\\Users\\RENAIS~1\\AppData\\Local\\Temp\\tmp9ed6kfc1' not found in ['pandoc', '--from', 'latex', '--to', 'docx', '--standalone', '--citeproc', 'C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\tmp9ed6kfc1\\tmp70d5fja3.tex', '--output', 'C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\tmp9ed6kfc1\\tmpf2krjiob.docx', '--resource-path=C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\tmp9ed6kfc1', '--reference-doc', 'C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\tmp9ed6kfc1\\template.docx']
+
+======================================================================
+FAIL: test_prepares_bundled_template_without_overwriting (test_latex_paper.LatexPaperTests.test_prepares_bundled_template_without_overwriting)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tests\test_latex_paper.py", line 34, in test_prepares_bundled_template_without_overwriting
+    self.assertEqual(Path(result["main_tex"]), output / "main.tex")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Windo[13 chars]ers/Renaissance2/AppData/Local/Temp/tmpjxq0dtk[18 chars]tex') != Windo[13 chars]ers/RENAIS~1/AppData/Local/Temp/tmpjxq0dtks/完整[14 chars]tex')
+
+======================================================================
+FAIL: test_supports_generic_template_with_nested_main_and_provenance (test_latex_paper.LatexPaperTests.test_supports_generic_template_with_nested_main_and_provenance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Users\Cowork_Project\DeepSeekHarnessworkspace\math-skills-update\tests\test_latex_paper.py", line 86, in test_supports_generic_template_with_nested_main_and_provenance
+    self.assertEqual(Path(result["main_tex"]), root / "paper/src/paper.tex")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Windo[13 chars]ers/Renaissance2/AppData/Local/Temp/tmp99dsoap[18 chars]tex') != Windo[13 chars]ers/RENAIS~1/AppData/Local/Temp/tmp99dsoapg/pa[14 chars]tex')
+
+----------------------------------------------------------------------
+Ran 117 tests in 27.311s
+
+FAILED (failures=3, errors=1)
+  OK 'EQ' -> 已插入 2 处公式
+  OK 'EQ' -> 已插入 1 处公式

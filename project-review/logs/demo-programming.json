@@ -1,0 +1,402 @@
+{
+  "schema_version": 2,
+  "version": 7,
+  "revision": 4,
+  "initializedAt": "2026-09-22T06:55:04.776288+00:00",
+  "project": {
+    "project_id": "project_92c2aa0101e24ae0",
+    "title": "Synthetic resource allocation verification",
+    "projectRoot": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\mathmodel-upgrade-demo",
+    "skillRoot": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update",
+    "paperFormat": "latex",
+    "subproblems": [
+      "q1"
+    ],
+    "profile": "short",
+    "scope": "full",
+    "authorId": "demo-author",
+    "rules": {},
+    "competition": "generic",
+    "edition": "",
+    "session_id": null,
+    "optionalCollab": {
+      "rulesCheck": false,
+      "attachmentInventory": false,
+      "literature": false,
+      "prototype": false,
+      "experiments": false,
+      "bilingual": false,
+      "terminology": false
+    }
+  },
+  "currentPhase": "programming",
+  "phases": {
+    "modeling": {
+      "enteredAt": null,
+      "tasks": [
+        {
+          "text": "理解问题与附件",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "建立假设、模型和验证合同",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "完成分析与符号表",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "独立建模审查",
+          "done": false,
+          "note": ""
+        }
+      ],
+      "gateM1": {
+        "status": "pass",
+        "phase": "modeling",
+        "title": "建模终检",
+        "at": "2026-09-22T07:03:18.632752+00:00",
+        "receipt": {
+          "task_id": "review_f8cce86d599d420f",
+          "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+          "reviewer_id": "independent-demo-reviewer",
+          "review_source": "subagent",
+          "status": "PASS",
+          "scope": "M1 only: read actual synthetic input, model report and terminology; independently enumerated all feasible vertices using exact rationals and proved unique optimum (2,2), value 10. Checked continuous/nonnegative assumptions, units, stated 1e-9 validation target and limited synthetic scope. Solver execution, figures and paper are not covered by this review.",
+          "evidence": [
+            {
+              "path": "术语表格.md",
+              "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+              "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+            },
+            {
+              "path": "题目分析报告.md",
+              "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+              "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+            },
+            {
+              "path": "data/case.json",
+              "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+              "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+            }
+          ],
+          "findings": [],
+          "rework": ""
+        },
+        "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+        "snapshot": {
+          "files": {
+            "术语表格.md": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+            "题目分析报告.md": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+            "data/case.json": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040"
+          },
+          "config": {
+            "scope": "full",
+            "profile": "short",
+            "paperFormat": "latex",
+            "subproblems": [
+              "q1"
+            ],
+            "rules": {}
+          },
+          "hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916"
+        },
+        "identity_assurance": "declared",
+        "invalidation_reason": null
+      }
+    },
+    "programming": {
+      "enteredAt": "2026-09-22T07:03:23.603581+00:00",
+      "tasks": [
+        {
+          "text": "检查依赖与输入",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "运行最小求解并验收",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "验证完整结果及证据",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "独立编程审查",
+          "done": false,
+          "note": ""
+        }
+      ],
+      "gateP1": {
+        "status": "pending",
+        "phase": "programming",
+        "title": "最小可运行结果",
+        "at": null
+      },
+      "gateP2": {
+        "status": "pending",
+        "phase": "programming",
+        "title": "编程终检",
+        "at": null
+      }
+    },
+    "paper": {
+      "enteredAt": null,
+      "tasks": [
+        {
+          "text": "建立结论与证据映射",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "审核证据大纲",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "构建并检查论文及渲染",
+          "done": false,
+          "note": ""
+        },
+        {
+          "text": "独立论文审查",
+          "done": false,
+          "note": ""
+        }
+      ],
+      "gateW1": {
+        "status": "pending",
+        "phase": "paper",
+        "title": "证据大纲",
+        "at": null
+      },
+      "gateW2": {
+        "status": "pending",
+        "phase": "paper",
+        "title": "论文终检",
+        "at": null
+      }
+    }
+  },
+  "gates": {
+    "M1": {
+      "status": "pass",
+      "phase": "modeling",
+      "title": "建模终检",
+      "at": "2026-09-22T07:03:18.632752+00:00",
+      "receipt": {
+        "task_id": "review_f8cce86d599d420f",
+        "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+        "reviewer_id": "independent-demo-reviewer",
+        "review_source": "subagent",
+        "status": "PASS",
+        "scope": "M1 only: read actual synthetic input, model report and terminology; independently enumerated all feasible vertices using exact rationals and proved unique optimum (2,2), value 10. Checked continuous/nonnegative assumptions, units, stated 1e-9 validation target and limited synthetic scope. Solver execution, figures and paper are not covered by this review.",
+        "evidence": [
+          {
+            "path": "术语表格.md",
+            "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+            "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+          },
+          {
+            "path": "题目分析报告.md",
+            "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+            "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+          },
+          {
+            "path": "data/case.json",
+            "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+            "locator": "Whole file; independently cross-checked model coefficients, bounds, units, synthetic provenance and exact vertex enumeration."
+          }
+        ],
+        "findings": [],
+        "rework": ""
+      },
+      "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+      "snapshot": {
+        "files": {
+          "术语表格.md": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+          "题目分析报告.md": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+          "data/case.json": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040"
+        },
+        "config": {
+          "scope": "full",
+          "profile": "short",
+          "paperFormat": "latex",
+          "subproblems": [
+            "q1"
+          ],
+          "rules": {}
+        },
+        "hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916"
+      },
+      "identity_assurance": "declared",
+      "invalidation_reason": null
+    },
+    "P1": {
+      "status": "pending",
+      "phase": "programming",
+      "title": "最小可运行结果",
+      "at": null
+    },
+    "P2": {
+      "status": "pending",
+      "phase": "programming",
+      "title": "编程终检",
+      "at": null
+    },
+    "W1": {
+      "status": "pending",
+      "phase": "paper",
+      "title": "证据大纲",
+      "at": null
+    },
+    "W2": {
+      "status": "pending",
+      "phase": "paper",
+      "title": "论文终检",
+      "at": null
+    }
+  },
+  "completed": false,
+  "completedAt": null,
+  "blockers": [],
+  "capabilities": {},
+  "runs": {},
+  "artifacts": {},
+  "claims": {},
+  "review_tasks": {
+    "review_f8cce86d599d420f": {
+      "task_id": "review_f8cce86d599d420f",
+      "gate": "M1",
+      "snapshot_hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916",
+      "snapshot": {
+        "files": {
+          "术语表格.md": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+          "题目分析报告.md": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+          "data/case.json": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040"
+        },
+        "config": {
+          "scope": "full",
+          "profile": "short",
+          "paperFormat": "latex",
+          "subproblems": [
+            "q1"
+          ],
+          "rules": {}
+        },
+        "hash": "44a70093bc701933ec41d25de6c1b9726ee1b99b0ed99ba76547662360226916"
+      },
+      "author_id": "demo-author",
+      "created_at": "2026-09-22T06:55:33.849552+00:00",
+      "status": "recorded"
+    }
+  },
+  "checkpoints": [],
+  "ledger": [
+    {
+      "at": "2026-09-22T06:55:04.776309+00:00",
+      "event": "initialized",
+      "detail": {
+        "scope": "full"
+      }
+    },
+    {
+      "at": "2026-09-22T07:03:18.632820+00:00",
+      "event": "gate_record",
+      "detail": {
+        "gate": "M1",
+        "status": "PASS",
+        "reviewer_id": "independent-demo-reviewer",
+        "review_source": "subagent"
+      }
+    },
+    {
+      "at": "2026-09-22T07:03:23.603595+00:00",
+      "event": "phase_enter",
+      "detail": {
+        "phase": "programming"
+      }
+    }
+  ],
+  "deliverables": null,
+  "required_gates": [
+    "M1",
+    "P1",
+    "P2",
+    "W1",
+    "W2"
+  ],
+  "progress": {
+    "steps": [
+      {
+        "key": "modeling",
+        "label": "建模手",
+        "status": "done"
+      },
+      {
+        "key": "programming",
+        "label": "编程手",
+        "status": "current"
+      },
+      {
+        "key": "paper",
+        "label": "论文手",
+        "status": "pending"
+      }
+    ],
+    "tasks": {
+      "modeling": {
+        "done": 0,
+        "total": 4,
+        "pct": 0
+      },
+      "programming": {
+        "done": 0,
+        "total": 4,
+        "pct": 0
+      },
+      "paper": {
+        "done": 0,
+        "total": 4,
+        "pct": 0
+      }
+    },
+    "nextAction": "准备独立审核 P1"
+  },
+  "ledgerTail": [
+    {
+      "at": "2026-09-22T06:55:04.776309+00:00",
+      "event": "initialized",
+      "detail": {
+        "scope": "full"
+      }
+    },
+    {
+      "at": "2026-09-22T07:03:18.632820+00:00",
+      "event": "gate_record",
+      "detail": {
+        "gate": "M1",
+        "status": "PASS",
+        "reviewer_id": "independent-demo-reviewer",
+        "review_source": "subagent"
+      }
+    },
+    {
+      "at": "2026-09-22T07:03:23.603595+00:00",
+      "event": "phase_enter",
+      "detail": {
+        "phase": "programming"
+      }
+    }
+  ],
+  "initialized": true,
+  "updated_at": "2026-09-22T07:03:23.605377+00:00",
+  "ok": true,
+  "phase": "programming"
+}

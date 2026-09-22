@@ -1,0 +1,24 @@
+{
+  "legacy_preset": {
+    "mode": "apply",
+    "redistribution_approved": false,
+    "changes": [
+      {
+        "action": "copy",
+        "path": "docs/upgrade-verification.md"
+      }
+    ],
+    "file_count": 224
+  },
+  "host_bundle": {
+    "mode": "apply",
+    "redistribution_approved": false,
+    "changes": [
+      {
+        "action": "copy",
+        "path": "docs/upgrade-verification.md"
+      }
+    ],
+    "file_count": 224
+  }
+}

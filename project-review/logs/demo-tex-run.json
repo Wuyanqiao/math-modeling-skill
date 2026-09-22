@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "run": {
+    "run_id": "run_8db544d59e2a45fb",
+    "phase": "paper",
+    "argv": [
+      "xelatex",
+      "-no-shell-escape",
+      "-interaction=nonstopmode",
+      "-halt-on-error",
+      "-jobname=完整论文",
+      "paper.tex"
+    ],
+    "cwd": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\mathmodel-upgrade-demo",
+    "seed": 42,
+    "parameters": {},
+    "inputs": [
+      {
+        "path": "figures/result_q1_region.png",
+        "sha256": "ed4a0a131098dcbde5d2d264b5a7b8f3f4d5f1d18ac4e54ba556c270944125a8",
+        "bytes": 116398
+      },
+      {
+        "path": "figures/result_q1_usage.png",
+        "sha256": "8e07e7f4a7d617acd18ebd21f889db0e2e849cd16fc54f19b09e7f6dce000cdd",
+        "bytes": 56786
+      }
+    ],
+    "code": [
+      {
+        "path": "paper.tex",
+        "sha256": "1e91ce5db2e4354b23dab30027b69990c033e689e94c2daa84c4e4e2cc3c4fa0",
+        "bytes": 3539
+      }
+    ],
+    "outputs": [
+      {
+        "path": "完整论文.pdf",
+        "sha256": "611b5d6759d19d5635d315a8b25b30c47a8d2e45b57cbee4478ae6b804096fd4",
+        "bytes": 201446
+      }
+    ],
+    "declared_outputs": [
+      "完整论文.pdf"
+    ],
+    "started_at": "2026-09-22T07:21:22.909061+00:00",
+    "finished_at": "2026-09-22T07:21:26.975766+00:00",
+    "exit_code": 0,
+    "status": "succeeded",
+    "timeout": 120,
+    "owner_pid": 31108,
+    "actual_argv": [
+      "D:\\texlive\\2025\\bin\\windows\\xelatex.EXE",
+      "-no-shell-escape",
+      "-interaction=nonstopmode",
+      "-halt-on-error",
+      "-jobname=完整论文",
+      "paper.tex"
+    ],
+    "executable": "D:\\texlive\\2025\\bin\\windows\\xelatex.EXE",
+    "resolved_executable": "D:\\texlive\\2025\\bin\\windows\\xelatex.exe",
+    "execution_cwd": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\mathmodel-upgrade-demo\\.math-modeling\\runs\\run_8db544d59e2a45fb\\workspace",
+    "environment": {
+      "name": "xelatex",
+      "version": "XeTeX 3.141592653-2.6-0.999997 (TeX Live 2025)",
+      "dependencies": {},
+      "executable": "D:\\texlive\\2025\\bin\\windows\\xelatex.EXE",
+      "probe_argv": [
+        "D:\\texlive\\2025\\bin\\windows\\xelatex.EXE",
+        "--version"
+      ],
+      "probe_status": "ok",
+      "dependency_scope": "not-applicable"
+    },
+    "stdout": ".math-modeling\\runs\\run_8db544d59e2a45fb\\stdout.log",
+    "stderr": ".math-modeling\\runs\\run_8db544d59e2a45fb\\stderr.log",
+    "source_drift": false,
+    "elapsed_seconds": 4.04153
+  },
+  "revision": 37,
+  "notice": "Declared files ran in an isolated copy; this is not an OS sandbox. Independent review must assess scientific correctness."
+}

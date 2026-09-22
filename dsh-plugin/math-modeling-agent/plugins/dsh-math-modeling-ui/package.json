@@ -1,18 +1,23 @@
 {
   "name": "dsh-math-modeling-ui",
-  "description": "数学建模 Workbench 进度看板：右侧详情面板显示三阶段进度/五门禁/任务清单 + 设置页开关。组合包（持久化，重启自动加载）",
-  "version": "1.0.0",
+  "description": "数学建模工作台：共享验证运行时适配、Agent预设、证据与运行状态看板",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./workbench": "./lib/workbench.js",
     "./client": "./client/client.js",
     "./package.json": "./package.json"
   },
   "files": [
     "lib",
     "client",
-    "cordis.patch.yml"
+    "skills",
+    "cordis.patch.yml",
+    "LOCAL_DEVELOPMENT_ONLY.txt",
+    "distribution-manifest.json"
   ],
   "dsh": {
     "bundle": {
@@ -22,19 +27,21 @@
       "inject": [
         "@deepseek-ai/dsh-client-connection",
         "@deepseek-ai/dsh-client-ui-slots",
-        "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-runtime"
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
     }
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/schemastery": "*",
     "@deepseek-ai/dsh-client-connection": "*",
     "@deepseek-ai/dsh-client-ui-slots": "*",
-    "@deepseek-ai/dsh-client-locale": "*",
-    "@deepseek-ai/dsh-client-runtime": "*",
+    "@deepseek-ai/dsh-api-session-controller": "^0.1.7-alpha.1",
     "react": "^18.2.0"
   },
-  "license": "MIT"
+  "license": "UNLICENSED"
 }

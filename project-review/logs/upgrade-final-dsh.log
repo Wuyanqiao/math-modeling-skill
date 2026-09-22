@@ -1,0 +1,26 @@
+✔ custom project remains bound across tools and sessions remain isolated (47.4914ms)
+✔ payload encoding preserves Unicode, quotes and shell metacharacters without interpolation (28.5344ms)
+✔ nonzero runtime JSON remains inspectable and shell denial is not bypassed (25.518ms)
+✔ skill content is returned in full and traversal is rejected (28.895ms)
+✔ UI reads renamed preset projects, uses explicit binding and shares tool settings (29.0417ms)
+✔ UI retains an explicitly stale snapshot when host cannot authorize refresh (29.3634ms)
+✔ project roots from state are never followed by the adapter (30.4853ms)
+✔ DSH 0.1.7 execute/result and CollectedOutput inherit the session sandbox unchanged (30.1053ms)
+✔ interrupted, denied and truncated runs never become successful JSON responses (28.9946ms)
+✔ modern Config-derived settings share one namespace without legacy register/get APIs (29.2287ms)
+✔ real Python CLI: init, manifest-safe state, todo, gate refusal and incomplete completion (1877.3566ms)
+✔ real Python CLI: execution provenance, claim evidence, review receipt and drift invalidation (4951.2632ms)
+✔ browser: project, evidence, keyboard tabs, settings and session races (2696.3062ms)
+ℹ Real Edge + React render; host RPC/session fixture, not a full DSH desktop E2E test.
+✔ official DSH 0.1.7 services mount workbench and execute shared CLI (10698.4548ms)
+ℹ Actual services: @deepseek-ai/dsh 0.1.7-alpha.1; Node v24.11.1; win32; real fs + shell.execute(spec).result() + tools + sessions + initiator; no GUI/model/settings persistence asserted.
+✔ official Loader + SettingsForms persist shared UI and project bindings across boot (3027.5445ms)
+ℹ Real Loader, Config, config-editor, SettingsForms and profile patch persistence; RPC transport is an in-process fixture.
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13941.6171

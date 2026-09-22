@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmodel.local/schemas/state.schema.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "revision",
+    "project",
+    "gates",
+    "phases",
+    "runs",
+    "artifacts",
+    "claims",
+    "review_tasks",
+    "completed",
+    "checkpoints"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "project": {
+      "$ref": "project.schema.json"
+    },
+    "runs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "run.schema.json"
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "artifact.schema.json"
+      }
+    },
+    "gates": {
+      "type": "object"
+    },
+    "phases": {
+      "type": "object"
+    },
+    "claims": {
+      "type": "object"
+    },
+    "review_tasks": {
+      "type": "object"
+    },
+    "completed": {
+      "type": "boolean"
+    },
+    "checkpoints": {
+      "type": "array"
+    }
+  }
+}

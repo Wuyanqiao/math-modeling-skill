@@ -1,0 +1,57 @@
+{
+  "task_id": "review_bb9edb2b1b1c4a29",
+  "snapshot_hash": "56f92573daebddb3565995dabd5a6f84a75283a192c70b913ba9275f81e18e66",
+  "reviewer_id": "independent-demo-reviewer",
+  "review_source": "subagent",
+  "status": "PASS",
+  "scope": "P1 with strengthened execution contract: inspected current actual file hashes against prior independent full rerun; source/data/output files are unchanged. Verified all newly bound actual_argv/executable/environment/seed/parameters and successful status against persisted run.json. Independently re-probed actual Python version and all installed distribution versions from the original probe directory; exact match. Prior isolated full solver rerun and exact optimum proof remain applicable to identical source/input/results. This receipt uses the new task/hash and approves only minimum execution.",
+  "evidence": [
+    {
+      "path": "solver.py",
+      "sha256": "26c4082c7cb9307f8073ecb866ec33688204f869fa202cb11197f7e411ea16c3",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "术语表格.md",
+      "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "题目分析报告.md",
+      "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "data/case.json",
+      "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "figures/result_q1_region.png",
+      "sha256": "ed4a0a131098dcbde5d2d264b5a7b8f3f4d5f1d18ac4e54ba556c270944125a8",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "figures/result_q1_region.svg",
+      "sha256": "f6beaef5fd707c14345596f47f0182723460927159f42e3c710f7776dc077e15",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "figures/result_q1_usage.png",
+      "sha256": "8e07e7f4a7d617acd18ebd21f889db0e2e849cd16fc54f19b09e7f6dce000cdd",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "figures/result_q1_usage.svg",
+      "sha256": "26e9dc5350c342d75e5ac450d946c25ec88e8b3c3b873fd3414ac1932736273d",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    },
+    {
+      "path": "results/solution.csv",
+      "sha256": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+      "locator": "Actual SHA reverified; unchanged from independently reproduced and visually inspected full-run evidence."
+    }
+  ],
+  "findings": [],
+  "rework": ""
+}

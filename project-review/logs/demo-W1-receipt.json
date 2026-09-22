@@ -1,0 +1,52 @@
+{
+  "task_id": "review_bf35de5aa1c34558",
+  "snapshot_hash": "3215e7c4b5c72aff0347be54f3f4b27ea8846e3dba6f19df0f62980cc779cfde",
+  "reviewer_id": "independent-demo-reviewer",
+  "review_source": "subagent",
+  "status": "PASS",
+  "scope": "W1 evidence outline: read the actual outline and sole q1 claim, verified every mapped artifact and hash, independently checked the reported CSV row, resource use/capacity and zero constraint violation. The analytic upper bound and equality argument establish unique optimum; no external empirical or literature claim is planned. Outline limits findings to this synthetic two-variable workflow verification. Two-page/two-figure wording is an author layout plan, not a universal quota. Approval covers evidence-to-outline reasoning, not an unwritten paper or final layout.",
+  "evidence": [
+    {
+      "path": "solver.py",
+      "sha256": "26c4082c7cb9307f8073ecb866ec33688204f869fa202cb11197f7e411ea16c3",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "术语表格.md",
+      "sha256": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "论文大纲.md",
+      "sha256": "9b3b61191037afe708ea7ba3a4a9f374ed2a77a325d07b880385d93f7bd56d55",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "题目分析报告.md",
+      "sha256": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "data/case.json",
+      "sha256": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "figures/result_q1_region.png",
+      "sha256": "ed4a0a131098dcbde5d2d264b5a7b8f3f4d5f1d18ac4e54ba556c270944125a8",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "figures/result_q1_usage.png",
+      "sha256": "8e07e7f4a7d617acd18ebd21f889db0e2e849cd16fc54f19b09e7f6dce000cdd",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    },
+    {
+      "path": "results/solution.csv",
+      "sha256": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+      "locator": "Actual SHA verified; outline and claim mappings checked against CSV, model proof, source and previously viewed figures."
+    }
+  ],
+  "findings": [],
+  "rework": ""
+}

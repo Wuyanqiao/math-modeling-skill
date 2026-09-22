@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "default_mode": "release",
+  "default_decision": "block",
+  "upstream": {
+    "repository": "https://github.com/XiaoMaColtAI/math-modeling-skill",
+    "baseline_commit": "3c4bd1927663327812665941a445281b9c008a78",
+    "license_verified": false
+  },
+  "components": [
+    {
+      "id": "restricted-docx",
+      "prefixes": [
+        "tools/docx"
+      ],
+      "release": "exclude",
+      "license": "Anthropic restricted materials",
+      "evidence": "tools/docx/LICENSE.txt",
+      "origin": "upstream snapshot"
+    },
+    {
+      "id": "restricted-xlsx",
+      "prefixes": [
+        "tools/xlsx"
+      ],
+      "release": "exclude",
+      "license": "Anthropic restricted materials",
+      "evidence": "tools/xlsx/LICENSE.txt",
+      "origin": "upstream snapshot"
+    },
+    {
+      "id": "restricted-pdf",
+      "prefixes": [
+        "tools/pdf"
+      ],
+      "release": "exclude",
+      "license": "Anthropic restricted materials",
+      "evidence": "tools/pdf/LICENSE.txt",
+      "origin": "upstream snapshot"
+    },
+    {
+      "id": "upstream-content",
+      "prefixes": [
+        "SKILL.md",
+        "使用指南.md",
+        "references",
+        "assets",
+        "tools",
+        "imgs"
+      ],
+      "release": "block",
+      "license": null,
+      "evidence": null,
+      "origin": "upstream snapshot; root license not supplied"
+    },
+    {
+      "id": "dsh-adapter",
+      "prefixes": [
+        "dsh-plugin"
+      ],
+      "release": "block",
+      "license": null,
+      "evidence": null,
+      "origin": "upstream adapter plus fork changes; UI package metadata alone is not whole-adapter authorization"
+    },
+    {
+      "id": "fork-contributions",
+      "prefixes": [
+        "mathmodel_runtime",
+        "scripts",
+        "schemas",
+        "profiles",
+        "examples",
+        "docs",
+        "tests",
+        ".github",
+        "README.md",
+        "CHANGELOG.md",
+        "VERSION",
+        "pyproject.toml",
+        "requirements.txt",
+        "requirements-dev.txt",
+        "requirements-lock-py313.txt",
+        "CONTRIBUTING.md",
+        "THIRD_PARTY_NOTICES.md",
+        "distribution-policy.json",
+        "benchmarks",
+        "RUNTIME_API.md"
+      ],
+      "release": "block",
+      "license": null,
+      "evidence": null,
+      "origin": "fork additions and modified upstream files; owner has not selected a distribution license"
+    }
+  ],
+  "skill_paths": [
+    "SKILL.md",
+    "使用指南.md",
+    "README.md",
+    "CHANGELOG.md",
+    "VERSION",
+    "references",
+    "assets",
+    "tools",
+    "imgs",
+    "mathmodel_runtime",
+    "schemas",
+    "profiles",
+    "examples",
+    "docs",
+    "scripts",
+    "pyproject.toml",
+    "requirements.txt",
+    "requirements-dev.txt",
+    "requirements-lock-py313.txt",
+    "CONTRIBUTING.md",
+    "THIRD_PARTY_NOTICES.md",
+    "distribution-policy.json",
+    "benchmarks",
+    "RUNTIME_API.md",
+    "dsh-plugin/README.md",
+    "tests/dsh/README.md"
+  ],
+  "required_resources": [
+    "SKILL.md",
+    "VERSION",
+    "scripts/mathmodel.py",
+    "mathmodel_runtime/__init__.py",
+    "mathmodel_runtime/resources/profiles/short.json",
+    "mathmodel_runtime/resources/profiles/balanced.json",
+    "mathmodel_runtime/resources/schemas/state.schema.json"
+  ],
+  "local_only_required_resources": [
+    "tools/docx/scripts/check_env.py",
+    "tools/docx/scripts/paper_format.py",
+    "tools/xlsx/scripts/read_rows.py",
+    "tools/pdf/SKILL.md",
+    "references/roles/论文手/references/论文模板.docx"
+  ],
+  "excluded_names": [
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "project-review",
+    "dist",
+    "build",
+    "temp_release",
+    ".math-modeling",
+    "results",
+    "logs"
+  ],
+  "excluded_suffixes": [
+    ".pyc",
+    ".pyo",
+    ".zip",
+    ".log",
+    ".tmp"
+  ],
+  "compatibility": {
+    "python": ">=3.11,<3.14",
+    "operating_systems": [
+      "Windows",
+      "Linux"
+    ],
+    "node_test_versions": [
+      "22",
+      "24"
+    ],
+    "dsh_host": {
+      "npm_package": "@deepseek-ai/dsh",
+      "version": "0.1.7-alpha.1",
+      "source_commit": "c36a83ff6bb95e3f82cf79f9be7c724270a8aa61",
+      "local_node": "24.11.1",
+      "minimum_node_version": null,
+      "note": "Adapter Node test targets do not imply official host minimum or mounting success."
+    }
+  }
+}

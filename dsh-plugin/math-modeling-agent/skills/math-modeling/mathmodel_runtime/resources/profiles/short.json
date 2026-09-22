@@ -1,0 +1,7 @@
+{
+  "name": "short",
+  "description": "Scoped task without length quotas.",
+  "recommendations": {
+    "figures": 0
+  }
+}

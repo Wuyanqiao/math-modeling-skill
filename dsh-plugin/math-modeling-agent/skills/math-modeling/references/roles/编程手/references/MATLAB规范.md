@@ -1,5 +1,6 @@
 # MATLAB 实现规范
 
+> 共享运行时、当前 profile、用户要求和已核验规则优先；以下高级工具步骤仅在依赖/授权具备且任务需要时加载。缺能力时保留可验证产物并报告审查等级，数量建议不阻断。
 MATLAB 与 Python 是同等支持的实现语言，不把 MATLAB 作为仅供参考的附录。
 
 ## 环境与依赖
@@ -51,7 +52,7 @@ matlab -batch "main(42)"
 生成清单时向 `repro_manifest.py` 传入 `--runtime matlab`、`--runtime-version` 和工具箱版本 JSON：
 
 ```powershell
-python ../scripts/repro_manifest.py `
+python "<SKILL_ROOT>/references/roles/编程手/scripts/repro_manifest.py" `
   --project-root "<PROJECT_ROOT>" --seed 42 `
   --runtime matlab --runtime-version "R2025b" `
   --dependencies '{"Optimization Toolbox":"25.2"}' `

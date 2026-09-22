@@ -1,0 +1,88 @@
+name: Validate workbench
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install declared development dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Python regression suite
+        run: python -m unittest discover -s tests -v
+      - name: DOCX compatibility self-check
+        run: python tools/docx/scripts/self_check.py
+      - name: Python source compilation
+        run: python -m compileall -q mathmodel_runtime scripts tools references/roles/编程手/scripts
+      - name: DSH adapter regression suite
+        shell: bash
+        run: node --test tests/dsh/*.test.mjs
+      - name: Check generated local DSH resources
+        run: python scripts/sync_dsh_plugin.py --check
+      - name: Build and smoke-test local development distributions
+        run: python scripts/build_distribution.py --mode local-development --output dist/local-validation
+      - name: Build local runtime wheel
+        run: python -m build --wheel --outdir dist/runtime
+      - name: Verify wheel outside the checkout with no optional packages
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, subprocess, tempfile, venv
+          wheel = next(pathlib.Path("dist/runtime").resolve().glob("*.whl"))
+          with tempfile.TemporaryDirectory(prefix="wheel 独立验证 ") as temporary:
+              root = pathlib.Path(temporary).resolve()
+              environment = root / "venv"
+              venv.EnvBuilder(with_pip=True).create(environment)
+              python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+              subprocess.run([str(python), "-m", "pip", "install", "--no-index", "--no-deps", str(wheel)], cwd=root, check=True)
+              project = root / "项目 with spaces"
+              project.mkdir()
+              for action in ("init", "state", "complete"):
+                  options = {"profile": "short", "scope": "modeling"} if action == "init" else {}
+                  run = subprocess.run([str(python), "-I", "-m", "mathmodel_runtime", action, "--project-root", str(project), "--options", json.dumps(options)], cwd=root, check=True, capture_output=True, text=True, encoding="utf-8")
+                  report = json.loads(run.stdout)
+                  assert report["ok"] and not report.get("done", False), report
+                  print(action, "passed")
+          PY
+      # Restricted/unverified local-development bundles are deliberately not uploaded.
+
+  node-compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node --test tests/dsh/*.test.mjs

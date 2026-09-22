@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "gate": "P1",
+  "task_id": "review_69a9990da9fb4a59",
+  "snapshot_hash": "4cd6ae2ffae02c344e95de68afca7b579a8b3c77465471ded8b2d56a9af46aee",
+  "brief": "独立只读审核 P1 最小可运行结果。核对原始证据和模型约束；P0/P1 未解决返回 FAIL，证据不足返回 BLOCKED。审核者不能是作者。",
+  "request": {
+    "task_id": "review_69a9990da9fb4a59",
+    "gate": "P1",
+    "snapshot_hash": "4cd6ae2ffae02c344e95de68afca7b579a8b3c77465471ded8b2d56a9af46aee",
+    "snapshot": {
+      "files": {
+        "solver.py": "164b5acaf56fccad3df2858b1a17fd6d6ed9d1079c7ce0a454c9a3eb29a18d58",
+        "术语表格.md": "022a00d288275d4c5cb663d3f72b86c74b4276751ac17c84b3e329057cf6f458",
+        "题目分析报告.md": "e7326a40c73896f3fdc02460ba63bfd58b129f785179d082d1f0e0ca5a8f6eb4",
+        "data/case.json": "18ee5a359c5968aa76d5ac32100b66bed91354090906a3886bed2a8b45672040",
+        "results/solution.csv": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+        "results/复现清单.json": "d32a9990513eff914a8b0ae7a1c830b5de7f05ec1e8e0980550013fb6dffbd58"
+      },
+      "config": {
+        "scope": "full",
+        "profile": "short",
+        "paperFormat": "latex",
+        "subproblems": [
+          "q1"
+        ],
+        "rules": {},
+        "artifact_bindings": {
+          "artifact_bd1a81bf81804189": {
+            "path": "results/solution.csv",
+            "kind": "table",
+            "sha256": "9a055c9630db44647a2a87a1bba9f2dbbdeef7e5371a9998b8a9d53bb9636d9d",
+            "question": null,
+            "run_id": "run_ec3fcce760954088",
+            "role": null,
+            "logical_id": "results/solution",
+            "source_artifact_id": null
+          }
+        }
+      },
+      "hash": "4cd6ae2ffae02c344e95de68afca7b579a8b3c77465471ded8b2d56a9af46aee"
+    },
+    "author_id": "demo-author",
+    "created_at": "2026-09-22T07:03:35.694723+00:00",
+    "status": "prepared"
+  },
+  "identity_notice": "Reviewer identity is declared unless independently attested by the host.",
+  "revision": 7
+}

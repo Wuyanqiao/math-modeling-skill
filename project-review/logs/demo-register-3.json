@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "artifact": {
+    "artifact_id": "artifact_851a357cbd7441e8",
+    "path": "figures/result_q1_usage.svg",
+    "kind": "figure",
+    "sha256": "26e9dc5350c342d75e5ac450d946c25ec88e8b3c3b873fd3414ac1932736273d",
+    "bytes": 10337,
+    "question": "q1",
+    "run_id": "run_45c6383d300e4c7f",
+    "validation": {
+      "path": "figures/result_q1_usage.svg",
+      "ok": true,
+      "blocked": false,
+      "errors": [],
+      "details": {},
+      "bytes": 10337,
+      "sha256": "26e9dc5350c342d75e5ac450d946c25ec88e8b3c3b873fd3414ac1932736273d"
+    },
+    "stale": false,
+    "registered_at": "2026-09-22T07:12:36.712370+00:00",
+    "logical_id": "figures/result_q1_usage",
+    "role": "result"
+  },
+  "revision": 17
+}
