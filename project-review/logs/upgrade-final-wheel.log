@@ -7,3 +7,5 @@ PASS balanced: init/state/complete from outside checkout using python -I; comple
 PASS competition: init/state/complete from outside checkout using python -I; completed=false; completion blockers present
 PASS installed console entrypoint: mathmodel 2.0.0
 RESULT: all final wheel checks passed
+PASS final wheel metadata contains current README including feature-branch installation instructions
+SHA256: 1e8acb7ec69a6310f34ed71b88367a35e373d8bba3701e42721b1da79a369b41

@@ -5,6 +5,10 @@ description: 创建、编辑、校验和转换 Word DOCX，支持把完整 LaTeX
 
 # DOCX 工具
 
+## 与 2.0 共享运行时的关系
+
+本目录保留历史 DOCX API 和竞赛校验默认值，作为可选兼容工具。2.0 任务以根 `SKILL.md` 和 [共享运行时契约](../../RUNTIME_API.md) 为准：完成门禁由 runtime、当前 profile 和带来源的任务 `rules` 驱动。历史图数、篇幅和页数建议不构成通用硬要求；可按当前任务直接调整建议值并记录原因，无需额外请求用户批准。官方硬约束只在核验适用届次和来源后录入 `rules`，不能从兼容工具的内置数值推定。
+
 ## 路径与写入
 
 - 当前目录为本工具根目录，只读。
@@ -129,7 +133,7 @@ python scripts/comment.py "<PROJECT_ROOT>/unpacked" 0 "批注意见"
 python scripts/comment.py "<PROJECT_ROOT>/unpacked" 1 "回复意见" --parent 0
 ```
 
-## 必做验证
+## 按任务选择验证
 
 ```powershell
 python scripts/check_env.py
@@ -139,4 +143,14 @@ python scripts/paper_format.py validate "<PROJECT_ROOT>/完整论文.docx" --con
 python scripts/equations.py verify-conversion "<PROJECT_ROOT>/完整论文.docx"
 ```
 
-`verify-conversion` 仅适用于由本工具的 Pandoc 转换生成、带 `.conversion.json` 的 DOCX；直接由 `paper_format.py` 构建时省略。`paper_format.py validate` 输出结构化指标，并在官方前置结构、篇幅质量目标、公式/图/表数量、图表编号与正文引用、参考文献双向对应或实际页数任一不满足时返回非零退出码。所有竞赛默认至少 8 幅图；CUMCM 默认的 15000 字词单位和约 20 页只是质量目标。以 2026 年官方规范为例，正文不超过 30 页才是硬约束。只有当届官方规则或用户明确要求允许偏离时才能调整目标并记录依据。结构校验后，把 DOCX 渲染成 PDF 或图片抽检分页、公式、表格、图片、页眉页脚和字体替换。
+`verify-conversion` 仅适用于由本工具的 Pandoc 转换生成、带 `.conversion.json` 的 DOCX；直接由 `paper_format.py` 构建时省略。`paper_format.py validate` 是保留旧竞赛配置的扩展校验：它会把内置结构、篇幅、公式/图/表数量、编号引用、参考文献或页数检查的问题汇总为非零退出码。旧实现仍含 8 幅图，以及 CUMCM 的 15000 字词单位、约 20 页和 30 页上限等默认值；这些不是 2.0 当前任务规则，也不能作为当届官方要求的依据。
+
+现有 `paper_format.py validate --help` 仅提供 `--contest` 和必填 `--rendered-pages`，没有 `--min-figures`、`--min-content-units` 等覆盖参数。短报告或非竞赛任务不应把这条历史扩展命令作为必过门禁，也不要编造 CLI 参数。可先使用不含数量配额的 OOXML 校验，再对已经初始化并登记产物的项目调用共享运行时：
+
+```powershell
+python "<SKILL_ROOT>/tools/docx/scripts/office/validate.py" "<PROJECT_ROOT>/完整论文.docx"
+python "<SKILL_ROOT>/scripts/mathmodel.py" validate `
+  --project-root "<PROJECT_ROOT>" --options '{"phase":"paper"}'
+```
+
+当前任务可选择 `short` profile；默认不为满足历史配额补图或扩写。若需要调用 Python 扩展接口，`validate_paper_structure` 确有 `quality_checks`、`min_content_units`、`min_equations`、`min_figures`、`min_tables` 等关键字参数，但接口的竞赛结构和页数语义仍须核对源码，不能将它等同于共享门禁。结构校验后仍须渲染实际 DOCX，检查分页、公式、表格、图片、页眉页脚和字体替换；共享运行时要求的渲染来源与独立审查不会因选择短报告而省略。

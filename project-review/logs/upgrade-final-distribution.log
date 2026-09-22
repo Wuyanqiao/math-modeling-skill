@@ -4,9 +4,9 @@
   "redistribution_approved": false,
   "version": "2.0.0",
   "source": {
-    "commit": "3c4bd1927663327812665941a445281b9c008a78",
+    "commit": "64fd4c963a1a584a1a48466694b548b4118ccef6",
     "dirty": true,
-    "content_sha256": "d19d3cafceb0c42a223d37e1b35e972a54b63c1c281284fab6fe3fe367e9b48a"
+    "content_sha256": "24dff4b81487305c02137254c9af7d7c97a935f612bfb38c5a63c97718619204"
   },
   "upstream": {
     "repository": "https://github.com/XiaoMaColtAI/math-modeling-skill",
@@ -88,14 +88,14 @@
   "artifacts": [
     {
       "name": "mathmodel-skill-2.0.0-LOCAL-DEVELOPMENT.zip",
-      "sha256": "18c6c7fcd48a6ca83d1694b9e03f56d9da93f4e22270b3958ea96a40f9d7b8c4",
-      "bytes": 5290151,
+      "sha256": "c4788a0b58ca5c6f70333d0f21ac4aacfcebc2fab28fcc69072287048364ebf9",
+      "bytes": 5292774,
       "file_count": 225
     },
     {
       "name": "mathmodel-dsh-2.0.0-LOCAL-DEVELOPMENT.zip",
-      "sha256": "4e07047eb8101b44392089fc8de283f89c0aef8851b5f5f932ba8daff56acc19",
-      "bytes": 10680656,
+      "sha256": "3073a2ef6f724f6440d4a004f65fdc2ed749da424b9559eed31e8a6e136561b3",
+      "bytes": 10687459,
       "file_count": 469
     }
   ],
@@ -114,7 +114,7 @@
       "tools/pdf/SKILL.md",
       "references/roles/论文手/references/论文模板.docx"
     ],
-    "checked_links": 45,
+    "checked_links": 48,
     "preexisting_documentation_gaps": [],
     "python_syntax": "passed"
   },

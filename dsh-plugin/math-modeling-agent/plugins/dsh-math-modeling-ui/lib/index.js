@@ -4,9 +4,9 @@ export { Config } from './settings-schema.js'
 export const name = 'dsh-math-modeling-ui'
 export const inject = ['connection', 'settings', 'fs', 'shell', 'sessions']
 export const MM_RPC_CHANNEL = '/math-modeling-ui'
-export const MM_ENDPOINTS = Object.freeze({ state: 'mm.state', setEnabled: 'mm.setEnabled', getEnabled: 'mm.getEnabled', artifact: 'mm.artifact', runLog: 'mm.runLog' })
+export const MM_ENDPOINTS = Object.freeze({ state: 'mm.state', setEnabled: 'mm.setEnabled', getEnabled: 'mm.getEnabled', artifact: 'mm.artifact', runLog: 'mm.runLog', checkpointCreate: 'mm.checkpointCreate', checkpointRestore: 'mm.checkpointRestore' })
 const ok = value => ({ ok: true, value })
-const fail = message => ({ ok: false, error: { code: 'bad-request', message, details: {} } })
+const fail = (message, code = 'bad-request') => ({ ok: false, error: { code, message, details: {} } })
 
 export function apply(ctx) {
   if (!ctx.connection?.rpc?.handle || !ctx.get('fs')) return () => {}
@@ -50,6 +50,18 @@ export function apply(ctx) {
         if (!payload.sessionId || typeof payload.run_id !== 'string' || !['stdout', 'stderr'].includes(payload.stream)) return fail('读取日志需要当前会话、运行 id 和日志名称')
         const result = await bridge.request('run-log-read', { run_id: payload.run_id, stream: payload.stream }, payload.sessionId, { signal })
         return result.ok === false ? fail(result.error || '无法读取日志') : ok(result)
+      }
+      if (endpoint === MM_ENDPOINTS.checkpointCreate) {
+        if (!payload.sessionId || (payload.name !== undefined && typeof payload.name !== 'string')) return fail('创建快照需要当前会话，名称必须为文本')
+        const result = await bridge.request('checkpoint-create', { name: payload.name || `工作台快照 ${new Date().toISOString()}` }, payload.sessionId, { signal })
+        return result.ok === false ? fail(result.error || '无法创建快照', result.code) : ok(result)
+      }
+      if (endpoint === MM_ENDPOINTS.checkpointRestore) {
+        if (!payload.sessionId || typeof payload.checkpoint_id !== 'string' || typeof payload.apply !== 'boolean') return fail('恢复需要当前会话、快照 id 和明确的 apply 布尔值')
+        if (payload.apply && !Number.isSafeInteger(payload.expected_revision)) return fail('确认恢复需要预览返回的 expected_revision')
+        const args = { checkpoint_id: payload.checkpoint_id, apply: payload.apply, ...(payload.apply ? { expected_revision: payload.expected_revision } : {}) }
+        const result = await bridge.request('checkpoint-restore', args, payload.sessionId, { signal })
+        return result.ok === false ? fail(result.error || '无法恢复快照', result.code) : ok(result)
       }
       return fail(`未知操作: ${endpoint}`)
     } catch (error) { return fail(String(error.message || error)) }

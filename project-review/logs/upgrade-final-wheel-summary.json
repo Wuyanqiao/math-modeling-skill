@@ -85,8 +85,8 @@
     }
   ],
   "wheel": "D:\\Users\\Cowork_Project\\DeepSeekHarnessworkspace\\math-skills-update\\dist\\runtime\\mathmodel_workbench-2.0.0-py3-none-any.whl",
-  "wheel_sha256": "689ef5bd3558ba6285f22fc981789909068b8724c0615e364c89958d51065181",
-  "wheel_bytes": 40183,
+  "wheel_sha256": "1e8acb7ec69a6310f34ed71b88367a35e373d8bba3701e42721b1da79a369b41",
+  "wheel_bytes": 40263,
   "resources": [
     "mathmodel_runtime/resources/profiles/balanced.json",
     "mathmodel_runtime/resources/profiles/competition.json",
@@ -100,16 +100,16 @@
   "isolated_environment": {
     "python": "3.13.13 | packaged by conda-forge | (main, Apr  8 2026, 01:56:49) [MSC v.1944 64 bit (AMD64)]",
     "isolated": 1,
-    "prefix": "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 iy0k83zi\\隔离环境",
+    "prefix": "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 etyeghzj\\隔离环境",
     "base_prefix": "D:\\Users\\Renaissance2\\miniforge3",
-    "module": "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 iy0k83zi\\隔离环境\\Lib\\site-packages\\mathmodel_runtime\\__init__.py",
+    "module": "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 etyeghzj\\隔离环境\\Lib\\site-packages\\mathmodel_runtime\\__init__.py",
     "sys_path": [
       "D:\\Users\\Renaissance2\\miniforge3\\python313.zip",
       "D:\\Users\\Renaissance2\\miniforge3\\DLLs",
       "D:\\Users\\Renaissance2\\miniforge3\\Lib",
       "D:\\Users\\Renaissance2\\miniforge3",
-      "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 iy0k83zi\\隔离环境",
-      "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 iy0k83zi\\隔离环境\\Lib\\site-packages"
+      "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 etyeghzj\\隔离环境",
+      "C:\\Users\\Renaissance2\\AppData\\Local\\Temp\\mathmodel wheel 独立验证 etyeghzj\\隔离环境\\Lib\\site-packages"
     ],
     "optional_modules_present": {
       "docx": false,
@@ -137,5 +137,6 @@
     ],
     "invalid_state_rejected": true
   },
-  "console_entrypoint": "mathmodel 2.0.0"
+  "console_entrypoint": "mathmodel 2.0.0",
+  "current_readme_in_metadata": true
 }

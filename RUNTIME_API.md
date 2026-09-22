@@ -17,7 +17,7 @@ to the runtime repository. Requests must originate in the host's authorized work
 | log | event, detail |
 | run | argv(string array, no shell expansion), inputs/outputs/code(string arrays relative to project), seed, parameters, timeout seconds(default 120), phase optional |
 | run-log-read | run_id, stream(stdout/stderr), max_bytes(optional, default65536, maximum262144); reads that run's fixed log path, never an arbitrary metadata path |
-| artifact-add | path, kind(model/terms/code/table/figure/document/pdf/manifest/outline/other), question(q1 etc, optional), run_id(optional), role(raw/process/result/flow optional), logical_id(optional) |
+| artifact-add | path, kind(model/terms/code/table/figure/document/pdf/manifest/outline/other), question(q1 etc, optional), run_id(optional), role(raw/process/result/flow/render optional), logical_id(optional), source_artifact_id(for render output) |
 | claim-add | claim_id(optional), text, question, artifact_ids(array), locator(optional) |
 | gate-prepare | gate, author_id(optional); returns task_id,snapshot_hash,brief,request |
 | gate-record | gate, receipt:{task_id,reviewer_id,review_source(subagent/external/human),snapshot_hash,status(PASS/FAIL/BLOCKED),scope,evidence:[{path,sha256,locator?}],findings:[{level:P0/P1/P2,text}],rework} |

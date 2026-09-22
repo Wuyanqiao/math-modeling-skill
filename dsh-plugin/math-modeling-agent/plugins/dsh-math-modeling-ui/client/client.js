@@ -18,6 +18,7 @@ window.__ModuleLoader__.load({
 @media(prefers-color-scheme:dark){.mmwb{--paper:#202925;--ink:#e5e9df;--muted:#a3b0a7;--line:#3d4840;--accent:#7bb7a1}.mmwb-warning{background:#463a28;color:#f0d6aa}.mmwb-error{background:#472d29}.mmwb-success{background:#293f32}.mmwb pre{background:#19211c}.mmwb-badge{background:#3d4840}.mmwb-btn-primary{color:#13251d!important}}
 @media(prefers-reduced-motion:reduce){.mmwb *{scroll-behavior:auto!important}}
 .mmwb summary>.mmwb-row{display:inline-flex;width:calc(100% - 16px)}
+.mmwb-btn-danger{background:#8a3b2b;color:#fff!important;border-color:#8a3b2b}.mmwb-checkpoint-name{overflow-wrap:anywhere}
 `
     function Badge({ status }) {
       const key = String(status || 'pending').toLowerCase()
@@ -65,7 +66,28 @@ window.__ModuleLoader__.load({
           h('div', { className: 'mmwb-path' }, item.path), h('div', { className: 'mmwb-muted' }, item.sha256 ? `SHA-256 ${item.sha256.slice(0, 16)}…` : '未记录哈希')))) : h(Empty, null, '用 mm_artifact_add 登记结果、图表或文档。')),
         preview ? h('div', { className: 'mmwb-preview', role: 'region', 'aria-label': '产物预览' }, h('h3', null, '文件预览'), h('pre', null, preview.content ?? JSON.stringify(preview, null, 2))) : null,
         h(Section, { title: '主张与证据' }, records(data.claims).length ? h('ul', { className: 'mmwb-list' }, records(data.claims).map(item => h('li', { key: item.id || item.claim_id }, h('p', null, item.text), h('div', { className: 'mmwb-path' }, (item.artifact_ids || []).join(' · ')), item.locator ? h('div', { className: 'mmwb-muted' }, item.locator) : null))) : h(Empty, null, '用 mm_claim_add 关联主张与产物。')),
-        h('details', null, h('summary', null, '审核任务与检查点'), h('pre', null, JSON.stringify({ review_tasks: data.review_tasks, checkpoints: data.checkpoints }, null, 2))))
+        h('details', null, h('summary', null, '审核任务'), h('pre', null, JSON.stringify(data.review_tasks || {}, null, 2))))
+    }
+    function Checkpoints({ data, busy, preview, notice, error, create, previewRestore, confirmRestore }) {
+      const checkpoints = records(data.checkpoints).slice().reverse()
+      const operations = { add: '新增 (add)', replace: '替换 (replace)', remove: '删除 (remove)' }
+      return h(Section, { title: '项目快照' },
+        h('p', { className: 'mmwb-muted' }, '保存项目文件与工作状态；恢复前先查看变更清单。'),
+        h('button', { className: 'mmwb-btn', disabled: busy, onClick: create }, '创建快照'),
+        notice ? h('p', { className: 'mmwb-success', role: 'status' }, notice) : null,
+        error ? h('p', { className: 'mmwb-warning mmwb-error', role: 'alert' }, error) : null,
+        checkpoints.length ? h('ul', { className: 'mmwb-list' }, checkpoints.map(item => h('li', { key: item.checkpoint_id },
+          h('div', { className: 'mmwb-checkpoint-name' }, item.name || item.checkpoint_id),
+          h('div', { className: 'mmwb-muted' }, timestamp(item.created_at)),
+          h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-badge', 'data-status': item.completed_when_created ? 'pass' : 'pending' }, item.completed_when_created ? '创建时已验收' : '创建时未验收'),
+            h('button', { className: 'mmwb-btn', disabled: busy, 'aria-label': `预览恢复 ${item.name || item.checkpoint_id}`, onClick: () => previewRestore(item.checkpoint_id) }, '预览恢复'))))) : h(Empty, null, '尚无快照。'),
+        preview ? h('section', { className: 'mmwb-preview', 'aria-label': '恢复预览' },
+          h('h3', null, '恢复变更清单'),
+          h('p', { className: 'mmwb-checkpoint-name' }, checkpoints.find(item => item.checkpoint_id === preview.checkpoint_id)?.name || preview.checkpoint_id),
+          preview.changes.length ? h('ul', { className: 'mmwb-list' }, preview.changes.map(change => h('li', { key: `${change.operation}:${change.path}` },
+            h('span', { className: 'mmwb-badge' }, operations[change.operation] || change.operation), ' ', h('span', { className: 'mmwb-path' }, change.path)))) : h('p', null, '文件内容没有变化；确认后仍会恢复工作状态。'),
+          h('p', { className: 'mmwb-warning' }, '确认后将按此清单改写项目文件，并恢复快照中的工作状态。运行时会先保存恢复副本；恢复后需要重新验收。'),
+          h('button', { className: 'mmwb-btn mmwb-btn-danger', disabled: busy, onClick: confirmRestore }, '确认恢复')) : null)
     }
     function Runs({ data, preview, openLog, busy }) {
       const runs = records(data.runs).slice(-20).reverse()
@@ -85,12 +107,19 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false)
       const [preview, setPreview] = React.useState(null)
       const [logPreview, setLogPreview] = React.useState(null)
+      const [restorePreview, setRestorePreview] = React.useState(null)
+      const [checkpointBusy, setCheckpointBusy] = React.useState(false)
+      const [checkpointNotice, setCheckpointNotice] = React.useState(null)
+      const [checkpointError, setCheckpointError] = React.useState(null)
       const sequence = React.useRef(0)
       const previewSequence = React.useRef(0)
+      const checkpointSequence = React.useRef(0)
+      const currentSession = React.useRef(sid)
+      currentSession.current = sid
       const refresh = React.useCallback(async (verify = false) => {
         if (!sid) return
         const request = ++sequence.current
-        if (verify) setBusy(true)
+        if (verify) { setBusy(true); setRestorePreview(null) }
         try {
           const result = await rpc('mm.state', { sessionId: sid, refresh: verify })
           if (sequence.current !== request) return
@@ -101,11 +130,12 @@ window.__ModuleLoader__.load({
       }, [sid, rpc])
       React.useEffect(() => {
         setData(null); setError(null); setPreview(null); setLogPreview(null); setBusy(false)
+        setRestorePreview(null); setCheckpointBusy(false); setCheckpointNotice(null); setCheckpointError(null)
         refresh()
         const timer = setInterval(() => { if (document.visibilityState !== 'hidden') refresh() }, 10000)
         const changed = () => refresh()
         window.addEventListener('mmwb-settings-change', changed)
-        return () => { clearInterval(timer); window.removeEventListener('mmwb-settings-change', changed); sequence.current++; previewSequence.current++ }
+        return () => { clearInterval(timer); window.removeEventListener('mmwb-settings-change', changed); sequence.current++; previewSequence.current++; checkpointSequence.current++ }
       }, [refresh])
       async function openPreview(path) {
         const request = ++previewSequence.current
@@ -129,6 +159,31 @@ window.__ModuleLoader__.load({
         } catch (error) { if (previewSequence.current === request) setError(String(error.message || error)) }
         finally { if (previewSequence.current === request) setBusy(false) }
       }
+      const activeRestorePreview = restorePreview?.sessionId === sid ? restorePreview : null
+      async function checkpoint(mode, checkpointId) {
+        if (!sid || checkpointBusy || busy) return
+        if (mode === 'apply' && !activeRestorePreview) return
+        const request = ++checkpointSequence.current
+        const sessionId = sid
+        const current = () => checkpointSequence.current === request && currentSession.current === sessionId
+        const payload = mode === 'create' ? { sessionId } : { sessionId, checkpoint_id: checkpointId, apply: mode === 'apply',
+          ...(mode === 'apply' ? { expected_revision: activeRestorePreview.expected_revision } : {}) }
+        setCheckpointBusy(true); setCheckpointError(null); setCheckpointNotice(null); setRestorePreview(null)
+        try {
+          const result = await rpc(mode === 'create' ? 'mm.checkpointCreate' : 'mm.checkpointRestore', payload)
+          if (!current()) return
+          if (!result.ok) throw new Error(`${result.error?.code || 'checkpoint_error'}: ${result.error?.message || '快照操作失败'}`)
+          if (mode === 'preview') {
+            const value = result.value
+            if (value?.preview !== true || value.checkpoint_id !== checkpointId || !Number.isSafeInteger(value.expected_revision) || !Array.isArray(value.changes)) throw new Error('运行时未返回有效恢复预览；请重新预览。')
+            setRestorePreview({ ...value, sessionId })
+          } else {
+            setCheckpointNotice(mode === 'create' ? '快照已创建。' : '已恢复项目文件与工作状态。请运行 mm_complete 重新验收。')
+            await refresh()
+          }
+        } catch (error) { if (current()) setCheckpointError(String(error.message || error)) }
+        finally { if (current()) setCheckpointBusy(false) }
+      }
       if (!sid || data?.hidden || (!data && !error)) return null
       const title = data?.project?.title || '数学建模工作台'
       const tabs = [['overview', '项目'], ['evidence', '证据'], ['runs', '运行']]
@@ -146,8 +201,10 @@ window.__ModuleLoader__.load({
             },
           }, label))),
           h('div', { className: 'mmwb-content', id: `mmwb-panel-${tab}`, role: 'tabpanel', 'aria-labelledby': `mmwb-tab-${tab}`, tabIndex: 0 }, error ? h('p', { className: 'mmwb-warning mmwb-error', role: 'alert' }, error) : null,
-            data?.initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'evidence' ? h(Evidence, { data, preview, openPreview, busy }) : h(Runs, { data, preview: logPreview, openLog, busy }) : null),
-          h('footer', { className: 'mmwb-foot' }, h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-muted' }, data?.stale ? '已保存快照' : '运行时已核验'), h('button', { className: 'mmwb-btn mmwb-btn-primary', disabled: busy, onClick: () => refresh(true) }, busy ? '正在读取…' : '重新验证')), h('div', { className: 'mmwb-muted' }, timestamp(data?.snapshotAt || data?.updated_at)))) : null)
+            data?.initialized ? tab === 'overview' ? h(Overview, { data }) : tab === 'evidence' ? h(Evidence, { data, preview, openPreview, busy: busy || checkpointBusy }) : h(React.Fragment, null,
+              h(Checkpoints, { data, busy: busy || checkpointBusy, preview: activeRestorePreview, notice: checkpointNotice, error: checkpointError, create: () => checkpoint('create'), previewRestore: id => checkpoint('preview', id), confirmRestore: () => activeRestorePreview && checkpoint('apply', activeRestorePreview.checkpoint_id) }),
+              h(Runs, { data, preview: logPreview, openLog, busy: busy || checkpointBusy })) : null),
+          h('footer', { className: 'mmwb-foot' }, h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-muted' }, data?.stale ? '已保存快照' : '运行时已核验'), h('button', { className: 'mmwb-btn mmwb-btn-primary', disabled: busy || checkpointBusy, onClick: () => refresh(true) }, busy || checkpointBusy ? '正在读取…' : '重新验证')), h('div', { className: 'mmwb-muted' }, timestamp(data?.snapshotAt || data?.updated_at)))) : null)
     }
     function Settings({ rpc }) {
       const [enabled, setEnabled] = React.useState(null)

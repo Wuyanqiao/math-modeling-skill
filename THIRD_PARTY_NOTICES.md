@@ -9,7 +9,7 @@ This fork preserves the history and attribution of [XiaoMaColtAI/math-modeling-s
 | `tools/xlsx/` | [Bundled license](tools/xlsx/LICENSE.txt), attributed to Anthropic, PBC | Restricted; excluded from release selection |
 | `tools/pdf/` | [Bundled license](tools/pdf/LICENSE.txt), attributed to Anthropic, PBC | Restricted; excluded from release selection |
 | DSH preset, host adapter and bundled knowledge | Upstream `dsh-plugin/`; each transitive resource retains its own source | Authorization unverified; release blocked |
-| DSH UI subpackage | Its `package.json` declares `MIT`; that declaration is not a whole-repository license | Keep attribution; no blanket authorization inferred |
+| Original DSH UI subpackage | The upstream UI `package.json` declared `MIT`; that declaration is not a whole-repository license | Preserve that historical provenance. The expanded local bundle now includes restricted/unverified resources and is marked `private: true`, `UNLICENSED`; no blanket authorization is inferred |
 | Figure references and inherited examples | Upstream change history identifies external figure skills; complete per-file provenance not yet established | Included in upstream-content block |
 | Fork runtime, build system, documentation and tests | Current fork commit history; owner has not selected a distribution license | Local development; release blocked until an explicit license is supplied |
 | Python/Node packages installed separately | Package metadata from the relevant package registry | Not vendored into Skill or DSH archives; users install declared optional dependencies |

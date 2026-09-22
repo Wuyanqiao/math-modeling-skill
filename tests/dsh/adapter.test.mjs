@@ -165,6 +165,68 @@ test('UI retains an explicitly stale snapshot when host cannot authorize refresh
   assert.match(result.value.refreshError, /approval needed/)
 })
 
+test('UI checkpoint routes preserve session binding, explicit confirmation fields and runtime errors', async t => {
+  const h = await harness(t)
+  await h.init({ projectRoot: h.custom })
+  const rpc = h.ui()
+  let response = { ok: true, preview: true, checkpoint_id: 'checkpoint_aaaaaaaaaaaaaaaa', expected_revision: 17, changes: [] }
+  h.respond(async () => ({ exitCode: response.ok ? 0 : 1, stdout: JSON.stringify(response) }))
+  assert.equal((await rpc('mm.checkpointCreate', { sessionId: 'a', name: 'Desktop snapshot', projectRoot: h.cwd })).ok, true)
+  assert.equal(h.requests.at(-1).action, 'checkpoint-create')
+  assert.equal(h.requests.at(-1).project_root, h.custom)
+  assert.equal(h.requests.at(-1).name, 'Desktop snapshot')
+  const target = { sessionId: 'a', checkpoint_id: response.checkpoint_id }
+  const beforeInvalid = h.requests.length
+  assert.equal((await rpc('mm.checkpointRestore', target)).ok, false)
+  assert.equal((await rpc('mm.checkpointRestore', { ...target, apply: true })).ok, false)
+  assert.equal((await rpc('mm.checkpointRestore', { ...target, apply: 'true', expected_revision: 17 })).ok, false)
+  assert.equal(h.requests.length, beforeInvalid, 'invalid confirmation requests must not launch a shell')
+  assert.equal((await rpc('mm.checkpointRestore', { ...target, apply: false, expected_revision: 999 })).ok, true)
+  assert.equal(h.requests.at(-1).action, 'checkpoint-restore')
+  assert.equal(h.requests.at(-1).apply, false)
+  assert.equal('expected_revision' in h.requests.at(-1), false)
+  response = { ok: false, code: 'revision_conflict', error: 'Project or checkpoint changed since restore preview; preview again' }
+  const rejected = await rpc('mm.checkpointRestore', { ...target, apply: true, expected_revision: 17 })
+  assert.equal(rejected.error.code, response.code)
+  assert.equal(rejected.error.message, response.error)
+  assert.equal(h.requests.at(-1).checkpoint_id, target.checkpoint_id)
+  assert.equal(h.requests.at(-1).expected_revision, 17)
+  assert.equal(h.requests.at(-1).project_root, h.custom)
+})
+
+test('real Python CLI: UI restore requires a current preview and restores the reported file changes', async t => {
+  const h = await harness(t, { real: true })
+  await h.init({ scope: 'modeling', profile: 'short', projectRoot: h.custom })
+  const rpc = h.ui()
+  await fs.writeFile(path.join(h.custom, 'replace.txt'), 'original')
+  await fs.writeFile(path.join(h.custom, 'add.txt'), 'saved')
+  const created = await rpc('mm.checkpointCreate', { sessionId: 'a', name: 'Before changes' })
+  assert.equal(created.ok, true, JSON.stringify(created))
+  const checkpoint_id = created.value.checkpoint.checkpoint_id
+  const target = { sessionId: 'a', checkpoint_id }
+  const unprepared = await rpc('mm.checkpointRestore', { ...target, apply: true, expected_revision: 0 })
+  assert.equal(unprepared.error.code, 'revision_conflict')
+  await fs.writeFile(path.join(h.custom, 'replace.txt'), 'changed')
+  await fs.unlink(path.join(h.custom, 'add.txt'))
+  await fs.writeFile(path.join(h.custom, 'remove.txt'), 'new')
+  const preview = await rpc('mm.checkpointRestore', { ...target, apply: false })
+  assert.equal(preview.ok, true, JSON.stringify(preview))
+  assert.deepEqual(new Set(preview.value.changes.map(change => `${change.operation}:${change.path}`)), new Set(['replace:replace.txt', 'add:add.txt', 'remove:remove.txt']))
+  await fs.writeFile(path.join(h.custom, 'replace.txt'), 'changed after preview')
+  const conflict = await rpc('mm.checkpointRestore', { ...target, apply: true, expected_revision: preview.value.expected_revision })
+  assert.equal(conflict.error.code, 'revision_conflict')
+  assert.match(conflict.error.message, /preview again/)
+  assert.equal(await fs.readFile(path.join(h.custom, 'replace.txt'), 'utf8'), 'changed after preview')
+  const refreshed = await rpc('mm.checkpointRestore', { ...target, apply: false })
+  const restored = await rpc('mm.checkpointRestore', { ...target, apply: true, expected_revision: refreshed.value.expected_revision })
+  assert.equal(restored.ok, true, JSON.stringify(restored))
+  assert.equal(restored.value.restored, checkpoint_id)
+  assert.equal(await fs.readFile(path.join(h.custom, 'replace.txt'), 'utf8'), 'original')
+  assert.equal(await fs.readFile(path.join(h.custom, 'add.txt'), 'utf8'), 'saved')
+  await assert.rejects(fs.stat(path.join(h.custom, 'remove.txt')), { code: 'ENOENT' })
+  assert.equal((await rpc('mm.state', { sessionId: 'a' })).value.completed, false)
+})
+
 test('project roots from state are never followed by the adapter', async t => {
   const h = await harness(t)
   await h.init({})
