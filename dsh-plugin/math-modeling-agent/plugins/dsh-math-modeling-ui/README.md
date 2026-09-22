@@ -1,6 +1,6 @@
 # 数学建模 Workbench 宿主组合包
 
-此包当前版本为 **2.1.1**，同时注册 DeepSeek Harness 0.1.7-alpha.1 的 Agent 预设、`mm_*` 工具与 React 看板。`skills/math-modeling` 必须含共享 Python 运行时；只复制 JS 源文件不能得到完整安装包。
+此包当前版本为 **2.1.2**，同时注册 DeepSeek Harness 0.1.7-alpha.1 的 Agent 预设、`mm_*` 工具与 React 看板。`skills/math-modeling` 必须含共享 Python 运行时；只复制 JS 源文件不能得到完整安装包。
 
 完整源码构建与验证说明：[升级分支安装指南](https://github.com/Wuyanqiao/math-modeling-skill/blob/WuYanqiao/universal-upgrade/dsh-plugin/README.md)。运行时 API 在包内 `skills/math-modeling/RUNTIME_API.md`。若分支尚未推送，以本地 checkout 的文档为准。
 

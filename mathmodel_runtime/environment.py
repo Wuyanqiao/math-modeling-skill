@@ -1,14 +1,18 @@
 """Read-only, project-aware dependency checks in bounded isolated subprocesses."""
 from concurrent.futures import ThreadPoolExecutor, wait
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
 import re
 import shlex
+import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import time
+from uuid import uuid4
 
 from .storage import now
 
@@ -74,6 +78,36 @@ def _remaining(deadline, timeout):
     return max(0, min(timeout, deadline - time.monotonic()))
 
 
+@contextmanager
+def _probe_directory():
+    if sys.platform != "win32":
+        with tempfile.TemporaryDirectory(prefix="mathmodel-environment-") as directory:
+            yield directory
+        return
+    # Windows mkdir(0700) replaces inherited ACLs, excluding DSH's restricted
+    # temp SID. Inherit the host-owned TEMP directory's ACL; do not grant access.
+    root = Path(tempfile.gettempdir()).resolve()
+    for _ in range(10):
+        directory = os.path.join(root, "mathmodel-environment-" + uuid4().hex)
+        try:
+            os.mkdir(directory)
+        except FileExistsError:
+            continue
+        break
+    else:
+        raise FileExistsError("Could not allocate a unique probe directory")
+    try:
+        yield directory
+    finally:
+        target = Path(directory)
+        resolved = target.resolve()
+        if (resolved.parent != root or resolved.name != target.name
+                or not target.name.startswith("mathmodel-environment-")
+                or getattr(target.lstat(), "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
+            raise OSError("Probe directory cleanup boundary changed")
+        shutil.rmtree(directory)
+
+
 def _run_probe(argv, timeout):
     """Bound runtime/output and keep cache files, project imports and secrets out."""
     if timeout <= 0:
@@ -82,21 +116,24 @@ def _run_probe(argv, timeout):
                "APPDATA", "LOCALAPPDATA", "PROGRAMFILES", "PROGRAMFILES(X86)", "LANG", "LC_ALL", "LD_LIBRARY_PATH",
                "DYLD_LIBRARY_PATH", "CONDA_PREFIX", "VIRTUAL_ENV", "PYTHONUSERBASE", "PYTHONNOUSERSITE"}
     environment = {key: value for key, value in os.environ.items() if key.upper() in allowed}
-    with tempfile.TemporaryDirectory(prefix="mathmodel-environment-") as directory:
-        environment.update(MPLCONFIGDIR=directory, XDG_CACHE_HOME=directory, NUMBA_CACHE_DIR=directory,
-                           MPLBACKEND="Agg", QT_QPA_PLATFORM="offscreen")
-        with tempfile.TemporaryFile(dir=directory) as output, tempfile.TemporaryFile(dir=directory) as errors:
-            try:
-                process = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=output, stderr=errors, cwd=directory,
-                                         env=environment, timeout=timeout, check=False,
-                                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-            except subprocess.TimeoutExpired:
-                return {"status": "error", "reason": "timeout"}
-            except OSError:
-                return {"status": "error", "reason": "start_failed"}
-            output.seek(0)
-            errors.seek(0)
-            return {"returncode": process.returncode, "stdout": output.read(16384), "stderr": errors.read(16384)}
+    try:
+        with _probe_directory() as directory:
+            environment.update(MPLCONFIGDIR=directory, XDG_CACHE_HOME=directory, NUMBA_CACHE_DIR=directory,
+                               MPLBACKEND="Agg", QT_QPA_PLATFORM="offscreen")
+            with tempfile.TemporaryFile(dir=directory) as output, tempfile.TemporaryFile(dir=directory) as errors:
+                try:
+                    process = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=output, stderr=errors, cwd=directory,
+                                             env=environment, timeout=timeout, check=False,
+                                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                except subprocess.TimeoutExpired:
+                    return {"status": "error", "reason": "timeout"}
+                except OSError:
+                    return {"status": "error", "reason": "start_failed"}
+                output.seek(0)
+                errors.seek(0)
+                return {"returncode": process.returncode, "stdout": output.read(16384), "stderr": errors.read(16384)}
+    except OSError:
+        return {"status": "error", "reason": "temp_failed"}
 
 
 def probe_python(module, distribution, *, deadline=None):
@@ -129,6 +166,7 @@ def _reason(reason):
         "timeout": "检测子进程超时，尚不能确认可用。",
         "deadline": "本次检测达到整体时间预算，尚不能确认可用。",
         "start_failed": "无法启动检测进程。",
+        "temp_failed": "检测临时目录或文件不可用，或清理失败；请检查宿主临时目录权限，勿降低沙箱模式。",
     }.get(reason, "无法确认此依赖可用。")
 
 
