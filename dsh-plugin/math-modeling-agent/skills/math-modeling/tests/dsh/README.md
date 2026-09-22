@@ -2,6 +2,8 @@
 
 2.1.3 本机完整回归 **33/33 通过，0 失败、0 跳过，35.7011 秒**，包括新增的初始化失败重试与真实 Windows 沙箱工作区准备检查；记录为 `project-review/logs/fix-2.1.3-dsh.log`。Windows 权限工具另有 12 项专项全部通过，记录为 `project-review/logs/fix-2.1.3-workspace-permissions.log`。
 
+后续 Windows 管理员 CI 复核补齐测试进程特权和所有者前提，并发现 SDDL `LA` 等身份缩写需按原生 SID 比较。修正后权限专项增加至 **15/15**，实际沙箱初始化专项再次 **1/1** 通过；记录为 `project-review/logs/fix-2.1.3-sid-python.log` 与 `fix-2.1.3-sid-node.log`。这些专项不替换真实受限 shell 或放宽生产 helper 的当前所有者检查。
+
 2.1.2 的历史回归在本机 Windows / Python 3.13.13 / Node 24.11.1 完整运行 **31/31 通过，0 失败、0 跳过，37.3497 秒**，包含真实预设挂载与环境检测沙箱专项。记录为 `project-review/logs/fix-2.1.2-dsh.log`；此计数不包含 2.1.3 新增的权限错误与工作区初始化用例。
 
 以下命令从完整源码仓库执行。功能安装包保留本说明作为验收依据，运行测试还需检出该版本源码及测试文件。

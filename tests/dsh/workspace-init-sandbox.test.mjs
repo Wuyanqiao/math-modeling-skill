@@ -83,7 +83,8 @@ if action in {'setup', 'project'}:
             raise OSError(result, 'Cannot construct isolated test ACL')
     finally:
         security.kernel.LocalFree(sd)
-print(json.dumps({'sddl': security.read(target), 'access': security.access(target), 'user': security.current_user_sid()}))
+sddl = security.read(target)
+print(json.dumps({'sddl': sddl, 'owner': namespace['owner_sid'](sddl), 'access': security.access(target), 'user': security.current_user_sid()}))
 `
     const result = spawnSync(python, ['-B', '-c', script, path.join(repo, 'scripts/prepare_dsh_windows_workspace.py'), base, parent, action, target, String(process.pid), JSON.stringify(previous)], {
       encoding: 'utf8', windowsHide: true, timeout: 15000,
@@ -101,12 +102,12 @@ print(json.dumps({'sddl': security.read(target), 'access': security.access(targe
   // runner's default owner can be Administrators rather than its account SID.
   fixtureSecurity('project', deniedRoot)
   const original = fixtureSecurity('setup')
-  assert.ok(original.sddl.startsWith(`O:${original.user}`), JSON.stringify(original))
+  assert.equal(original.owner, original.user, JSON.stringify(original))
   assert.match(original.sddl, /D:P/, JSON.stringify(original))
   assert.equal(original.access.WRITE_DAC.granted, true, JSON.stringify(original))
   assert.equal(original.access.WRITE_OWNER.granted, false, JSON.stringify(original))
   const unprepared = fixtureSecurity('read', deniedRoot)
-  assert.ok(unprepared.sddl.startsWith(`O:${unprepared.user}`), JSON.stringify(unprepared))
+  assert.equal(unprepared.owner, unprepared.user, JSON.stringify(unprepared))
   assert.equal(unprepared.access.WRITE_DAC.granted, true, JSON.stringify(unprepared))
   assert.equal(unprepared.access.WRITE_OWNER.granted, false, JSON.stringify(unprepared))
   const acl = () => fixtureSecurity('read').sddl

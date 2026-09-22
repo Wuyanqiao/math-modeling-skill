@@ -1,0 +1,10 @@
+✔ official Windows sandbox: prepared parent enables fresh workspace auto-init and stable project identity (11611.4644ms)
+ℹ Actual official Windows restricted-token shell, sandbox policy, filesystem and session projection; actual RuntimeBridge.ensureProject and shared Python CLI. Explicit permission preparation only in owned temporary fixtures; first access denied before preparation, two fresh sibling projects initialized and reopened. Preset inventory/settings are fixtures; execution observation delegates to the real sandbox unchanged; no model request, solver or personal profile change.
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11788.7023

@@ -1,0 +1,20 @@
+test_all_write_owner_deny_spellings_detected (test_windows_workspace_prepare.AceTests.test_all_write_owner_deny_spellings_detected) ... ok
+test_allow_preserves_explicit_deny_precedence (test_windows_workspace_prepare.AceTests.test_allow_preserves_explicit_deny_precedence) ... ok
+test_exact_rule_excludes_recursive_or_file_inheritance (test_windows_workspace_prepare.AceTests.test_exact_rule_excludes_recursive_or_file_inheritance) ... ok
+test_rejects_noncanonical_or_conditional_acl (test_windows_workspace_prepare.AceTests.test_rejects_noncanonical_or_conditional_acl) ... ok
+test_rollback_ambiguous_duplicate_refused (test_windows_workspace_prepare.AceTests.test_rollback_ambiguous_duplicate_refused) ... ok
+test_rollback_removes_only_recorded_permission (test_windows_workspace_prepare.AceTests.test_rollback_removes_only_recorded_permission) ... ok
+test_backup_required_before_any_change (test_windows_workspace_prepare.WindowsPreparationTests.test_backup_required_before_any_change) ... ok
+test_direct_junction_refused_before_backup_or_mutation (test_windows_workspace_prepare.WindowsPreparationTests.test_direct_junction_refused_before_backup_or_mutation) ... ok
+test_existing_write_owner_deny_is_not_overridden (test_windows_workspace_prepare.WindowsPreparationTests.test_existing_write_owner_deny_is_not_overridden) ... ok
+test_readonly_apply_idempotent_and_precise_rollback (test_windows_workspace_prepare.WindowsPreparationTests.test_readonly_apply_idempotent_and_precise_rollback) ... ok
+test_rollback_ignores_unrelated_later_junction (test_windows_workspace_prepare.WindowsPreparationTests.test_rollback_ignores_unrelated_later_junction) ... ok
+test_root_and_escaping_rollback_refused (test_windows_workspace_prepare.WindowsPreparationTests.test_root_and_escaping_rollback_refused) ... ok
+test_aliases_resolve_to_actual_sid_without_assuming_current_user (test_windows_workspace_prepare.WindowsSidTests.test_aliases_resolve_to_actual_sid_without_assuming_current_user) ... ok
+test_owner_alias_used_by_validation_snapshot_and_prewrite_check (test_windows_workspace_prepare.WindowsSidTests.test_owner_alias_used_by_validation_snapshot_and_prewrite_check) ... ok
+test_rollback_matches_alias_trustees_without_rewriting_other_aces (test_windows_workspace_prepare.WindowsSidTests.test_rollback_matches_alias_trustees_without_rewriting_other_aces) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.587s
+
+OK

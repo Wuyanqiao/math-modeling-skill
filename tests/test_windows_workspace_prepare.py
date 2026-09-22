@@ -108,6 +108,59 @@ class AceTests(unittest.TestCase):
         self.assertFalse(prep.denies_write_owner("D:(D;CI;DT;;;WD)"))
 
 
+@unittest.skipUnless(os.name == "nt", "Windows SID alias resolution")
+class WindowsSidTests(unittest.TestCase):
+    def test_aliases_resolve_to_actual_sid_without_assuming_current_user(self):
+        for alias, numeric in {"SY": "S-1-5-18", "BA": "S-1-5-32-544", "CO": "S-1-3-0"}.items():
+            with self.subTest(alias=alias):
+                self.assertEqual(prep.canonical_sid(alias), numeric)
+                self.assertEqual(prep.canonical_sid(numeric), numeric)
+                self.assertEqual(prep.owner_sid(f"O:{alias}G:BAD:(A;;FA;;;SY)"), numeric)
+        administrator = prep.canonical_sid("LA")
+        self.assertRegex(administrator, r"^S-1-5-21-\d+-\d+-\d+-500$")
+        self.assertEqual(prep.owner_sid("O:LAG:BAD:(A;;FA;;;LA)"), administrator)
+
+    def test_owner_alias_used_by_validation_snapshot_and_prewrite_check(self):
+        descriptor = "O:SYG:BAD:(A;OICI;0x1301bf;;;SY)"
+
+        class DescriptorFixture:
+            def current_user_sid(self):
+                return "S-1-5-18"
+
+            def read(self, _path):
+                return descriptor
+
+            def access(self, _path):
+                return {"WRITE_DAC": {"granted": True}, "WRITE_OWNER": {"granted": False}}
+
+        with tempfile.TemporaryDirectory(prefix="mathmodel-sid-test-") as directory:
+            root = Path(directory).resolve()
+            child = root / "project"
+            child.mkdir()
+            security = DescriptorFixture()
+            self.assertEqual(prep.validate_parent(str(root), security), (root, descriptor))
+            entries, skipped = prep.snapshot_directories(root, security)
+            self.assertEqual(skipped, [])
+            self.assertEqual([entry["owner"] for entry in entries], ["S-1-5-18"] * 2)
+            self.assertTrue(all(entry["sddl"] == descriptor for entry in entries))
+            prep.verify_target(root, root, descriptor, security)
+            prep.verify_target(root, child, descriptor, security)
+
+    def test_rollback_matches_alias_trustees_without_rewriting_other_aces(self):
+        for alias in ("SY", "BA", "LA"):
+            with self.subTest(alias=alias):
+                numeric = prep.canonical_sid(alias)
+                recorded = f"(A;;WO;;;{numeric})"
+                actual = f"(A;;WO;;;{alias})"
+                original = f"O:{alias}D:{actual}(A;;FR;;;BU)S:(ML;;NW;;;LW)"
+                self.assertEqual(prep.ace_key(actual), prep.ace_key(recorded))
+                revised, removed = prep.remove_recorded_ace(original, recorded)
+                self.assertTrue(removed)
+                self.assertEqual(revised, original.replace(actual, ""))
+                with self.assertRaises(ValueError):
+                    prep.remove_recorded_ace("D:" + actual + recorded, recorded)
+
+
 @unittest.skipUnless(os.name == "nt", "Windows security descriptor integration")
 class WindowsPreparationTests(unittest.TestCase):
     def setUp(self):
@@ -128,7 +181,7 @@ class WindowsPreparationTests(unittest.TestCase):
         self.fixture_security(self.root, f"O:{self.sid}D:P(A;OICI;0x1301bf;;;{self.sid})(A;OICI;FA;;;SY)", 0x80000005)
         for target in (self.root, self.project):
             diagnostic = self.permission_diagnostic(target)
-            self.assertTrue(self.security.read(target).startswith(f"O:{self.sid}"), diagnostic)
+            self.assertEqual(prep.owner_sid(self.security.read(target)), self.sid, diagnostic)
             self.assertTrue(self.security.access(target)["WRITE_DAC"]["granted"], diagnostic)
             self.assertFalse(self.security.access(target)["WRITE_OWNER"]["granted"], diagnostic)
         self.assertIn("D:P", self.security.read(self.root), self.permission_diagnostic(self.root))

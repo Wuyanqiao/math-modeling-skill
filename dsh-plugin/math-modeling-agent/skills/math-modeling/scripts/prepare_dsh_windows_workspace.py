@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 import datetime as dt
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -17,6 +18,37 @@ import re
 import sys
 
 CREATOR_OWNER_ACE = "(A;CINPIO;WO;;;CO)"
+
+
+@lru_cache(maxsize=256)
+def canonical_sid(value: str) -> str:
+    """Compare Windows SDDL aliases by SID without rewriting saved descriptors."""
+    if os.name != "nt":
+        return "S-1-3-0" if value == "CO" else value
+    from ctypes import wintypes as w
+    api = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    pointer = ctypes.c_void_p
+    api.ConvertStringSidToSidW.argtypes = [w.LPCWSTR, ctypes.POINTER(pointer)]
+    api.ConvertSidToStringSidW.argtypes = [pointer, ctypes.POINTER(pointer)]
+    kernel.LocalFree.argtypes = [pointer]
+    sid, string = pointer(), pointer()
+    try:
+        if not api.ConvertStringSidToSidW(value, ctypes.byref(sid)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not api.ConvertSidToStringSidW(sid, ctypes.byref(string)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return ctypes.wstring_at(string)
+    finally:
+        if string:
+            kernel.LocalFree(string)
+        if sid:
+            kernel.LocalFree(sid)
+
+
+def owner_sid(sddl: str) -> str | None:
+    owner = re.search(r"O:(.*?)(?=G:|D:|S:|$)", sddl)
+    return canonical_sid(owner.group(1)) if owner else None
 
 
 def dacl_parts(sddl: str) -> tuple[str, list[str], str]:
@@ -38,7 +70,7 @@ def ace_key(ace: str) -> tuple:
         raise ValueError("Unrecognized ACE syntax requires manual review")
     kind, flags, rights, object_type, inherited_type, trustee = parts
     rights = "WO" if rights.lower() in {"wo", "0x80000", "0x00080000"} else rights
-    trustee = "CO" if trustee == "S-1-3-0" else trustee
+    trustee = canonical_sid(trustee)
     return kind, frozenset(re.findall(r"..", flags)), rights, object_type, inherited_type, trustee
 
 
@@ -194,8 +226,7 @@ def verify_target(root: Path, path: Path, expected: str, security: WindowsSecuri
     current = security.read(path)
     if current != expected:
         raise RuntimeError(f"ACL changed before mutation: {path}; inspect backup before retrying")
-    owner = re.search(r"O:(.*?)(?=G:|D:|S:|$)", current)
-    if not owner or owner.group(1) != security.current_user_sid():
+    if owner_sid(current) != security.current_user_sid():
         raise ValueError("Directory ownership changed before mutation")
 
 
@@ -214,8 +245,7 @@ def validate_parent(raw: str, security: WindowsSecurity) -> tuple[Path, str]:
     if path in blocked or any(path == base or path.is_relative_to(base) for base in system_trees):
         raise ValueError("Drive roots, home roots and system directories are not workspace parents")
     sddl = security.read(path)
-    owner = re.search(r"O:(.*?)(?=G:|D:|S:|$)", sddl)
-    if not owner or owner.group(1) != security.current_user_sid():
+    if owner_sid(sddl) != security.current_user_sid():
         raise ValueError("The current user must own workspace-parent")
     if not security.access(path)["WRITE_DAC"]["granted"]:
         raise ValueError("workspace-parent requires existing WRITE_DAC access")
@@ -233,8 +263,7 @@ def snapshot_directories(root: Path, security: WindowsSecurity) -> tuple[list[di
         if is_reparse(path) or (path != root and path.resolve().parent != root):
             raise ValueError(f"Reparse or escaping directory refused: {path}")
         sddl = security.read(path)
-        owner = re.search(r"O:(.*?)(?=G:|D:|S:|$)", sddl)
-        record = {"relative_path": "." if path == root else path.name, "owner": owner.group(1) if owner else None, "sddl": sddl, "access": security.access(path)}
+        record = {"relative_path": "." if path == root else path.name, "owner": owner_sid(sddl), "sddl": sddl, "access": security.access(path)}
         entries.append(record)
         control = re.search(r"D:([A-Z]*)", sddl)
         if path != root and control and "P" in control.group(1):
