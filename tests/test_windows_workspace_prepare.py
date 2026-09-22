@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import importlib.util
 import json
 import os
@@ -13,6 +14,61 @@ import unittest
 SPEC = importlib.util.spec_from_file_location("workspace_prepare", Path(__file__).resolve().parents[1] / "scripts" / "prepare_dsh_windows_workspace.py")
 prep = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(prep)
+
+
+def fixture_token_privileges(process_id=None, restore=None):
+    """Remove ownership bypasses from this test process, saving their state."""
+    from ctypes import wintypes as w
+    if process_id is not None and process_id != os.getppid():
+        raise ValueError("Only this fixture's direct parent process may be adjusted")
+
+    class Luid(ctypes.Structure):
+        _fields_ = [("low", w.DWORD), ("high", w.LONG)]
+
+    class Privilege(ctypes.Structure):
+        _fields_ = [("luid", Luid), ("attributes", w.DWORD)]
+
+    class TokenPrivileges(ctypes.Structure):
+        _fields_ = [("count", w.DWORD), ("privilege", Privilege)]
+
+    api = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.GetCurrentProcess.restype = w.HANDLE
+    kernel.OpenProcess.argtypes = [w.DWORD, w.BOOL, w.DWORD]
+    kernel.OpenProcess.restype = w.HANDLE
+    kernel.CloseHandle.argtypes = [w.HANDLE]
+    api.OpenProcessToken.argtypes = [w.HANDLE, w.DWORD, ctypes.POINTER(w.HANDLE)]
+    api.LookupPrivilegeValueW.argtypes = [w.LPCWSTR, w.LPCWSTR, ctypes.POINTER(Luid)]
+    api.AdjustTokenPrivileges.argtypes = [w.HANDLE, w.BOOL, ctypes.POINTER(TokenPrivileges), w.DWORD, ctypes.POINTER(TokenPrivileges), ctypes.POINTER(w.DWORD)]
+    process = kernel.OpenProcess(0x1000, False, process_id) if process_id else kernel.GetCurrentProcess()
+    token = w.HANDLE()
+    if not process:
+        raise ctypes.WinError(ctypes.get_last_error())
+    previous = []
+    try:
+        if not api.OpenProcessToken(process, 0x28, ctypes.byref(token)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        changes = restore if restore is not None else [{"name": name, "attributes": 0} for name in ("SeTakeOwnershipPrivilege", "SeRestorePrivilege")]
+        for change in changes:
+            state, old, size = TokenPrivileges(), TokenPrivileges(), w.DWORD()
+            state.count = 1
+            state.privilege.attributes = change["attributes"]
+            if not api.LookupPrivilegeValueW(None, change["name"], ctypes.byref(state.privilege.luid)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            ctypes.set_last_error(0)
+            if not api.AdjustTokenPrivileges(token, False, ctypes.byref(state), ctypes.sizeof(old), ctypes.byref(old), ctypes.byref(size)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            error = ctypes.get_last_error()
+            if error not in (0, 1300):  # A standard user may not possess either privilege.
+                raise ctypes.WinError(error)
+            if old.count:
+                previous.append({"name": change["name"], "attributes": old.privilege.attributes})
+    finally:
+        if token:
+            kernel.CloseHandle(token)
+        if process_id:
+            kernel.CloseHandle(process)
+    return previous
 
 
 class AceTests(unittest.TestCase):
@@ -55,23 +111,65 @@ class AceTests(unittest.TestCase):
 @unittest.skipUnless(os.name == "nt", "Windows security descriptor integration")
 class WindowsPreparationTests(unittest.TestCase):
     def setUp(self):
+        privileges = fixture_token_privileges()
+        self.addCleanup(lambda: fixture_token_privileges(restore=privileges))
         self.temp = tempfile.TemporaryDirectory(prefix="mathmodel-acl-test-")
         self.base = Path(self.temp.name).resolve()
+        self.addCleanup(self.cleanup_fixture)
         self.root = self.base / "workspaces"
         self.root.mkdir()
         self.security = prep.WindowsSecurity()
         self.sid = self.security.current_user_sid()
-        self.security.set_dacl(self.root, f"O:{self.sid}D:P(A;OICI;0x1301bf;;;{self.sid})(A;OICI;FA;;;SY)")
         self.project = self.root / "old-project"
         self.project.mkdir()
+        # An elevated runner can default to Administrators as the owner. Set
+        # the child's owner while the fixture still has its original access.
+        self.fixture_security(self.project, f"O:{self.sid}D:(A;OICI;0x1301bf;;;{self.sid})(A;OICI;FA;;;SY)", 0x20000005)
+        self.fixture_security(self.root, f"O:{self.sid}D:P(A;OICI;0x1301bf;;;{self.sid})(A;OICI;FA;;;SY)", 0x80000005)
+        for target in (self.root, self.project):
+            diagnostic = self.permission_diagnostic(target)
+            self.assertTrue(self.security.read(target).startswith(f"O:{self.sid}"), diagnostic)
+            self.assertTrue(self.security.access(target)["WRITE_DAC"]["granted"], diagnostic)
+            self.assertFalse(self.security.access(target)["WRITE_OWNER"]["granted"], diagnostic)
+        self.assertIn("D:P", self.security.read(self.root), self.permission_diagnostic(self.root))
         self.deep = self.project / "deep"
         self.deep.mkdir()
         self.data = self.deep / "input.txt"
         self.data.write_text("fixture", encoding="utf-8")
         self.backup = self.base / "before.json"
 
-    def tearDown(self):
+    def cleanup_fixture(self):
+        self.assertEqual(self.base.parent, Path(tempfile.gettempdir()).resolve())
+        self.assertTrue(self.base.name.startswith("mathmodel-acl-test-"))
         self.temp.cleanup()
+
+    def permission_diagnostic(self, target):
+        return json.dumps({"path": str(target), "sddl": self.security.read(target), "access": self.security.access(target)})
+
+    def fixture_security(self, target, sddl, information):
+        self.assertEqual(self.base.parent, Path(tempfile.gettempdir()).resolve())
+        self.assertTrue(self.base.name.startswith("mathmodel-acl-test-"))
+        self.assertTrue(target.resolve().is_relative_to(self.base))
+        for part in (target, *target.parents):
+            self.assertFalse(prep.is_reparse(part), str(part))
+            if part == self.base:
+                break
+        security = self.security
+        sd, owner, acl = ctypes.c_void_p(), ctypes.c_void_p(), ctypes.c_void_p()
+        present, defaulted = security.w.BOOL(), security.w.BOOL()
+        if not security.api.ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl, 1, ctypes.byref(sd), None):
+            raise ctypes.WinError(ctypes.get_last_error())
+        try:
+            security.api.GetSecurityDescriptorOwner.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(security.w.BOOL)]
+            if not security.api.GetSecurityDescriptorOwner(sd, ctypes.byref(owner), ctypes.byref(defaulted)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            if information & 4 and not security.api.GetSecurityDescriptorDacl(sd, ctypes.byref(present), ctypes.byref(acl), ctypes.byref(defaulted)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            result = security.api.SetNamedSecurityInfoW(str(target), 1, information, owner, None, acl, None)
+            if result:
+                raise OSError(result, "Cannot construct isolated test ACL")
+        finally:
+            security.kernel.LocalFree(sd)
 
     def args(self, **kwargs):
         return argparse.Namespace(workspace_parent=str(self.root), apply=False, backup=None, rollback=None, **kwargs)

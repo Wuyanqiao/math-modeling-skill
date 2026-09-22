@@ -25,24 +25,48 @@ test('official Windows sandbox: prepared parent enables fresh workspace auto-ini
   const parent = path.join(base, 'workspace parent')
   await fs.mkdir(parent)
   const ctx = new Context()
+  let restorePrivileges = () => {}
   t.after(async () => {
-    await ctx.fiber.dispose()
-    assert.equal(path.dirname(path.resolve(base)), path.resolve(os.tmpdir()))
-    assert.ok(path.basename(base).startsWith('mathmodel-workspace-init-'))
-    await fs.rm(base, { recursive: true, force: true })
+    try {
+      await ctx.fiber.dispose()
+    } finally {
+      try {
+        assert.equal(path.dirname(path.resolve(base)), path.resolve(os.tmpdir()))
+        assert.ok(path.basename(base).startsWith('mathmodel-workspace-init-'))
+        await fs.rm(base, { recursive: true, force: true })
+      } finally {
+        restorePrivileges()
+      }
+    }
   })
-  const fixtureSecurity = (action, target = parent) => {
+  const fixtureSecurity = (action, target = parent, previous = null) => {
     const script = `
 import ctypes, json, pathlib, runpy, sys, tempfile
 helper, base, root = (pathlib.Path(value).resolve() for value in sys.argv[1:4])
 assert base.parent == pathlib.Path(tempfile.gettempdir()).resolve()
 assert base.name.startswith('mathmodel-workspace-init-') and root == base / 'workspace parent'
-target = pathlib.Path(sys.argv[5]).resolve()
+action = sys.argv[4]
+if action in {'privileges-disable', 'privileges-restore'}:
+    fixture = runpy.run_path(str(helper.parent.parent / 'tests/test_windows_workspace_prepare.py'))
+    previous = json.loads(sys.argv[7]) if action == 'privileges-restore' else None
+    saved = fixture['fixture_token_privileges'](int(sys.argv[6]), restore=previous)
+    print(json.dumps(saved))
+    raise SystemExit(0)
+raw_target = pathlib.Path(sys.argv[5])
+target = raw_target.resolve()
 assert target == root or target.is_relative_to(root)
-security = runpy.run_path(str(helper))['WindowsSecurity']()
-if sys.argv[4] == 'setup':
+namespace = runpy.run_path(str(helper))
+for part in (raw_target, *raw_target.parents):
+    assert not namespace['is_reparse'](part), str(part)
+    if part == base:
+        break
+security = namespace['WindowsSecurity']()
+if action in {'setup', 'project'}:
+    assert target == root or target.parent == root
+    assert action != 'setup' or target == root
     user = security.current_user_sid()
-    sddl = 'O:' + user + 'D:P(A;OICI;0x1301bf;;;' + user + ')(A;OICI;FA;;;SY)'
+    sddl = 'O:' + user + ('D:P' if action == 'setup' else 'D:')
+    sddl += '(A;OICI;0x1301bf;;;' + user + ')(A;OICI;FA;;;SY)'
     sd, acl, owner = ctypes.c_void_p(), ctypes.c_void_p(), ctypes.c_void_p()
     present, defaulted = security.w.BOOL(), security.w.BOOL()
     if not security.api.ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl, 1, ctypes.byref(sd), None):
@@ -53,14 +77,15 @@ if sys.argv[4] == 'setup':
             raise ctypes.WinError(ctypes.get_last_error())
         if not security.api.GetSecurityDescriptorDacl(sd, ctypes.byref(present), ctypes.byref(acl), ctypes.byref(defaulted)):
             raise ctypes.WinError(ctypes.get_last_error())
-        result = security.api.SetNamedSecurityInfoW(str(root), 1, 1 | 4 | 0x80000000, owner, None, acl, None)
+        information = 0x80000005 if action == 'setup' else 0x20000005
+        result = security.api.SetNamedSecurityInfoW(str(target), 1, information, owner, None, acl, None)
         if result:
             raise OSError(result, 'Cannot construct isolated test ACL')
     finally:
         security.kernel.LocalFree(sd)
-print(json.dumps({'sddl': security.read(target), 'access': security.access(target)}))
+print(json.dumps({'sddl': security.read(target), 'access': security.access(target), 'user': security.current_user_sid()}))
 `
-    const result = spawnSync(python, ['-B', '-c', script, path.join(repo, 'scripts/prepare_dsh_windows_workspace.py'), base, parent, action, target], {
+    const result = spawnSync(python, ['-B', '-c', script, path.join(repo, 'scripts/prepare_dsh_windows_workspace.py'), base, parent, action, target, String(process.pid), JSON.stringify(previous)], {
       encoding: 'utf8', windowsHide: true, timeout: 15000,
     })
     assert.equal(result.status, 0, result.stderr || result.error?.message)
@@ -68,9 +93,22 @@ print(json.dumps({'sddl': security.read(target), 'access': security.access(targe
   }
   // Fixture-only ACL: owner may change the DACL, but neither their account nor an
   // enabled Administrators group receives WRITE_OWNER. No real workspace is used.
+  const privileges = fixtureSecurity('privileges-disable')
+  restorePrivileges = () => fixtureSecurity('privileges-restore', parent, privileges)
+  const deniedRoot = path.join(parent, 'unprepared')
+  await fs.mkdir(deniedRoot)
+  // Set the existing child's owner before restricting the parent; an elevated
+  // runner's default owner can be Administrators rather than its account SID.
+  fixtureSecurity('project', deniedRoot)
   const original = fixtureSecurity('setup')
-  assert.equal(original.access.WRITE_DAC.granted, true)
-  assert.equal(original.access.WRITE_OWNER.granted, false)
+  assert.ok(original.sddl.startsWith(`O:${original.user}`), JSON.stringify(original))
+  assert.match(original.sddl, /D:P/, JSON.stringify(original))
+  assert.equal(original.access.WRITE_DAC.granted, true, JSON.stringify(original))
+  assert.equal(original.access.WRITE_OWNER.granted, false, JSON.stringify(original))
+  const unprepared = fixtureSecurity('read', deniedRoot)
+  assert.ok(unprepared.sddl.startsWith(`O:${unprepared.user}`), JSON.stringify(unprepared))
+  assert.equal(unprepared.access.WRITE_DAC.granted, true, JSON.stringify(unprepared))
+  assert.equal(unprepared.access.WRITE_OWNER.granted, false, JSON.stringify(unprepared))
   const acl = () => fixtureSecurity('read').sddl
   const prepare = args => {
     const result = spawnSync(python, ['-B', path.join(repo, 'scripts/prepare_dsh_windows_workspace.py'), '--workspace-parent', parent, ...args], {
@@ -122,8 +160,6 @@ print(json.dumps({'sddl': security.read(target), 'access': security.access(targe
     settings.bindings[id] = { cwd, projectRoot: cwd, skillRoot: repo }
     return session
   }
-  const deniedRoot = path.join(parent, 'unprepared')
-  await fs.mkdir(deniedRoot)
   const existingDeep = path.join(deniedRoot, 'existing nested directory')
   const existingFile = path.join(existingDeep, 'original.txt')
   await fs.mkdir(existingDeep)
@@ -158,7 +194,8 @@ print(json.dumps({'sddl': security.read(target), 'access': security.access(targe
     assert.deepEqual(await fs.readdir(cwd), [], 'a fresh inherited directory has no model project files')
     const nested = path.join(cwd, 'unsupported nested workspace')
     await fs.mkdir(nested)
-    assert.equal(fixtureSecurity('read', nested).access.WRITE_OWNER.granted, false, 'the parent preparation rule must stop after one directory level')
+    const nestedPermissions = fixtureSecurity('read', nested)
+    assert.equal(nestedPermissions.access.WRITE_OWNER.granted, false, `the parent preparation rule must stop after one directory level: ${JSON.stringify(nestedPermissions)}`)
     const session = sessionAt(name, cwd)
     const context = await bridge.presentationContext(session.id)
     assert.equal(context.eligible, true)
