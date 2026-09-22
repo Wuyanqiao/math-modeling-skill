@@ -93,6 +93,50 @@ test('custom project remains bound across tools and sessions remain isolated', a
   assert.equal((await reloaded.request('state')).project.projectRoot, h.custom)
 })
 
+test('start RPC routes the sidebar project to the official session service without changing real CLI state', async t => {
+  const h = await harness(t, { real: true })
+  const projectRoot = await fs.realpath(h.custom)
+  await h.init({ projectRoot, scope: 'paper' })
+  const events = [], submitted = []
+  const session = h.sessions.get('a')
+  session.snapshotEvents = () => events
+  const agent = { session, status: 'idle', inbox: { nextTurn: [], nextStep: [] },
+    ctx: { get: key => key === 'mathModelWorkbench' ? { version: 2 } : undefined },
+    runMaintenance: task => task(new AbortController().signal) }
+  h.services.agents.get = id => id === 'a' ? agent : undefined
+  h.services.sessionController = {
+    resolveAgent: async id => { assert.equal(id, 'a'); return { agent } },
+    prompt: async (request, signal) => {
+      signal.throwIfAborted(); submitted.push(request)
+      events.push({ type: 'user/message', data: { content: request.content, source: { kind: 'user', rpcId: request.requestId } } })
+      return { accepted: true }
+    },
+  }
+  h.select('b')
+  const rpc = h.ui()
+  const options = await rpc('mm.startOptions', { sessionId: 'a' })
+  assert.equal(options.ok, true, JSON.stringify(options))
+  assert.equal(options.value.projectRoot, projectRoot)
+  assert.deepEqual(options.value.phases.map(item => item.id), ['paper'])
+  const statePath = path.join(h.custom, '.math-modeling/state.json')
+  const original = await fs.readFile(statePath)
+  const request = { sessionId: 'a', projectRoot: options.value.projectRoot, projectId: options.value.projectId,
+    revision: options.value.revision, mode: 'task', phase: 'paper', taskId: options.value.phases[0].tasks[0].id,
+    requestId: '07b5e93e-7611-4a87-945d-bcc6d97b960d' }
+  const accepted = await rpc('mm.startRun', request)
+  assert.equal(accepted.ok, true, JSON.stringify(accepted))
+  assert.equal(accepted.value.accepted, true)
+  assert.equal((await rpc('mm.startRun', request)).value.duplicate, true)
+  assert.equal(submitted.length, 1)
+  assert.equal(submitted[0].sessionId, 'a')
+  assert.equal(submitted[0].mode, 'queue')
+  assert.match(submitted[0].content[0].text, /本次只执行 paper/)
+  assert.deepEqual(await fs.readFile(statePath), original, 'submission never reinitializes or alters runtime state')
+  const invalid = await rpc('mm.startRun', { ...request, mode: 'stage', phase: 'programming', taskId: undefined })
+  assert.equal(invalid.ok, false)
+  assert.equal(invalid.error.code, 'request-conflict')
+})
+
 test('payload encoding preserves Unicode, quotes and shell metacharacters without interpolation', async t => {
   const h = await harness(t, { skillName: "skill ' 中文 $(echo path-injected) &;" })
   const title = '中文 \' " ` $(throw "BAD") $(echo INJECTED > payload-injected.txt) ; & test'

@@ -2,9 +2,9 @@
 
 **通用数学建模 Skill，共享证据与执行内核，DeepSeek Harness 桌面适配。**
 
-由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.3**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+由 [Wuyanqiao/math-modeling-skill](https://github.com/Wuyanqiao/math-modeling-skill) 维护，基于 [XiaoMaColtAI/math-modeling-skill](https://github.com/XiaoMaColtAI/math-modeling-skill) 的三阶段知识与工具升级。当前本地开发版本 **2.1.4**；来源与授权状态见 [第三方说明](THIRD_PARTY_NOTICES.md)。
 
-2.1.3 保留工作区初始化失败的真实错误与重试入口，并提供默认只读、显式应用的 [Windows 工作区权限准备](dsh-plugin/README.md#windows-工作区权限准备)，补齐新目录自动初始化的沙箱回归。此前预设服务隔离与环境检测修复继续保留。从 2.1.0 升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)；验证边界见 [宿主兼容测试](tests/dsh/README.md)。
+2.1.4 在 DSH 看板右上角增加“开始”，可选择完整流程、单个阶段或阶段内单项，确认后交给看板所属会话的 Agent 执行。沿用已保存的项目范围、配置、材料和审核要求，不重置进度。保留初始化、预设服务隔离与环境检测修复；[Windows 工作区权限准备](dsh-plugin/README.md#windows-工作区权限准备)仍默认只读。从 2.1.0 升级时还需检查 profile 中的旧预设覆盖，步骤见 [DSH 安装说明](dsh-plugin/README.md#从-210-升级)；验证边界见 [宿主兼容测试](tests/dsh/README.md)。
 
 ## 2.1 工作台
 

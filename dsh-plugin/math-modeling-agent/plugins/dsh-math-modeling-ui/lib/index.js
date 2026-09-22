@@ -1,10 +1,12 @@
 import { RuntimeBridge, createSettings } from './bridge.js'
+import { TaskStartService } from './task-start.js'
 export { Config } from './settings-schema.js'
 
 export const name = 'dsh-math-modeling-ui'
 export const inject = ['connection', 'settings', 'fs', 'shell', 'sessions']
 export const MM_RPC_CHANNEL = '/math-modeling-ui'
 export const MM_ENDPOINTS = Object.freeze({ state: 'mm.state', context: 'mm.context', ensureProject: 'mm.ensureProject', configure: 'mm.configure', environment: 'mm.environment', inputs: 'mm.inputs', inputRead: 'mm.inputRead',
+  startOptions: 'mm.startOptions', startRun: 'mm.startRun',
   importBegin: 'mm.importBegin', importChunk: 'mm.importChunk', importCommit: 'mm.importCommit', importCancel: 'mm.importCancel',
   setEnabled: 'mm.setEnabled', getEnabled: 'mm.getEnabled', artifact: 'mm.artifact', runLog: 'mm.runLog', checkpointCreate: 'mm.checkpointCreate', checkpointRestore: 'mm.checkpointRestore' })
 const ok = value => ({ ok: true, value })
@@ -14,6 +16,7 @@ export function apply(ctx) {
   if (!ctx.connection?.rpc?.handle || !ctx.get('fs')) return () => {}
   const bridge = new RuntimeBridge(ctx)
   const settings = createSettings(ctx)
+  const taskStart = new TaskStartService(ctx, bridge)
 
   async function state(payload, signal) {
     if (!(await settings.read()).enabled) return ok({ hidden: true })
@@ -34,6 +37,8 @@ export function apply(ctx) {
   return ctx.connection.rpc.handle(MM_RPC_CHANNEL, async (endpoint, payload = {}, signal) => {
     try {
       if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return fail('请求必须为对象')
+      if (endpoint === MM_ENDPOINTS.startOptions) return ok(await taskStart.options(payload.sessionId, { signal }))
+      if (endpoint === MM_ENDPOINTS.startRun) return ok(await taskStart.start(payload, { signal }))
       if (endpoint === MM_ENDPOINTS.context) return ok(await bridge.presentationContext(payload.sessionId))
       if (endpoint === MM_ENDPOINTS.ensureProject) {
         if (!payload.sessionId) return fail('初始化需要当前会话')

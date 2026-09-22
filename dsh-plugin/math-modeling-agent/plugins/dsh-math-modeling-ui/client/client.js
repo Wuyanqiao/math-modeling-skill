@@ -21,7 +21,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
 .mmwb svg{flex:none}
 .mmwb p{margin:6px 0}
 .mmwb h2,.mmwb h3{font:inherit;margin:0}
-.mmwb-panel{width:100%;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.mmwb-panel{width:100%;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;container-type:inline-size}
 .mmwb-head{padding:22px 20px 14px;flex:none}
 .mmwb-heading{flex:1;min-width:0}
 .mmwb h2{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -126,6 +126,17 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
 .mmwb-env-status[data-status=missing],.mmwb-env-status[data-status=error]{color:var(--bad)}
 .mmwb-env-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .mmwb-env-actions .mmwb-btn{font-size:11px;padding:3px 9px;min-height:28px}
+.mmwb-start{position:relative;flex:none}
+.mmwb-start-trigger{min-height:28px;padding:3px 11px;gap:5px;font-size:12px!important}
+.mmwb-start-popover{position:absolute;z-index:5;right:0;top:calc(100% + 10px);width:336px;max-width:calc(100cqw - 68px);max-height:min(560px,70vh);overflow:auto;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--paper);box-shadow:var(--dsw-elevation-medium,0 8px 30px #1018281a)}
+.mmwb-start-popover h3{font-weight:600;font-size:14px}
+.mmwb-start-context{margin:10px 0 14px;overflow-wrap:anywhere;font-size:12px}
+.mmwb-start-context strong{font-weight:500;display:block;margin-bottom:3px}
+.mmwb-start-context details{color:var(--muted);font-size:11px}
+.mmwb-start-context details>summary{padding:2px 0!important}
+.mmwb-start-popover .mmwb-form{gap:11px}
+.mmwb-start-popover .mmwb-actions{justify-content:flex-end;flex-wrap:wrap}
+.mmwb-start-summary{margin-top:14px!important;padding:10px 12px;border-radius:10px;background:var(--code);font-size:12px;overflow-wrap:anywhere}
 @media(max-width:400px){.mmwb-tab{padding:0 4px;font-size:12px!important}.mmwb-head{padding:18px 16px 12px}}
 @keyframes mmwb-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.mmwb-spinner{animation:none}}
@@ -144,6 +155,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
         eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12 M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
         restore: 'M3 4v6h6 M3 10a9 9 0 1 1 1 8 M12 7v5l3 2',
         upload: 'M12 16V3 m-5 5 5-5 5 5 M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5',
+        play: 'm8 5 11 7-11 7z',
       }
       return h('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className }, h('path', { d: paths[name] || paths.board }))
     }
@@ -216,6 +228,112 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
     const bytesLabel = value => value >= 1048576 ? `${(value / 1048576).toFixed(1)} MB` : `${Math.ceil((value || 0) / 1024)} KB`
     const rpcValue = result => { if (!result.ok) throw Object.assign(new Error(result.error?.message || '操作失败'), { code: result.error?.code }); return result.value }
     function Field({ label, children }) { return h('label', { className: 'mmwb-field' }, h('span', null, label), children) }
+    function StartControl({ sid, data, rpc, disabled }) {
+      const root = React.useRef(null)
+      const trigger = React.useRef(null)
+      const form = React.useRef(null)
+      const sequence = React.useRef(0)
+      const pending = React.useRef(false)
+      const requestId = React.useRef(null)
+      const submittedIntent = React.useRef(null)
+      const id = React.useId()
+      const [open, setOpen] = React.useState(false)
+      const [loading, setLoading] = React.useState(false)
+      const [submitting, setSubmitting] = React.useState(false)
+      const [options, setOptions] = React.useState(null)
+      const [mode, setMode] = React.useState('full')
+      const [phase, setPhase] = React.useState('')
+      const [taskId, setTaskId] = React.useState('')
+      const [error, setError] = React.useState(null)
+      const [accepted, setAccepted] = React.useState(null)
+      const [invalid, setInvalid] = React.useState(false)
+      const [uncertain, setUncertain] = React.useState(false)
+      const newRequestId = () => {
+        if (crypto.randomUUID) return crypto.randomUUID()
+        const bytes = crypto.getRandomValues(new Uint8Array(16))
+        bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128
+        const hex = Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('')
+        return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+      }
+      React.useEffect(() => () => { sequence.current++ }, [])
+      React.useEffect(() => {
+        if (!open) return
+        const outside = event => { if (!pending.current && !root.current?.contains(event.target)) { sequence.current++; setOpen(false) } }
+        document.addEventListener('pointerdown', outside)
+        return () => document.removeEventListener('pointerdown', outside)
+      }, [open])
+      React.useEffect(() => { if (open && !loading) form.current?.querySelector('select,button')?.focus() }, [open, loading])
+      const phases = options?.phases || []
+      const selectedPhase = phases.find(item => item.id === phase)
+      const selectedTask = selectedPhase?.tasks?.find(item => item.id === taskId)
+      const stale = options && Number.isSafeInteger(data.revision) && data.revision > options.revision
+      const summary = mode === 'full' ? `${options?.scope === 'full' ? '完整流程' : '当前项目流程'} · ${phases.map(item => item.label).join(' → ')}` : mode === 'stage' ? `单个阶段 · ${selectedPhase?.label || '请选择阶段'}` : `阶段中的一项 · ${selectedPhase?.label || '请选择阶段'} / ${selectedTask?.label || '请选择任务'}`
+      const canSubmit = options?.available === true && !options.busy && !disabled && !loading && !submitting && !accepted && !invalid && (!stale || uncertain) &&
+        phases.length > 0 && (mode === 'full' || selectedPhase && (mode === 'stage' || selectedTask))
+      function close() { if (pending.current) return; sequence.current++; setOpen(false); trigger.current?.focus() }
+      function change(action) { action(); submittedIntent.current = null; requestId.current = newRequestId(); setError(null); setAccepted(null) }
+      async function readOptions() {
+        if (pending.current) return
+        if (uncertain) { setOpen(true); return }
+        const request = ++sequence.current
+        setOpen(true); setLoading(true); setOptions(null); setError(null); setAccepted(null); setInvalid(false)
+        try {
+          const value = rpcValue(await rpc('mm.startOptions', { sessionId: sid }))
+          if (sequence.current !== request) return
+          if (value.sessionId !== sid || value.projectId !== data.project?.project_id || value.projectRoot !== data.project?.projectRoot || !Number.isSafeInteger(value.revision) || !Array.isArray(value.phases)) throw new Error('项目已变化，请重新验证看板后打开开始选项。')
+          const next = value.phases.find(item => item.id === value.currentPhase) || value.phases[0]
+          setOptions(value); setMode('full'); setPhase(next?.id || ''); setTaskId(next?.tasks?.find(item => !item.done)?.id || next?.tasks?.[0]?.id || '')
+          submittedIntent.current = null
+          requestId.current = newRequestId()
+        } catch (error) { if (sequence.current === request) setError(String(error.message || error)) }
+        finally { if (sequence.current === request) setLoading(false) }
+      }
+      async function submit(event) {
+        event.preventDefault()
+        if (pending.current || !canSubmit) return
+        const request = ++sequence.current
+        pending.current = true; setSubmitting(true); setError(null)
+        const payload = submittedIntent.current || { sessionId: sid, projectId: options.projectId, projectRoot: options.projectRoot, revision: options.revision, mode, requestId: requestId.current,
+          ...(mode !== 'full' ? { phase } : {}), ...(mode === 'task' ? { taskId } : {}) }
+        submittedIntent.current = payload
+        try {
+          const value = rpcValue(await rpc('mm.startRun', payload))
+          if (sequence.current !== request) return
+          if (value.accepted !== true || value.sessionId !== sid || value.projectId !== options.projectId || value.requestId !== payload.requestId) throw new Error('未收到有效提交回执，请重试确认当前请求。')
+          setAccepted(summary); setUncertain(false)
+        } catch (error) {
+          if (sequence.current === request) {
+            setError(String(error.message || error))
+            const rejected = ['project-changed', 'stale-project', 'invalid-target', 'workbench-disabled', 'workbench-not-selected', 'project-not-initialized', 'request-conflict', 'session-busy', 'agent-unavailable', 'session/model-unavailable', 'session/not-found'].includes(error.code)
+            setInvalid(rejected); setUncertain(!rejected)
+            if (rejected) submittedIntent.current = null
+          }
+        } finally { if (sequence.current === request) { pending.current = false; setSubmitting(false) } }
+      }
+      return h('div', { ref: root, className: 'mmwb-start', onKeyDown: event => { if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); close() } } },
+        h('button', { ref: trigger, type: 'button', className: 'mmwb-btn mmwb-btn-primary mmwb-start-trigger', title: '开始 — 选择当前看板项目的执行范围', 'aria-expanded': open, 'aria-controls': id, 'aria-haspopup': 'dialog', disabled: disabled || submitting, onClick: () => open ? close() : readOptions() }, h(Icon, { name: 'play', size: 12 }), '开始'),
+        open ? h('section', { id, className: 'mmwb-start-popover mmwb-scroll', role: 'dialog', 'aria-modal': false, 'aria-label': '开始执行', 'aria-busy': loading || submitting },
+          h('h3', null, '开始执行'),
+          h('div', { className: 'mmwb-start-context' }, h('strong', null, data.project?.title || '当前看板项目'),
+            h('details', null, h('summary', null, '在此看板所属会话执行'), h('div', null, '会话：', sid), h('div', null, data.project?.projectRoot))),
+          h('form', { ref: form, onSubmit: submit },
+            loading ? h('p', { className: 'mmwb-muted', role: 'status' }, '正在读取可执行范围…') : null,
+            options ? h('div', { className: 'mmwb-form' },
+              h(Field, { label: '执行范围' }, h('select', { 'aria-label': '执行范围', value: mode, disabled: submitting || !!accepted || uncertain, onChange: event => change(() => setMode(event.target.value)) },
+                h('option', { value: 'full' }, options.scope === 'full' ? '完整流程' : '当前项目流程'), h('option', { value: 'stage' }, '单个阶段'), h('option', { value: 'task' }, '阶段中的一项'))),
+              mode !== 'full' ? h(Field, { label: '执行阶段' }, h('select', { 'aria-label': '执行阶段', value: phase, disabled: submitting || !!accepted || uncertain, onChange: event => change(() => { const next = phases.find(item => item.id === event.target.value); setPhase(next.id); setTaskId(next.tasks?.find(item => !item.done)?.id || next.tasks?.[0]?.id || '') }) }, phases.map(item => h('option', { key: item.id, value: item.id }, item.label)))) : null,
+              mode === 'task' ? h(Field, { label: '阶段任务' }, h('select', { 'aria-label': '阶段任务', value: taskId, disabled: submitting || !!accepted || uncertain || !selectedPhase?.tasks?.length, onChange: event => change(() => setTaskId(event.target.value)) },
+                !selectedPhase?.tasks?.length ? h('option', { value: '' }, '本阶段暂无任务') : selectedPhase.tasks.map(item => h('option', { key: item.id, value: item.id }, item.label + (item.done ? '（已完成，可重做）' : ''))))) : null) : null,
+            options ? h('p', { className: 'mmwb-start-summary', 'aria-live': 'polite' }, summary) : null,
+            options && (!options.available || options.busy) ? h('p', { className: 'mmwb-warning', role: 'status' }, options.reason || (options.busy ? '所属会话正在执行，请等待当前任务结束。' : '当前会话暂不可执行。')) : null,
+            stale && !accepted && !uncertain ? h('p', { className: 'mmwb-warning', role: 'status' }, '项目状态已变化，请更新选项后确认。') : null,
+            uncertain ? h('p', { className: 'mmwb-warning', role: 'status' }, '提交结果待确认；再次确认只核对同一请求。收起不会取消已提交的任务。') : null,
+            error ? h('p', { className: 'mmwb-error', role: 'alert' }, error) : null,
+            accepted ? h('p', { className: 'mmwb-success', role: 'status' }, `已提交：${accepted}。请在所属会话查看执行进度。`) : null,
+            h('div', { className: 'mmwb-actions' }, h('button', { type: 'button', className: 'mmwb-btn', disabled: submitting, onClick: close }, accepted || uncertain ? '收起' : '取消'),
+              !loading && !accepted && !uncertain && (!options || invalid || stale || options.busy || !options.available) ? h('button', { type: 'button', className: 'mmwb-btn', disabled: submitting, onClick: readOptions }, '更新选项') : null,
+              h('button', { type: 'submit', className: 'mmwb-btn mmwb-btn-primary', title: '确认开始 — 将所选范围提交至此看板所属会话', disabled: !canSubmit }, submitting ? '正在提交…' : '确认开始')))) : null)
+    }
     async function copyText(text) {
       if (navigator.clipboard?.writeText) {
         try { await navigator.clipboard.writeText(text); return } catch {}
@@ -487,9 +605,11 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       const previewSequence = React.useRef(0)
       const checkpointSequence = React.useRef(0)
       const projectIdentity = React.useRef(null)
+      const [operationGeneration, setOperationGeneration] = React.useState(0)
       const currentSession = React.useRef(sid)
       currentSession.current = sid
       const clearOperations = React.useCallback(() => {
+        setOperationGeneration(value => value + 1)
         previewSequence.current++; checkpointSequence.current++
         setPreview(null); setLogPreview(null); setRestorePreview(null)
         setCheckpointNotice(null); setCheckpointError(null); setCheckpointBusy(false); setBusy(false)
@@ -602,6 +722,7 @@ body[data-ds-dark-theme] .mmwb{--paper:var(--dsw-alias-bg-layer-1,#1b1b1d);--ink
       return h('section', { ref: root, className: 'mmwb mmwb-panel', 'aria-label': '数学建模 Workbench' },
         h('header', { className: 'mmwb-head' }, h('div', { className: 'mmwb-row' }, h('span', { className: 'mmwb-brand' }, h(Icon, { name: 'board', size: 19 })), h('div', { className: 'mmwb-heading' }, h('h2', { title }, title),
           initialized ? h('div', { className: 'mmwb-meta' }, (scopes[data.project?.scope] || '项目') + ' · ' + (names[data.currentPhase] || '未开始')) : null),
+          initialized && hostTab.visible ? h(StartControl, { key: identity + ':' + operationGeneration, sid, data, rpc, disabled: busy || checkpointBusy }) : null,
           h('button', { type: 'button', className: 'mmwb-icon-btn', 'aria-label': '重新验证', title: '重新验证 — 检查产物变化与审核状态', disabled: busy || checkpointBusy, onClick: () => refresh(true) }, h(Icon, { name: 'refresh', className: busy ? 'mmwb-spinner' : undefined })))),
         initialized ? h(React.Fragment, null,
           h('div', { className: 'mmwb-counts' }, [['阻塞', (data.blockers || []).length], ['产物', records(data.artifacts).length], ['运行', records(data.runs).length]].map(([label, count]) => h('span', { key: label }, h('strong', null, count), label))),

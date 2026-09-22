@@ -20,3 +20,4 @@ node_modules/
 .math-modeling/
 project-review/.venv/
 project-review/tmp/
+output/playwright/

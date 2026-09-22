@@ -1,5 +1,11 @@
 # DSH 工作台与适配器回归
 
+2.1.4 本机完整 DSH 回归 **45/45 通过，0 失败、0 跳过，34.273 秒**，包括官方宿主启动、预设隔离、Windows 沙箱、浏览器和真实 Python 适配器验证。日志为 `project-review/logs/upgrade-2.1.4-dsh.log`。
+
+2.1.4 新增 `task-start.test.mjs` 与 `start-host.test.mjs`，验证开始选项、保存范围、阶段内任务、项目版本与会话绑定、防重、忙碌、错误和取消。宿主用例通过真实官方 SessionController 和 AgentLoop 提交到隔离内存模型提供者，不使用用户模型、API key 或个人 profile。CI 在 Windows/Linux 强制执行宿主用例且零跳过。
+
+浏览器回归增加右上角开始弹层、三种范围、提交回执、失败后同请求重试、过期选项、切换项目后的迟到响应、键盘及宽桌面中的 320px 窄侧栏。浏览器的 RPC 是夹具；真实宿主提交另由上述宿主测试覆盖。实际本机安装验收只打开和选择范围，不替用户触发建模或付费模型请求。
+
 2.1.3 本机完整回归 **33/33 通过，0 失败、0 跳过，35.7011 秒**，包括新增的初始化失败重试与真实 Windows 沙箱工作区准备检查；记录为 `project-review/logs/fix-2.1.3-dsh.log`。Windows 权限工具另有 12 项专项全部通过，记录为 `project-review/logs/fix-2.1.3-workspace-permissions.log`。
 
 后续 Windows 管理员 CI 复核补齐测试进程特权和所有者前提，并发现 SDDL `LA` 等身份缩写需按原生 SID 比较。修正后权限专项增加至 **15/15**，实际沙箱初始化专项再次 **1/1** 通过；记录为 `project-review/logs/fix-2.1.3-sid-python.log` 与 `fix-2.1.3-sid-node.log`。这些专项不替换真实受限 shell 或放宽生产 helper 的当前所有者检查。

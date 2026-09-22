@@ -1,6 +1,6 @@
 # DeepSeek Harness 数学建模工作台
 
-本适配器把通用 Skill 接入 DeepSeek Harness，当前本地开发版本为 **2.1.3**。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
+本适配器把通用 Skill 接入 DeepSeek Harness，当前本地开发版本为 **2.1.4**。流程规则、产物验证、证据、审查回执和完成判定全部由共享 Python 运行时负责；DSH 插件提供宿主授权的 shell/文件调用、会话绑定、工具与状态看板。
 
 本次升级在 `WuYanqiao/universal-upgrade` 分支，尚不能把仓库 `main` 当作已包含这些改动的版本。完整发行包由根目录构建器生成。当前只允许本地开发验证包；上游资料的再分发授权尚未齐备，npm 包设置 `private: true`、`license: UNLICENSED`，不表示本项目获得了这些资料的许可证。
 
@@ -50,7 +50,7 @@ npm pack --ignore-scripts --pack-destination $packageOutput
 Pop-Location
 
 $env:DSH_HOME = Join-Path $env:TEMP 'mathmodel-dsh-validation'
-$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.3.tgz'
+$archivePath = Join-Path $packageOutput 'dsh-math-modeling-ui-2.1.4.tgz'
 dsh plugin --profile web add $archivePath -w --ignore-scripts
 dsh --profile web --dump-config
 dsh --profile web
@@ -59,6 +59,20 @@ dsh --profile web
 `.tgz` 安装已在官方 CLI 和全新临时 profile 上实际成功，配置输出包含 `dsh-math-modeling-ui`、`preset-math-modeling` 和 `dsh-math-modeling-ui/workbench`。本机 pnpm 10 对 Windows 跨盘目录参数生成了错误的 `link:` 路径，因此这里使用 tarball。默认 profile 禁止自动安装 peer 时会提示缺失 peer；宿主从其安装位置提供这些组件，仍应通过真实挂载检查确认可用。
 
 确认验证结果后，再按你的桌面工作台配置选择实际 `DSH_HOME` 与 profile。不要猜测个人 AppData 路径，也不要复制或覆盖整个宿主配置。此实现保留宿主当前授权与沙箱策略；安装或运行失败时查看实际错误，不自动扩大权限。`dsh plugin --profile web --help` 会透传给 pnpm 并产生 profile 操作日志，查询启动器用法应使用 `dsh --help`。
+
+## 从看板开始任务
+
+选择数学建模预设并打开侧栏 Workbench 后，在右上角点击“开始”。选择范围后确认，任务由该看板所属会话的 Agent 执行，沿用该会话已选的模型及权限。
+
+| 选择 | 执行范围 |
+|---|---|
+| 完整流程 | 在已保存的项目范围内，按现有状态继续工作；原本限定单阶段的项目仍只执行该阶段 |
+| 单个阶段 | 选择建模手、编程手或论文手中属于当前项目范围的阶段 |
+| 阶段内单项 | 先选阶段，再从当前项目的任务清单中选择一项 |
+
+确认启动会提交一条会话指令；“已提交”只代表宿主接收，实际执行和结果在会话及项目状态中查看。该操作不会重建项目、清空已有进度或把任务直接标记为完成。缺少原题、必要输入、前置成果或有效审核时，Agent 应报告缺口，不扩展到未选择的任务。材料和配置应先在对应页面保存。
+
+看板可能与主聊天区显示不同会话；任务始终提交到看板所属会话。忙碌时等待该会话结束后重试；项目或状态发生变化时重新加载选项后确认，避免将旧选择用于另一个项目。停止执行使用 DSH 会话的原生停止操作。
 
 ## 从 2.1.0 升级
 

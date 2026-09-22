@@ -39,6 +39,7 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
       projectGeneration: { a: 1, b: 1, c: 1 }, presetSelected: false, config: { a: {}, b: {}, c: {} }, inputs: { a: [], b: [], c: [] }, uploads: {},
       calls: [], openCalls: [], registrations: [], effects: [], longContent: false,
       copied: [], environmentError: false, ensureError: null, initWrites: {},
+      projectRevision: { a: 1, b: 1, c: 1 }, startError: null, startOptionsError: null, startBusy: false, startAvailable: true,
       holds: {}, pending: {}, restoreConflict: true, restoreRevision: 41,
       checkpoints: {
         a: [{ checkpoint_id: 'checkpoint_aaaaaaaaaaaaaaaa', name: '已验收基线', created_at: '2026-09-22T07:00:00Z', completed_when_created: true }],
@@ -54,7 +55,7 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
       if (fixture.holds[key]) await new Promise(resolve => (fixture.pending[key] ||= []).push(resolve))
     }
     const state = sid => fixture.initialized[sid] ? {
-      initialized: true, stale: true, snapshotAt: '2026-09-22T08:00:00Z',
+      initialized: true, stale: true, revision: fixture.projectRevision[sid], snapshotAt: '2026-09-22T08:00:00Z',
       project: { title: { a: '城市能源调度研究', b: '第二个独立项目', c: '刚初始化的项目' }[sid], scope: 'programming',
         project_id: `project-${sid}-${fixture.projectGeneration[sid]}`, projectRoot: `D:/projects/${sid}-${fixture.projectGeneration[sid]}`, ...fixture.config[sid] }, inputs: fixture.inputs[sid],
       currentPhase: 'programming', completed: false,
@@ -69,6 +70,24 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
     const rpc = async (_channel, endpoint, payload) => {
       fixture.calls.push({ endpoint, payload })
       if (endpoint === 'mm.context') { const value = {enabled: fixture.enabled, eligible: fixture.enabled && (fixture.initialized[payload.sessionId] || fixture.presetSelected), initialized: fixture.initialized[payload.sessionId]}; await hold(`context:${payload.sessionId}`); return {ok:true,value} }
+      if (endpoint === 'mm.startOptions') {
+        const snapshot = state(payload.sessionId)
+        const labels = {modeling:'建模',programming:'求解',paper:'论文'}
+        const phases = (snapshot.project.scope === 'full' ? Object.keys(labels) : [snapshot.project.scope]).map(id => ({id,label:labels[id],tasks:[
+          {id:`${payload.sessionId}:${id}:first`,label:`核对${labels[id]}输入`,done:true},
+          {id:`${payload.sessionId}:${id}:second`,label:`完成${labels[id]}任务`,done:false},
+        ]}))
+        const result = fixture.startOptionsError ? {ok:false,error:fixture.startOptionsError} : {ok:true,value:{sessionId:payload.sessionId,projectId:snapshot.project.project_id,projectRoot:snapshot.project.projectRoot,
+          revision:snapshot.revision,scope:snapshot.project.scope,currentPhase:snapshot.currentPhase,phases,busy:fixture.startBusy,available:fixture.startAvailable,
+          ...(fixture.startBusy ? {reason:'所属会话已有任务正在执行'} : !fixture.startAvailable ? {reason:'当前会话没有可用 Agent'} : {})}}
+        await hold(`startOptions:${payload.sessionId}`)
+        return result
+      }
+      if (endpoint === 'mm.startRun') {
+        const error = fixture.startError
+        await hold(`startRun:${payload.sessionId}`)
+        return error ? {ok:false,error} : {ok:true,value:{accepted:true,requestId:payload.requestId,sessionId:payload.sessionId,projectId:payload.projectId,target:{mode:payload.mode,phase:payload.phase,taskId:payload.taskId}}}
+      }
       if (endpoint === 'mm.ensureProject') {
         if (!fixture.initialized[payload.sessionId] && !fixture.presetSelected) return {ok: false, error: {message: 'preset required'}}
         const error = fixture.ensureError
@@ -230,6 +249,153 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
   assert.equal(await panel.locator('.mmwb-kicker').count(), 0)
   assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['项目', '材料', '配置', '证据', '运行', '快照'])
   assert.match(await page.getByRole('tabpanel').innerText(), /结果表尚未关联实际运行/)
+  const startButton = panel.getByRole('button', {name:'开始',exact:true})
+  const startDialog = panel.getByRole('dialog', {name:'开始执行',exact:true})
+  const confirmStart = () => startDialog.getByRole('button', {name:'确认开始',exact:true})
+  const startCalls = () => page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.startRun'))
+  const openStart = async () => { await startButton.click(); await startDialog.getByLabel('执行范围',{exact:true}).waitFor() }
+  const closeStart = async () => { await startDialog.getByRole('button',{name:/^(取消|收起)$/}).click(); await startDialog.waitFor({state:'hidden'}) }
+  const startBox = await startButton.boundingBox(), refreshBox = await panel.getByRole('button',{name:'重新验证',exact:true}).boundingBox()
+  assert.ok(startBox.x + startBox.width <= refreshBox.x, 'start belongs immediately before refresh in the panel header')
+  await startButton.focus(); await page.keyboard.press('Enter')
+  await startDialog.getByLabel('执行范围',{exact:true}).waitFor()
+  assert.equal(await startDialog.getByLabel('执行范围',{exact:true}).evaluate(el => el === document.activeElement),true)
+  assert.equal(await startDialog.getByLabel('执行范围').locator('option[value="full"]').innerText(),'当前项目流程','a programming-only project does not claim to start all three stages')
+  assert.match(await startDialog.innerText(),/城市能源调度研究.*在此看板所属会话执行/s)
+  await startDialog.getByText('在此看板所属会话执行',{exact:true}).click()
+  await startDialog.getByText('会话：a',{exact:true}).waitFor()
+  await startDialog.getByText('D:/projects/a-1',{exact:true}).waitFor()
+  await page.keyboard.press('Escape')
+  await startDialog.waitFor({state:'hidden'})
+  assert.equal(await startButton.evaluate(el => el === document.activeElement),true)
+  assert.equal((await startCalls()).length,0,'opening or cancelling scope selection never submits an Agent request')
+
+  await page.evaluate(() => {fixture.config.a.scope='full'})
+  await refreshSnapshot(); await panel.getByText('完整流程 · 求解',{exact:true}).waitFor()
+  await openStart()
+  assert.equal(await startDialog.getByLabel('执行范围').locator('option[value="full"]').innerText(),'完整流程')
+  await panel.screenshot({path:path.join(screenshots,'sidebar-start-full.png')})
+  await page.evaluate(() => {fixture.holds['startRun:a']=true})
+  // Two events in one JS turn exercise the synchronous guard, before React disables the control.
+  await confirmStart().evaluate(button => {button.click();button.click()})
+  await page.waitForFunction(() => fixture.pending['startRun:a']?.length === 1)
+  assert.equal((await startCalls()).length,1)
+  assert.equal(await startButton.isDisabled(),true)
+  assert.equal(await startDialog.getByLabel('执行范围').isDisabled(),true)
+  await page.evaluate(() => fixture.release('startRun:a'))
+  await startDialog.getByRole('status').filter({hasText:'已提交：完整流程'}).waitFor()
+  let submitted = (await startCalls()).at(-1).payload
+  assert.equal(submitted.sessionId,'a','the panel session is independent of the host main session b')
+  assert.equal(submitted.projectId,'project-a-1')
+  assert.equal(submitted.projectRoot,'D:/projects/a-1')
+  assert.equal(submitted.revision,1)
+  assert.equal(submitted.mode,'full')
+  assert.equal('phase' in submitted,false)
+  assert.match(submitted.requestId,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+  assert.equal(await confirmStart().isDisabled(),true,'an acknowledgement is not a second submit or task completion')
+  await closeStart()
+
+  await openStart()
+  await startDialog.getByLabel('执行范围').selectOption('stage')
+  await startDialog.getByLabel('执行阶段').selectOption('paper')
+  await page.evaluate(() => {fixture.startError={code:'transport-error',message:'连接中断，提交结果未知'}})
+  await confirmStart().click(); await startDialog.getByRole('alert').filter({hasText:'提交结果未知'}).waitFor()
+  const failedId = (await startCalls()).at(-1).payload.requestId
+  const optionsBeforeRetry = await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.startOptions').length)
+  await page.evaluate(() => {fixture.projectRevision.a++;window.dispatchEvent(new Event('focus'))})
+  await settle()
+  assert.equal(await startDialog.getByLabel('执行范围').isDisabled(),true,'an uncertain delivery freezes the original selection')
+  assert.equal(await startDialog.getByLabel('执行阶段').isDisabled(),true)
+  assert.equal(await confirmStart().isEnabled(),true,'progress changes must not prevent recovery of the original receipt')
+  assert.equal(await startDialog.getByRole('button',{name:'更新选项',exact:true}).count(),0)
+  await closeStart(); await openStart()
+  assert.equal(await page.evaluate(() => fixture.calls.filter(call => call.endpoint === 'mm.startOptions').length),optionsBeforeRetry,'closing and reopening cannot replace an uncertain intent with a new id')
+  await startDialog.getByText('提交结果待确认；再次确认只核对同一请求。收起不会取消已提交的任务。',{exact:true}).waitFor()
+  await page.evaluate(() => {fixture.startError=null})
+  await confirmStart().click(); await startDialog.getByRole('status').filter({hasText:'已提交：单个阶段 · 论文'}).waitFor()
+  submitted = (await startCalls()).at(-1).payload
+  assert.equal(submitted.requestId,failedId,'retry an uncertain delivery with the same idempotency key')
+  assert.equal(submitted.revision,1,'receipt recovery uses the original admitted revision, not the newer project snapshot')
+  assert.equal(submitted.phase,'paper'); assert.equal('taskId' in submitted,false)
+  await closeStart()
+
+  await openStart()
+  await startDialog.getByLabel('执行范围').selectOption('task')
+  await startDialog.getByLabel('执行阶段').selectOption('programming')
+  assert.equal(await startDialog.getByLabel('阶段任务').inputValue(),'a:programming:second','default to a pending task while keeping completed tasks available')
+  await startDialog.getByLabel('阶段任务').selectOption('a:programming:first')
+  await panel.screenshot({path:path.join(screenshots,'sidebar-start-task.png')})
+  await confirmStart().click(); await startDialog.getByRole('status').filter({hasText:'已提交：阶段中的一项 · 求解 / 核对求解输入'}).waitFor()
+  submitted = (await startCalls()).at(-1).payload
+  assert.equal(submitted.mode,'task'); assert.equal(submitted.phase,'programming'); assert.equal(submitted.taskId,'a:programming:first')
+  assert.notEqual(submitted.requestId,failedId)
+  await closeStart()
+
+  await openStart()
+  await page.evaluate(() => {fixture.projectRevision.a++;window.dispatchEvent(new Event('focus'))})
+  await startDialog.getByText('项目状态已变化，请更新选项后确认。',{exact:true}).waitFor()
+  assert.equal(await confirmStart().isDisabled(),true)
+  await startDialog.getByRole('button',{name:'更新选项',exact:true}).click()
+  await startDialog.getByLabel('执行范围').waitFor()
+  await page.evaluate(() => {fixture.startError={code:'stale-project',message:'项目已更新，请重新选择执行范围'}})
+  await confirmStart().click(); await startDialog.getByRole('alert').filter({hasText:'重新选择执行范围'}).waitFor()
+  assert.equal(await confirmStart().isDisabled(),true,'backend stale identity/revision errors require a fresh confirmation')
+  const staleId = (await startCalls()).at(-1).payload.requestId
+  await page.evaluate(() => {fixture.startError=null})
+  await startDialog.getByRole('button',{name:'更新选项',exact:true}).click()
+  await startDialog.getByLabel('执行范围').waitFor(); await confirmStart().click()
+  await startDialog.getByRole('status').filter({hasText:'已提交'}).waitFor()
+  assert.notEqual((await startCalls()).at(-1).payload.requestId,staleId)
+  assert.equal((await startCalls()).at(-1).payload.revision,3)
+  await closeStart()
+
+  await page.evaluate(() => {fixture.startBusy=true})
+  await openStart(); assert.equal(await confirmStart().isDisabled(),true)
+  await startDialog.getByText('所属会话已有任务正在执行',{exact:true}).waitFor(); await closeStart()
+  await page.evaluate(() => {fixture.startBusy=false;fixture.startAvailable=false})
+  await openStart(); assert.equal(await confirmStart().isDisabled(),true)
+  await startDialog.getByText('当前会话没有可用 Agent',{exact:true}).waitFor(); await closeStart()
+  await page.evaluate(() => {fixture.startAvailable=true;fixture.startOptionsError={message:'读取范围失败'}})
+  await startButton.click(); await startDialog.getByRole('alert').filter({hasText:'读取范围失败'}).waitFor()
+  assert.equal(await confirmStart().isDisabled(),true)
+  await page.evaluate(() => {fixture.startOptionsError=null})
+  await startDialog.getByRole('button',{name:'更新选项',exact:true}).click()
+  await startDialog.getByLabel('执行范围').waitFor(); await closeStart()
+  await openStart()
+  await page.evaluate(() => {fixture.startError={code:'workbench-not-selected',message:'请先选择数学建模 Workbench 预设，再更新选项。'}})
+  await confirmStart().click()
+  await startDialog.getByRole('alert').filter({hasText:'请先选择数学建模 Workbench 预设'}).waitFor()
+  assert.equal(await confirmStart().isDisabled(),true)
+  assert.equal(await startDialog.getByRole('button',{name:'更新选项',exact:true}).isEnabled(),true)
+  await page.evaluate(() => {fixture.startError=null})
+  await closeStart()
+
+  await page.evaluate(() => {fixture.holds['startOptions:a']=true})
+  await startButton.click(); await page.waitForFunction(() => fixture.pending['startOptions:a']?.length === 1)
+  await page.evaluate(() => fixture.change('b')); await title('第二个独立项目').waitFor()
+  await page.evaluate(() => fixture.release('startOptions:a')); await settle()
+  assert.equal(await startDialog.count(),0,'late execution options never transfer to another panel session')
+  await page.evaluate(() => fixture.change('a')); await title('城市能源调度研究').waitFor()
+  await openStart(); await page.evaluate(() => {fixture.holds['startRun:a']=true})
+  await confirmStart().click(); await page.waitForFunction(() => fixture.pending['startRun:a']?.length === 1)
+  await page.evaluate(() => fixture.change('b')); await title('第二个独立项目').waitFor()
+  await openStart(); await page.evaluate(() => fixture.release('startRun:a')); await settle()
+  assert.equal(await startDialog.getByRole('status').filter({hasText:'已提交'}).count(),0,'late acknowledgement from A cannot mark B as submitted')
+  await confirmStart().click(); await startDialog.getByRole('status').filter({hasText:'已提交：当前项目流程 · 求解'}).waitFor()
+  assert.equal((await startCalls()).at(-1).payload.sessionId,'b')
+  assert.equal((await startCalls()).at(-1).payload.projectId,'project-b-1')
+  await closeStart()
+  await page.evaluate(() => {fixture.config.a.scope='programming';fixture.change('a')}); await title('城市能源调度研究').waitFor()
+  await page.evaluate(() => {fixture.holds['startOptions:a']=true})
+  await startButton.click(); await page.waitForFunction(() => fixture.pending['startOptions:a']?.length === 1)
+  await page.evaluate(() => {fixture.projectGeneration.a++;window.dispatchEvent(new Event('focus'))})
+  await startDialog.waitFor({state:'hidden'})
+  await page.evaluate(() => fixture.release('startOptions:a')); await settle()
+  assert.equal(await startDialog.count(),0,'reinitializing a project in the same session invalidates pending execution options')
+  await openStart()
+  await refreshSnapshot(); await startDialog.waitFor({state:'hidden'})
+  assert.equal(await startButton.getAttribute('aria-expanded'),'false','settings changes clear previously confirmed execution context')
+
   await page.getByRole('tab', { name: '项目', exact: true }).focus()
   await page.keyboard.press('ArrowRight')
   await page.keyboard.press('ArrowRight')
@@ -575,6 +741,22 @@ test('browser: scoped sidebar, session races, evidence, snapshots, themes and sc
   assert.ok(box.x >= 0 && box.x + box.width <= 390)
   assert.ok(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'narrow sidebar must not overflow horizontally')
   await page.screenshot({ path: path.join(screenshots, 'sidebar-narrow.png'), fullPage: true })
+  await openStart()
+  await startDialog.getByLabel('执行范围').selectOption('task')
+  const startNarrow = await startDialog.boundingBox()
+  assert.ok(startNarrow.x >= 0 && startNarrow.x + startNarrow.width <= 390)
+  assert.ok(await startDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1),'the execution picker fits a narrow sidebar')
+  await panel.screenshot({path:path.join(screenshots,'sidebar-start-narrow-dark.png')})
+  await page.keyboard.press('Escape'); await startDialog.waitFor({state:'hidden'})
+  await page.setViewportSize({width:1600,height:840})
+  await page.locator('#sidebar').evaluate(el => {el.style.width='320px'})
+  await openStart(); await startDialog.getByLabel('执行范围').selectOption('task')
+  const desktopPanel = await panel.boundingBox(), desktopPicker = await startDialog.boundingBox()
+  assert.ok(desktopPicker.x >= desktopPanel.x && desktopPicker.x + desktopPicker.width <= desktopPanel.x + desktopPanel.width,'a 320px sidebar constrains the picker even inside a 1600px desktop')
+  assert.ok(await startDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1))
+  await panel.screenshot({path:path.join(screenshots,'sidebar-start-320-dark.png')})
+  await closeStart()
+  await page.locator('#sidebar').evaluate(el => {el.style.width=''})
 
   await page.setViewportSize({ width: 1100, height: 840 })
   await page.getByRole('switch').click()
